@@ -1,0 +1,30 @@
+Package: microctools
+Type: Package
+Title: Various worker functions for microclimc package
+Version: 0.1.0
+Authors@R: c(
+    person("Ilya", "Maclean", email = "i.m.d.maclean@exeter.ac.uk", role = "cre"))
+Maintainer: Ilya M. D. Maclean <i.m.d.maclean@exeter.ac.uk>
+Description: The functions in the microCtools packageare used by the microclimC 
+    package for modelling the mechanistic processes that govern microclimate above 
+    or vegetated canopies. It includes tools for heat and vapour conductance, radiation 
+    absorbed or emmited by leaves and an implementation of the Thomas and Newton-Raphson 
+    algorithms for solving simultaniously heat fluxes between soil or air layers. Unlike 
+    microclima, the functions are designed for modelling time-series at single locations. 
+Remotes: ilyamaclean/microclimC
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+Roxygen: list(markdown = TRUE) 
+Imports: sp,
+    raster,
+    rgdal
+Suggests: knitr,
+    rmarkdown,
+    plotly,
+    microclimC,
+	testthat
+VignetteBuilder: knitr
+URL: https://github.com/ilyamaclean/microclimc
+BugReports: http://github.com/microclimc/issues
