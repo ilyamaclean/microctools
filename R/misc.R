@@ -102,7 +102,7 @@ layeraverage<-function(lmm, tc, tleaf, gha, gt, zla, z, Vo, L, H, vden, pk, PAI,
   gt2<-1/aggregate(1/gt,list(lmm$mrge),sum)$x
   # Other variables
   zla2 <- aggregate(zla[sel],list(mrge),mean)$x
-  ph2 <-.phair(tc2,pk); cp2 <-.cpair(tc2)
+  ph2 <-phair(tc2,pk); cp2 <-cpair(tc2)
   mult2<- aggregate(mult[sel],list(mrge),mean)$x
   # PAI needs to be leaf area per metre
   PAI2 <- aggregate(c(PAI,0)/c(lmm$zth,2),list(lmm$mrge),mean)$x

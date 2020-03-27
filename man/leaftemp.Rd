@@ -34,16 +34,22 @@ leaftemp(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, vegp,
 }
 \value{
 a list with the following elements:
-\describe{
-\item{tn}{air temperature of each layer (tc)}
-\item{tleaf}{leaf temperature of each layer (deg C)}
-\item{ea}{vapour pressure (kPa)}
-\item{gtt}{heat conductance to reference height two m above canopy}
-\item{Rem}{emitted radiation (W / m^2)}
-\item{H}{Sensible heat flux from leaf to air (W / m^2)}
-\item{L}{Latent heat of vapourisation from leaf to air (W / m^2)}
-\item{Lc}{Latent heat of condenstation from leaf to air (W / m^2)}
-}
+
+\code{tn} air temperature of each layer (deg C)
+
+\code{tleaf} leaf temperature of each layer (deg C)
+
+\code{ea} vapour pressure (kPa)
+
+\code{gtt} heat conductance to reference height two m above canopy
+
+\code{Rem} emitted radiation (W / m^2)
+
+\code{H} Sensible heat flux from leaf to air (W / m^2)
+
+\code{L} Latent heat of vapourisation from leaf to air (W / m^2)
+
+\code{Lc} Latent heat of condenstation from leaf to air (W / m^2)
 }
 \description{
 Calculates leaf temperature from radiation fluxes and reference air

@@ -22,14 +22,3 @@ Flux density of net outgoing longwave radiation emitted under leaf area \code{l}
 \code{canlw} calculates the flux density (W / m^2) of net outgoing longwave
 radiation underneath vegetated canopies
 }
-\examples{
-l <- c(0:1000) / 500
-lw1 <- canlw(11, l, skyem = 0.9)
-lw2 <- canlw(11, l, skyem = 0.7)
-lw3 <- canlw(11, l, skyem = 0.5)
-plot(lw1 ~ l, type = "l", lwd = 2, ylim = c(0,200), ylab = "Net longwave")
-par(new = T)
-plot(lw2 ~ l, type = "l", col = "blue", lwd = 2, ylim = c(0,200), ylab = "")
-par(new = T)
-plot(lw3 ~ l, type = "l", col = "red", lwd = 2, ylim = c(0,200), ylab = "")
-}

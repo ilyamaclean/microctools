@@ -50,9 +50,9 @@ a Gaussian curve parameters of which are climate and location-dependent. Functio
 fits were calibrated using MODIS data (see https://modis.gsfc.nasa.gov/data/).
 }
 \examples{
-lxh <- laifromhabitat("Deciduous broadleaf forest", 50, -5.2, 2015)
-lxh$height
-lxh$x
-plot(lxh$lai ~ as.POSIXct(lxh$obs_time), type = "l", xlab = "Month",
+pxh <- PAIfromhabitat("Deciduous broadleaf forest", 50, -5.2, 2015)
+pxh$height
+pxh$x
+plot(pxh$lai ~ as.POSIXct(pxh$obs_time), type = "l", xlab = "Month",
      ylab = "LAI", ylim = c(0, 6))
 }

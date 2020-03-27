@@ -19,12 +19,12 @@ RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE) 
 Imports: sp,
     raster,
-    rgdal
+    rgdal,
+    stats
 Suggests: knitr,
     rmarkdown,
     plotly,
-    microclimC,
-	testthat
+	  testthat
 VignetteBuilder: knitr
 URL: https://github.com/ilyamaclean/microclimc
 BugReports: http://github.com/microclimc/issues

@@ -184,7 +184,7 @@ gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
   a <- attencoef(hgt, PAI, x, lw, cd, iw, phi_m)
   l_m <- mixinglength(hgt, PAI, x, lw)
   tcm <- (tc1 + tc0) / 2
-  ph <- .phair(tcm, pk)
+  ph <- phair(tcm, pk)
   tp <- (l_m * iw * ph * uh * a) / phi_m
   e0 <- exp(-a * (z0 / hgt - 1))
   e1 <- exp(-a * (z1 / hgt - 1))

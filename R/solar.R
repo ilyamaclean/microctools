@@ -355,6 +355,7 @@ cansw <- function(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
 #' @param skyem sky emissivity
 #' @return Flux density of net outgoing longwave radiation emitted under leaf area `l` (W / m2)
 #' @examples
+#' @export
 #' l <- c(0:1000) / 500
 #' lw1 <- canlw(11, l, skyem = 0.9)
 #' lw2 <- canlw(11, l, skyem = 0.7)

@@ -24,9 +24,9 @@
 #' @export
 #'
 #' @examples
-#' humidityconvert(90, 'relative', 20)
-#' humidityconvert(0.01555486, 'absolute', 20)
-#' humidityconvert(0.01292172, 'specific', 20)
+#' converthumidity(90, 'relative', 20)
+#' converthumidity(0.01555486, 'absolute', 20)
+#' converthumidity(0.01292172, 'specific', 20)
 converthumidity <- function (h, intype = "relative", tc = 11, pk = 101.3) {
   tk <- tc + 273.15
   if (intype != "specific" & intype != "relative" & intype !=

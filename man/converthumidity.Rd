@@ -40,7 +40,7 @@ humidity and vapour pressure. If one or more of the
 relative humidity values exceeds 100\% a warning is given.
 }
 \examples{
-humidityconvert(90, 'relative', 20)
-humidityconvert(0.01555486, 'absolute', 20)
-humidityconvert(0.01292172, 'specific', 20)
+converthumidity(90, 'relative', 20)
+converthumidity(0.01555486, 'absolute', 20)
+converthumidity(0.01292172, 'specific', 20)
 }

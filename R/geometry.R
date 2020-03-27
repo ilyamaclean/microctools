@@ -12,6 +12,7 @@
 #' completely evenly spread.
 #' @return a vector of length `m` of plant area indices for each canopy layer
 #' @export
+#' @import stats
 #' @examples
 #' pai <- PAIgeometry(100, 10, 7, 70)
 #' plot(pai, type = "l")
@@ -140,7 +141,7 @@ iwgeometry <- function(m, iwmin = 0.36, iwmax = 0.9, increasing = FALSE) {
 #' @return `height` the heigbht of the canopy in metres
 #' @return `obs_time` an object of class POSIXlt of dates and times coressponding to
 #' each value of `lai`
-#' @import sp raster
+#' @import sp raster stats
 #' @export
 #'
 #' @details
@@ -150,10 +151,10 @@ iwgeometry <- function(m, iwmin = 0.36, iwmax = 0.9, increasing = FALSE) {
 #' fits were calibrated using MODIS data (see https://modis.gsfc.nasa.gov/data/).
 #'
 #' @examples
-#' lxh <- laifromhabitat("Deciduous broadleaf forest", 50, -5.2, 2015)
-#' lxh$height
-#' lxh$x
-#' plot(lxh$lai ~ as.POSIXct(lxh$obs_time), type = "l", xlab = "Month",
+#' pxh <- PAIfromhabitat("Deciduous broadleaf forest", 50, -5.2, 2015)
+#' pxh$height
+#' pxh$x
+#' plot(pxh$lai ~ as.POSIXct(pxh$obs_time), type = "l", xlab = "Month",
 #'      ylab = "LAI", ylim = c(0, 6))
 
 PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
@@ -530,6 +531,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 #' @return `kwood` # thermal conductivity of wood (W / m / K)
 #' @export
 habitatvars <- function(habitat, lat, long, tme, m = 20) {
+  hr <- tme$yday * 24 + tme$hour
   # By habitat type
   if (habitat == "Evergreen needleleaf forest" | habitat == 1) {
     # Plant area

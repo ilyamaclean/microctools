@@ -205,7 +205,7 @@ windprofile <- function(ui, zi, zo, a, PAI, hgt, psi_m = 0, hgtg = 0.05 * hgt, z
 #' }
 #' plot(z ~ uz1, type = "l", xlab = "wind speed", ylab = "height", xlim = c(0,1.5),
 #'      col = rgb(1,0,0,0.5), lwd = 2)
-#' par(new = T)
+#' par(new = TRUE)
 #' plot(z ~ uz2, type = "l", xlab = "", ylab = "", xlim = c(0,1.5),
 #'      col = rgb(0,0,1,0.5), lwd = 2)
 windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
@@ -240,16 +240,14 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' @param soilp list Soil paramaters (see e.g. `soilparams` dataset)
 #' @param theta volumetric soil moisture fraction of top soil layer (m^3 / m^3)
 #' @return a list with the following elements:
-#' \describe{
-#'   \item{tn}{air temperature of each layer (tc)}
-#'   \item{tleaf}{leaf temperature of each layer (deg C)}
-#'   \item{ea}{vapour pressure (kPa)}
-#'   \item{gtt}{heat conductance to reference height two m above canopy}
-#'   \item{Rem}{emitted radiation (W / m^2)}
-#'   \item{H}{Sensible heat flux from leaf to air (W / m^2)}
-#'   \item{L}{Latent heat of vapourisation from leaf to air (W / m^2)}
-#'   \item{Lc}{Latent heat of condenstation from leaf to air (W / m^2)}
-#'}
+#' @return `tn` air temperature of each layer (deg C)
+#' @return `tleaf` leaf temperature of each layer (deg C)
+#' @return `ea` vapour pressure (kPa)
+#' @return `gtt` heat conductance to reference height two m above canopy
+#' @return `Rem` emitted radiation (W / m^2)
+#' @return `H` Sensible heat flux from leaf to air (W / m^2)
+#' @return `L` Latent heat of vapourisation from leaf to air (W / m^2)
+#' @return `Lc` Latent heat of condenstation from leaf to air (W / m^2)
 #' @export
 #' @details `leaftemp` computes the average leaf and air temperature of each canopy layer based on
 #' radiation and evaorative fluxes and reference air and ground temperature. The function
@@ -275,7 +273,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, 
   zref<-(hgt+2)-z
   mpk<-0.5*previn$pk+0.5*pk
   # Vapour pressure
-  esj<-0.6108*exp(17.27*tc/(tc+237.3))
+  esj<-0.6108*exp(17.27*previn$tc/(previn$tc+237.3))
   eaj<-(previn$rh/100)*esj
   estl<-0.6108*exp(17.27*previn$tleaf/(previn$tleaf+237.3))
   esref<-0.6108*exp(17.27*mtref/(mtref+237.3))
@@ -298,13 +296,13 @@ leaftemp <- function(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, 
   test<-pmax(timestep*gtt/zref,timestep*gha/zla,timestep*gtt2/z)
   # ~Transient
   sel<-which(test>1)
-  ph<-.phair(tc,previn$pk)
-  cp<-.cpair(previn$tc)
+  ph<-phair(previn$tc,previn$pk)
+  cp<-cpair(previn$tc)
   ma<-(timestep*PAIm*(1-vden))/cp*ph
   K1<-gtt*cp/zref; K2<-gtt2*cp/z; K3<-gha*cp/zla;
   K4<-(lambda*gv)/(zla*mpk); K5<-(lambda*gtt2)/(z*mpk)
   btm<-1+0.5*ma*(K1+K2+K3)
-  aL<-(tc+0.5*ma*(K1*mtref+K2*previn$soiltc[1]+K3*previn$tleaf+K4*(estl-ae)+K5*(esoil-ae)))/btm
+  aL<-(previn$tc+0.5*ma*(K1*mtref+K2*previn$soiltc[1]+K3*previn$tleaf+K4*(estl-ae)+K5*(esoil-ae)))/btm
   bL<-ma*(0.25*K3+0.25*K4*delta-0.5*be*(K4+K5))/btm
   # ~Steady state
   K1<-gtt[sel]*cp[sel]; K2<-gtt2[sel]*cp[sel]; K3<-gha[sel]*cp[sel]

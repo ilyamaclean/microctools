@@ -78,7 +78,7 @@ for (i in m:1) {
 }
 plot(z ~ uz1, type = "l", xlab = "wind speed", ylab = "height", xlim = c(0,1.5),
      col = rgb(1,0,0,0.5), lwd = 2)
-par(new = T)
+par(new = TRUE)
 plot(z ~ uz2, type = "l", xlab = "", ylab = "", xlim = c(0,1.5),
      col = rgb(0,0,1,0.5), lwd = 2)
 }
