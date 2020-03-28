@@ -419,6 +419,7 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, globrad) {
 #' @return `rho` Soil bulk density (Mg / m^3)
 #' @return `b` Shape parameter for Campbell model (dimensionless, > 1)
 #' @examples
+#' @export
 #' soilinit("Loam")
 soilinit <- function(soiltype, theta = 0.3) {
   sel <- which(soilparams$Soil.type == soiltype)
