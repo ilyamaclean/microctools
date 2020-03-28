@@ -386,7 +386,7 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, globrad) {
   tc <- tcb$y[(sm + 1): (m + sm)]
   soiltc <- rev(tcb$y[1:sm])
   rh <- rep(relhum, m)
-  Rabs <- spline(c(1, 2), c(0.2 * globrad + 20, globrad + 20), n = m)
+  Rabs <- spline(c(1, 2), c(0.2 * globrad + 20, globrad + 20), n = m)$y
   tleaf <- tc + 0.01 * Rabs
   gt <- rep(50, m + 1) * (m / hgt) * (2 / m)
   gt[1] <- 2 * gt[1]
