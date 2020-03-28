@@ -43,6 +43,7 @@
 #'   \item{Mc}{Mass fraction of clay}
 #'   \item{rho}{Soil bulk density (Mg / m^3)}
 #'   \item{b}{Shape parameter for Campbell model (dimensionless, > 1)}
+#'   \item{psi_e}{Matric potential (J / m^3)}
 #' }
 #' @source: \url{https://onlinelibrary.wiley.com/doi/full/10.1002/ird.1751}
-#' "soilparams"
+"soilparams"

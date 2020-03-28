@@ -39,6 +39,10 @@ a list with the following items:
 \code{rho} Soil bulk density (Mg / m^3)
 
 \code{b} Shape parameter for Campbell model (dimensionless, > 1)
+
+\code{psi_e} Matric potential (J / m^3)
+
+\code{theta} volumetric water content of soil (m^3 / m^3)
 }
 \description{
 Returns soil parameters needed to run the microclimate model
