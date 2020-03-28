@@ -404,7 +404,6 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, globrad) {
 #' @param soiltype one of `Sand`, `Loamy sand`, `Sandy loam`, `Loam`, `Silt`,
 #' `Silt loam`, `Sandy clay loam`, `Clay loam`, `Silty clay loam`, `Sandy clay`,
 #' `Silty clay` or `Clay`.
-#' @param theta volumetric water content of soil (m^3 / m^3)
 #'
 #' @return a list with the following items:
 #' @return `Soil.type` description of soil type
@@ -420,15 +419,13 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, globrad) {
 #' @return `rho` Soil bulk density (Mg / m^3)
 #' @return `b` Shape parameter for Campbell model (dimensionless, > 1)
 #' @return `psi_e` Matric potential (J / m^3)
-#' @return `theta` volumetric water content of soil (m^3 / m^3)
 #'
 #' @export
 #' @examples
 #' soilinit("Loam")
-soilinit <- function(soiltype, theta = 0.3) {
+soilinit <- function(soiltype) {
   sel <- which(soilparams$Soil.type == soiltype)
   soilp <- soilparams[sel,]
-  soilp$theta = theta
   as.list(soilp)
 }
 #'

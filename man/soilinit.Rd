@@ -4,14 +4,12 @@
 \alias{soilinit}
 \title{Returns soil parameters for a given soil type}
 \usage{
-soilinit(soiltype, theta = 0.3)
+soilinit(soiltype)
 }
 \arguments{
 \item{soiltype}{one of \code{Sand}, \code{Loamy sand}, \code{Sandy loam}, \code{Loam}, \code{Silt},
 \code{Silt loam}, \code{Sandy clay loam}, \code{Clay loam}, \code{Silty clay loam}, \code{Sandy clay},
 \code{Silty clay} or \code{Clay}.}
-
-\item{theta}{volumetric water content of soil (m^3 / m^3)}
 }
 \value{
 a list with the following items:
@@ -41,8 +39,6 @@ a list with the following items:
 \code{b} Shape parameter for Campbell model (dimensionless, > 1)
 
 \code{psi_e} Matric potential (J / m^3)
-
-\code{theta} volumetric water content of soil (m^3 / m^3)
 }
 \description{
 Returns soil parameters needed to run the microclimate model
