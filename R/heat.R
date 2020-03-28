@@ -163,21 +163,19 @@ gturb <- function(u, zu = 2, z1, z0 = NA, hgt, PAI= 3, tc = 15,
 }
 #' Calculates conductance under turbulent convection within the canopy
 #'
-#' @param uh wind speed at height of canopy top (m/s) as returned by [microclimC::windheight_canopy()]
-#' or [microclimC::windcanopy()]
+#' @param uh wind speed at height of canopy top (m/s) as returned by [windprofile()]
 #' @param z1 upper height to which conductance is wanted (m)
 #' @param z0 lower height from which conductance is wanted (m)
+#' @param tc1 temperature of upper layer (dec C) usually in previous timestep
+#' @param tc0 temperature of lower layer (dec C) usually in previous timestep
 #' @param hgt height of canopy (m)
 #' @param PAI plant area index formixing and attenuation coefficients
-#' @param tc temperature used for calculating molar density of air (deg C)
 #' @param x the ratio of vertical to horizontal projections of leaf foliage
 #' @param lw mean leaf width (m)
 #' @param cd drag coefficient
 #' @param iw relative turbulence intensity
 #' @param phi_m diabatic correction factor
 #' @param pk atmospheric pressure used for calculating moar density of air (kPA)
-#' @param H Heat flux used to determin minimum conductance, usually from previous
-#' timestep  (W/m^2)
 #' @return conductance under tubulent convection within the canopy (mol/m^2/sec)
 gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
                     cd = 0.2, iw = 0.5, phi_m = 1, pk = 101.3) {
@@ -197,4 +195,41 @@ gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
   g <- ifelse(g < gmin, gmin, g)
   g[is.na(g)] <- gmin
   g
+}
+#' Calculates diabatic correction factor
+#'
+#' @description Calculates hte diabatic correction factors used in adjustment of
+#' wind profiles and calculation of turbulent conductivity
+#'
+#' @param tc temperature
+#' @param pk atmospheric pressure (kPa)
+#' @param H Heat flux (W / m^2)
+#' @param uf friction velocity (m/s)
+#' @param zi height to which correction factor is wanted (m)
+#' @return a list with the following components:
+#' @return `psi_m` diabatic correction factor for momentum transfer
+#' @return `psi_h` diabatic correction factor for heat transfer
+#'
+#' @export
+diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2) {
+  Tk <- tc + 273.15
+  ph <- phair(tc, pk)
+  cp <-  cpair(tc)
+  mpr <- uf^3 / 0.4 * zi
+  cpr <- (4.16 * H) / (pk * cp * Tk)
+  st <- -cpr / mpr
+  st[st > 1] <- 1
+  # Stable flow
+  sel <- which(st < 0) # unstable
+  # Stable
+  phi_m <- 1 + (6 * st) / (1 + st)
+  phi_h <- phi_m
+  psi_h <- suppressWarnings(6 * log(1 + st))
+  psi_m <- psi_h
+  # Unstable
+  phi_m[sel] <- 1 / (1 - 16 * st[sel])^0.25
+  phi_h[sel] <- phi_m[sel]^2
+  psi_h[sel] <-   -2 * log((1 + (1 - 16 * st[sel])^0.5) / 2)
+  psi_m[sel] <- 0.6 * psi_h[sel]
+  return(list(psi_m = psi_m, psi_h = psi_h))
 }

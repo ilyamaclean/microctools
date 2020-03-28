@@ -13,7 +13,7 @@ iwgeometry(m, iwmin = 0.36, iwmax = 0.9, increasing = FALSE)
 
 \item{iwmax}{maximum relative turbulence intensity}
 
-\item{logical}{indicating whether turbulence intensity increases (TRUE) or decreases
+\item{increasing}{logical indicating whether turbulence intensity increases (TRUE) or decreases
 (FALSE) with height}
 }
 \value{

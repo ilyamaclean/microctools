@@ -41,6 +41,6 @@ si <- solarcoef(0, 0, lt, 50, -5, jd)
 plot(si ~ lt, type = "l")
 }
 \seealso{
-the microclimafunction \code{\link[=solarindex]{solarindex()}} can be used to derive the solar
+the microclimafunction \code{\link[microclima:solarindex]{microclima::solarindex()}} can be used to derive the solar
 coeffficient for cells of a digital elevation dataset accounting for topographic shading.
 }

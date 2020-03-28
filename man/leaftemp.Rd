@@ -4,13 +4,13 @@
 \alias{leaftemp}
 \title{Calculates leaf temperature of canopy layers}
 \usage{
-leaftemp(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, vegp,
-  soilp, theta = 0.3)
+leaftemp(tair, relhum, pk, timestep, z, gt, gha, Rabs, previn, vegp, soilp,
+  theta = 0.3)
 }
 \arguments{
 \item{tair}{air temperature at two metres above canopy (deg C)}
 
-\item{relhum}{relative humidity at two metres above canopy (%)}
+\item{relhum}{relative humidity at two metres above canopy (Percentage)}
 
 \item{pk}{air pressure at two metres above canopy (kPa)}
 

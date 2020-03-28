@@ -24,7 +24,7 @@ windprofile(ui, zi, zo, a, PAI, hgt, psi_m = 0, hgtg = 0.05 * hgt,
 
 \item{hgtg}{height of ground vegetation layer below canopy (m)}
 
-\item{zm0}{roughness length (m) of vegetation layer below canopy as returned by \code{\link[=roughlenth]{roughlenth()}}}
+\item{zm0}{roughness length (m) of vegetation layer below canopy as returned by \code{\link[=roughlength]{roughlength()}}}
 }
 \value{
 wind speed (m /s) at height \code{zo}

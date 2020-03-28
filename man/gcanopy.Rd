@@ -8,12 +8,15 @@ gcanopy(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
   cd = 0.2, iw = 0.5, phi_m = 1, pk = 101.3)
 }
 \arguments{
-\item{uh}{wind speed at height of canopy top (m/s) as returned by \code{\link[microclimC:windheight_canopy]{microclimC::windheight_canopy()}}
-or \code{\link[microclimC:windcanopy]{microclimC::windcanopy()}}}
+\item{uh}{wind speed at height of canopy top (m/s) as returned by \code{\link[=windprofile]{windprofile()}}}
 
 \item{z1}{upper height to which conductance is wanted (m)}
 
 \item{z0}{lower height from which conductance is wanted (m)}
+
+\item{tc1}{temperature of upper layer (dec C) usually in previous timestep}
+
+\item{tc0}{temperature of lower layer (dec C) usually in previous timestep}
 
 \item{hgt}{height of canopy (m)}
 
@@ -30,11 +33,6 @@ or \code{\link[microclimC:windcanopy]{microclimC::windcanopy()}}}
 \item{phi_m}{diabatic correction factor}
 
 \item{pk}{atmospheric pressure used for calculating moar density of air (kPA)}
-
-\item{tc}{temperature used for calculating molar density of air (deg C)}
-
-\item{H}{Heat flux used to determin minimum conductance, usually from previous
-timestep  (W/m^2)}
 }
 \value{
 conductance under tubulent convection within the canopy (mol/m^2/sec)

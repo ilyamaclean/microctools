@@ -6,21 +6,31 @@
 \usage{
 Thomas(tc, tmsoil, tair, k, cd, f = 0.6, X = 0)
 }
-\description{
-\code{Thomas} implements the Thomas algorithm for solving
-simultanious heat fluxes between soil / air layers
+\arguments{
+\item{tc}{vector of soil and air temperatures (deg C) from previous timestep (see details)}
 
-@param tc vector of soil and air temperatures (deg C) from previous timestep (see details)
-@param tmsoil temperature (deg C) of deepest soil layer. Typically mean annual temperature
-@param tair air temperature at reference height 2 m above canopy in current time step (deg C)
-@param k vector of thermal conductances between layers (W / m^2 / K) (see details)
-@param cd thermal heat capacity of layers (W / m^2 / K)
-@param f forward / backward weighting of algorithm (see details)
-@param X vector of temperatures to be added resulting from e.g. leaf heat fluxes or radiation
-absorbed by top soil layer
-@return a vector of temperatures (deg C) for each soil / air layer for current time step.
-@export
-@details \code{tc} must be ordered with reference air temperature first and the soil tmeperature
+\item{tmsoil}{temperature (deg C) of deepest soil layer. Typically mean annual temperature}
+
+\item{tair}{air temperature at reference height 2 m above canopy in current time step (deg C)}
+
+\item{k}{vector of thermal conductances between layers (W / m^2 / K) (see details)}
+
+\item{cd}{thermal heat capacity of layers (W / m^2 / K)}
+
+\item{f}{forward / backward weighting of algorithm (see details)}
+
+\item{X}{vector of temperatures to be added resulting from e.g. leaf heat fluxes or radiation
+absorbed by top soil layer}
+}
+\value{
+a vector of temperatures (deg C) for each soil / air layer for current time step.
+}
+\description{
+\code{Thomas} implements the Thomas algorithm for solving simultanious heat
+fluxes between soil / air layers.
+}
+\details{
+\code{tc} must be ordered with reference air temperature first and the soil tmeperature
 of the  deepest layer last. The  weighting factor \code{f}  may range from 0 to 1. If \code{f} = 0,
 the flux is determined by the temperature difference at the beginning of the time step.
 If \code{f} = 0.5, the average of the old and new temperatures is used to compute heat flux.

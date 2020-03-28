@@ -4,7 +4,8 @@
 \alias{layeraverage}
 \title{Merges canopy air layers and calculates average properties}
 \usage{
-layeraverage(lmm, tc, tleaf, gha, gt, zla, z, Vo, L, H, vden, pk, PAI, TT)
+layeraverage(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, L, H, vden, pk, PAI,
+  TT)
 }
 \arguments{
 \item{lmm}{list of layers to merge as returned by \code{\link[=layermerge]{layermerge()}}}
@@ -12,6 +13,8 @@ layeraverage(lmm, tc, tleaf, gha, gt, zla, z, Vo, L, H, vden, pk, PAI, TT)
 \item{tc}{air temperature of unmerged canopy layers (dec C)}
 
 \item{tleaf}{leaf temperature of unmerged canopy layers}
+
+\item{hgt}{height of canopy (m)}
 
 \item{gha}{molar heat conductance between leaf and air (mol / m^2 / sec)}
 

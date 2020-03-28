@@ -1,9 +1,9 @@
 #' A dataset of global climate variables
 #'
 #' A global dataset containing containing the following climate variables averaged
-#' over the period 2008 to 2017 as used by [laifromhabitat()].
+#' over the period 2008 to 2017 as used by [PAIfromhabitat()].
 #'
-#' @format An array with 94 rows, 192 columns and the following five climate vaiables:
+#' @format An array with 94 rows, 192 columns and the following five climate variables:
 #' \describe{
 #'   \item{1}{mean annual temperature (ºC)}
 #'   \item{2}{coefficient of variation in temperature (K)}
@@ -16,7 +16,7 @@
 #' A table of habitat types
 #'
 #' A dataset containing habitat descriptors and habitat numbers as used by
-#' [paifromhabitat()].
+#' [PAIfromhabitat()].
 #'
 #' @format a data.frame with 17 rows and two columns:
 #' \describe{
@@ -25,3 +25,24 @@
 #' }
 #' #' @source \url{https://modis.gsfc.nasa.gov/data/}
 "habitats"
+#' A table of soil parameters
+#'
+#' A table of soil paramaters for different soil types
+#'
+#' @format A data frame with the following columns:
+#' \describe{
+#'   \item{Soil.type}{description of soil type}
+#'   \item{Smax}{Volumetric water content at saturation (m^3 / m^3)}
+#'   \item{Smin}{Residual water content (m^3 / m^3)}
+#'   \item{alpha}{Shape parameter of the van Genuchten model (cm^-1)}
+#'   \item{n}{Pore size distribution parameter (dimensionless, > 1)}
+#'   \item{Ksat}{Saturated hydraulic conductivity (cm / day)}
+#'   \item{Vq}{Volumetric quartz content of soil}
+#'   \item{Vm}{Volumetric mineral content of soil}
+#'   \item{Vo}{Volumetric organic content of soil}
+#'   \item{Mc}{Mass fraction of clay}
+#'   \item{rho}{Soil bulk density (Mg / m^3)}
+#'   \item{b}{Shape parameter for Campbell model (dimensionless, > 1)}
+#' }
+#' @source: \url{https://onlinelibrary.wiley.com/doi/full/10.1002/ird.1751}
+#' "soilparams"

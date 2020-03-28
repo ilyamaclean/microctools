@@ -11,9 +11,9 @@ thickgeometry(m, mthick, thmax, thmin)
 
 \item{mthick}{mean thickness of vegetation}
 
-\item{thmin}{mean thickness of upper portion of canopy}
+\item{thmax}{mean thickness of lowest portion of canopy}
 
-\item{thmx}{mean thickness of lowest portion of canopy}
+\item{thmin}{mean thickness of upper portion of canopy}
 }
 \value{
 a vector of thicknesses for each canopy node (m)

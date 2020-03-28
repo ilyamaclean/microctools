@@ -4,7 +4,7 @@
 \alias{leafem}
 \title{Calculates radiation emitted by leaf}
 \usage{
-leafem(tc, em)
+leafem(tc, vegem)
 }
 \arguments{
 \item{tc}{temperature (deg C)}

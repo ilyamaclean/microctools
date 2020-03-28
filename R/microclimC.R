@@ -32,7 +32,7 @@ leafabs <-function(globrad, tme, tair, tground, lat, long, PAIc, pLAI, x, refls,
   sa<-solalt(lt,lat,long,jd,merid=merid,dst=dst)
   ref<-pLAI*refls+(1-pLAI)*refw
   aRsw <- (1-ref) * cansw(globrad,dp,jd,lt,lat,long,PAIc,x,ref,merid=merid,dst=dst)
-  aRlw <- canlw(tc, PAIc, 1-emv, skyem = skyem)
+  aRlw <- canlw(tair, PAIc, 1-vegem, skyem = skyem)
   return(list(aRsw=aRsw, aRlw=aRlw, ref=ref))
 }
 #' Calculates radiation emitted by leaf
@@ -44,36 +44,36 @@ leafabs <-function(globrad, tme, tair, tground, lat, long, PAIc, pLAI, x, refls,
 #'
 #' @return Flux density of radiation emitted by leaf (W / m2)
 #' @export
-leafem <- function(tc, em) {
- eRlw <- em * 5.67*10^-8 * (tc + 273.15)^4
+leafem <- function(tc, vegem) {
+ eRlw <- vegem * 5.67*10^-8 * (tc + 273.15)^4
  eRlw
 }
 #' Thomas algorithm for solving simultanious heat fluxes
 #'
-#' @description `Thomas` implements the Thomas algorithm for solving
-#'  simultanious heat fluxes between soil / air layers
+#' @description `Thomas` implements the Thomas algorithm for solving simultanious heat
+#' fluxes between soil / air layers.
 #'
-#'  @param tc vector of soil and air temperatures (deg C) from previous timestep (see details)
-#'  @param tmsoil temperature (deg C) of deepest soil layer. Typically mean annual temperature
-#'  @param tair air temperature at reference height 2 m above canopy in current time step (deg C)
-#'  @param k vector of thermal conductances between layers (W / m^2 / K) (see details)
-#'  @param cd thermal heat capacity of layers (W / m^2 / K)
-#'  @param f forward / backward weighting of algorithm (see details)
-#'  @param X vector of temperatures to be added resulting from e.g. leaf heat fluxes or radiation
-#'  absorbed by top soil layer
-#'  @return a vector of temperatures (deg C) for each soil / air layer for current time step.
-#'  @export
-#'  @details `tc` must be ordered with reference air temperature first and the soil tmeperature
-#'  of the  deepest layer last. The  weighting factor `f`  may range from 0 to 1. If `f` = 0,
-#'  the flux is determined by the temperature difference at the beginning of the time step.
-#'  If `f` = 0.5, the average of the old and new temperatures is used to compute heat flux.
-#'  If `f` = 1, fluxes are computed using only the new temperatures. The best value to use
-#'  for `f` is determined by considerations of numerical stability and accuracy and experimentation
-#'  may be required. If `f` = 0  more heat transfer between nodes is predicted than would actually
-#'  occur, and can therefore become unstable if time steps are too large. When `f` > 0.5,
-#'  stable solutions will always be obtained, but heat flux will be underestimated. The
-#'  best accuracy is obtained with `f` around 0.4, while best stability is at `f` = 1.
-#'  A typical compromise is `f` = 0.6.
+#' @param tc vector of soil and air temperatures (deg C) from previous timestep (see details)
+#' @param tmsoil temperature (deg C) of deepest soil layer. Typically mean annual temperature
+#' @param tair air temperature at reference height 2 m above canopy in current time step (deg C)
+#' @param k vector of thermal conductances between layers (W / m^2 / K) (see details)
+#' @param cd thermal heat capacity of layers (W / m^2 / K)
+#' @param f forward / backward weighting of algorithm (see details)
+#' @param X vector of temperatures to be added resulting from e.g. leaf heat fluxes or radiation
+#' absorbed by top soil layer
+#' @return a vector of temperatures (deg C) for each soil / air layer for current time step.
+#' @export
+#' @details `tc` must be ordered with reference air temperature first and the soil tmeperature
+#' of the  deepest layer last. The  weighting factor `f`  may range from 0 to 1. If `f` = 0,
+#' the flux is determined by the temperature difference at the beginning of the time step.
+#' If `f` = 0.5, the average of the old and new temperatures is used to compute heat flux.
+#' If `f` = 1, fluxes are computed using only the new temperatures. The best value to use
+#' for `f` is determined by considerations of numerical stability and accuracy and experimentation
+#' may be required. If `f` = 0  more heat transfer between nodes is predicted than would actually
+#' occur, and can therefore become unstable if time steps are too large. When `f` > 0.5,
+#' stable solutions will always be obtained, but heat flux will be underestimated. The
+#' best accuracy is obtained with `f` around 0.4, while best stability is at `f` = 1.
+#' A typical compromise is `f` = 0.6.
 Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
   m <- length(tc) - 2
   tn<-rep(0,m+2)
@@ -113,7 +113,7 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
 #' @param hgt height of canopy (m)
 #' @param psi_m diabatic correction factor as return by [diabatic_cor()]
 #' @param hgtg height of ground vegetation layer below canopy (m)
-#' @param zm0 roughness length (m) of vegetation layer below canopy as returned by [roughlenth()]
+#' @param zm0 roughness length (m) of vegetation layer below canopy as returned by [roughlength()]
 #' @return wind speed (m /s) at height `zo`
 #' @export
 #' @examples
@@ -228,7 +228,7 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' and ground tempertaure
 #'
 #' @param tair air temperature at two metres above canopy (deg C)
-#' @param relhum relative humidity at two metres above canopy (%)
+#' @param relhum relative humidity at two metres above canopy (Percentage)
 #' @param pk air pressure at two metres above canopy (kPa)
 #' @param timestep duration of time step (s)
 #' @param z height of canopy layer nodes (m)
@@ -239,6 +239,7 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' @param vegp list of vegetation paramaters (see e.g. `vegparams` dataset)
 #' @param soilp list Soil paramaters (see e.g. `soilparams` dataset)
 #' @param theta volumetric soil moisture fraction of top soil layer (m^3 / m^3)
+#'
 #' @return a list with the following elements:
 #' @return `tn` air temperature of each layer (deg C)
 #' @return `tleaf` leaf temperature of each layer (deg C)
@@ -253,10 +254,11 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' radiation and evaorative fluxes and reference air and ground temperature. The function
 #' automatically determines whether heat storage should be considered, based the specific heat
 #' capacity of the vegetation layer and the time step of the model.
-leaftemp <- function(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, vegp, soilp, theta = 0.3) {
+leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, Rabs, previn, vegp, soilp, theta = 0.3) {
+  lambda <- -42.575*previn$tc+44994
   # Sort out thicknesses
   m<-length(gt)-1
-  zth<-c(z[2:m]-z[1:(m-1)],hgt-(z[m]+z[m-1])/2)
+  zth<-c(z[2:m]-z[1:(m-1)],vegp$hgt-(z[m]+z[m-1])/2)
   zla<-mixinglength(vegp$hgt,vegp$PAI,vegp$x,vegp$lw)
   # Sort out conductivitites
   gt<-0.5*gt+0.5*previn$gt
@@ -270,7 +272,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, 
   for(i in 2:m) igtt2[i]<-igtt2[i-1]+1/gt[i]
   gtt<-1/igtt[-1]
   gtt2<-1/igtt2
-  zref<-(hgt+2)-z
+  zref<-(vegp$hgt+2)-z
   mpk<-0.5*previn$pk+0.5*pk
   # Vapour pressure
   esj<-0.6108*exp(17.27*previn$tc/(previn$tc+237.3))
@@ -290,7 +292,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, 
   btm<-1+(gtt/zref)+(gtt2/z)+(gv/zla)
   ae[sel]<-((gtt[sel]/zref[sel])*eref+(gtt2[sel]/z[sel])*esoil+(gv[sel]/zla[sel])*estl[sel])/btm[sel]
   be[sel]<-(0.5*(gv[sel]/zla[sel])*delta[sel])/btm[sel]
-  PAIm<-PAI/zth
+  PAIm<-vegp$PAI/zth
   # Air temperature
   # Test whether steady state
   test<-pmax(timestep*gtt/zref,timestep*gha/zla,timestep*gtt2/z)
@@ -298,7 +300,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, 
   sel<-which(test>1)
   ph<-phair(previn$tc,previn$pk)
   cp<-cpair(previn$tc)
-  ma<-(timestep*PAIm*(1-vden))/cp*ph
+  ma<-(timestep*PAIm*(1-vegp$vden))/cp*ph
   K1<-gtt*cp/zref; K2<-gtt2*cp/z; K3<-gha*cp/zla;
   K4<-(lambda*gv)/(zla*mpk); K5<-(lambda*gtt2)/(z*mpk)
   btm<-1+0.5*ma*(K1+K2+K3)
@@ -318,10 +320,10 @@ leaftemp <- function(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, 
   # Radiation
   Rabs<-0.5*Rabs+0.5*previn$Rabs
   sb<-5.67*10^-8
-  aR<-emv*sb*(previn$tleaf+273.15)^4
-  bR<-emv*sb*2*(previn$tleaf+273.15)^3
+  aR<-vegp$vegem*sb*(previn$tleaf+273.15)^4
+  bR<-vegp$vegem*sb*2*(previn$tleaf+273.15)^3
   # Leaf temperature
-  ml<-timestep*PAIm/Ch
+  ml<-timestep*PAIm/soilp$Ch
   dTL<-(ml*(Rabs-aR-aX-aH))/(zla+ml*(bR+bX+bH))
   # Latent heat if condensation
   tn<-aL+bL*dTL
@@ -329,8 +331,8 @@ leaftemp <- function(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, 
   es<-0.6108*exp(17.27*tn/(tn+237.3))
   sel<-which(ea>es)
   tn2<-(237.3*log(ea/0.6108))/(17.27-log(es/0.6108))
-  Lc<-(tn2-tn)*cp*ph*(1-vden)
-  dTL2<- -Lc/Ch
+  Lc<-(tn2-tn)*cp*ph*(1-vegp$vden)
+  dTL2<- -Lc/soilp$Ch
   # Temperatures and fluxes
   tn[sel]<-tn2[sel]
   dTL[sel]<-dTL[sel]+dTL2[sel]
@@ -338,4 +340,89 @@ leaftemp <- function(tair, relhum, pk, timestep, z, zth, gt, gha, Rabs, previn, 
   # Save outputs
   return(list(tn=tn, tleaf=previn$tleaf+dTL, ea=ae+be*dTL, gtt=gtt,
               Rem=aR+bR*dTL, H=aH+bH*dTL, L=aX+bX*dTL, Lc=Lc2))
+}
+#' Initialise paramaters for first time step of model
+#'
+#' @description Generates a set of climate and conductivity parameters for running the
+#' first time step of the model
+#'
+#' @param m number of canopy layer nodes
+#' @param sm number of soil layers
+#' @param hgt height of canopy (m)
+#' @param tair air temperature at 2 m above canopy (deg C)
+#' @param relhum relative humidity at 2 m above canopy (percentage)
+#' @param tsoil temperature of deepest soil layer. Usually ~mean annual temperature
+#' (deg C). See details.
+#' @param globrad total incoming shortwave radiation (W / m^2)
+#' @return a list with the following elements:
+#' @return `tc` a vector of air temperatures for each canopy layer (deg C)
+#' @return `soiltc` a vector of airsoil temperatures for each soil layer (deg C)
+#' @return `tleaf` a vector of leaf temperatures for each canopy layer (deg C)
+#' @return `rh` a vector of relative humidities
+#' @return `relhum` relative humidity at 2 m above canopy (percentage)
+#' @return `tair` air temperature at 2 m above canopy (deg C)
+#' @return `pk` pressure at 2 m above canopu (kPA)
+#' @return `Rabs` Absorbed radiation (W / m^2)
+#' @return `gt` Conductivity in air of each canopy layer node (mol/m^2/sec)
+#' @return `gv` Leaf conductivity to vapour loss for each canopy layer node  (mol/m^2/sec)
+#' @return `gha` Conductivity between air and leaf for each canopy layer node (mol/m^2/sec)
+#'
+#' @importFrom stats spline
+#' @export
+#' @examples
+#' paraminit(20, 10, 10, 15, 80, 11, 500)
+#'
+#' @details All values are approximate. Values for `tc` and `tsoil` are derived by
+#' linear intepolation between `tair` and `tsoil`. Values for `Rabs` are derived from
+#' `globrad` but attenuate through the canopy. Values for `tleaf` are derived
+#' from `tc` and `Rabs`. Values for `rh` are the same as `relhum`. Values for `gt`
+#' `gv` and `gha` are typical for decidious woodland with wind above canopy at 2 m/s.
+#' `gt` is scaled by canopy height and `m` (and hence distance between nodes). The first
+#' value represents conductivity between the ground and the lowest canopy node. The last
+#' value represents conductivity between the air at 2 m above canopy and the highest
+#' canopy node.
+paraminit <- function(m, sm, hgt, tair, relhum, tsoil, globrad) {
+  tcb <- spline(c(1,2), c(tsoil, tair), n = m + sm)
+  tc <- tcb$y[(sm + 1): (m + sm)]
+  soiltc <- rev(tcb$y[1:sm])
+  rh <- rep(relhum, m)
+  Rabs <- spline(c(1, 2), c(0.2 * globrad + 20, globrad + 20), n = m)
+  tleaf <- tc + 0.01 * Rabs
+  gt <- rep(50, m + 1) * (m / hgt) * (2 / m)
+  gt[1] <- 2 * gt[1]
+  gt[m+1] <- gt[m+1] * (hgt / m) * 0.5
+  gv <- spline(c(1, 2), c(0.25, 0.32), n = m)$y
+  gha <- spline(c(1, 2), c(0.13, 0.19), n = m)$y
+  return(list(tc = tc, soiltc = soiltc, tleaf = tleaf, rh = rh, relhum = relhum,
+              tair = tair, pk = 101.3, Rabs = Rabs, gt = gt, gv = gv, gha = gha))
+}
+#' Returns soil parameters for a given soil type
+#'
+#' @description Returns soil parameters needed to run the microclimate model
+#' for a given soil type
+#'
+#' @param soiltype one of `Sand`, `Loamy sand`, `Sandy loam`, `Loam`, `Silt`,
+#' `Silt loam`, `Sandy clay loam`, `Clay loam`, `Silty clay loam`, `Sandy clay`,
+#' `Silty clay` or `Clay`.
+#' @param theta volumetric water content of soil (m^3 / m^3)
+#' @return a list with the following items:
+#' @return `Soil.type` description of soil type
+#' @return `Smax` Volumetric water content at saturation (m^3 / m^3)
+#' @return `Smin` Residual water content (m^3 / m^3)
+#' @return `alpha` Shape parameter of the van Genuchten model (cm^-1)
+#' @return `n` Pore size distribution parameter (dimensionless, > 1)
+#' @return `Ksat` Saturated hydraulic conductivity (cm / day)
+#' @return `Vq` Volumetric quartz content of soil
+#' @return `Vm` Volumetric mineral content of soil
+#' @return `Vo` Volumetric organic content of soil
+#' @return `Mc` Mass fraction of clay
+#' @return `rho` Soil bulk density (Mg / m^3)
+#' @return `b` Shape parameter for Campbell model (dimensionless, > 1)
+#' @examples
+#' soilinit("Loam")
+soilinit <- function(soiltype, theta = 0.3) {
+  sel <- which(soilparams$Soil.type == soiltype)
+  soilp <- soilparams[sel,]
+  soilp$theta = theta
+  soilp
 }

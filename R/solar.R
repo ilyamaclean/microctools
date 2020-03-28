@@ -148,7 +148,7 @@ solalt <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, d
 #' @return the proportion of direct beam radiation incident on an inclined surface.
 #' @export
 #'
-#' @seealso the microclimafunction [solarindex()] can be used to derive the solar
+#' @seealso the microclimafunction [microclima::solarindex()] can be used to derive the solar
 #' coeffficient for cells of a digital elevation dataset accounting for topographic shading.
 #'
 #' @examples
@@ -354,16 +354,16 @@ cansw <- function(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
 #' @param ref average leaf reflectivity in longwave spectrum (1 - thermal emissivity)
 #' @param skyem sky emissivity
 #' @return Flux density of net outgoing longwave radiation emitted under leaf area `l` (W / m2)
-#' @examples
 #' @export
+#' @examples
 #' l <- c(0:1000) / 500
 #' lw1 <- canlw(11, l, skyem = 0.9)
 #' lw2 <- canlw(11, l, skyem = 0.7)
 #' lw3 <- canlw(11, l, skyem = 0.5)
 #' plot(lw1 ~ l, type = "l", lwd = 2, ylim = c(0,200), ylab = "Net longwave")
-#' par(new = T)
+#' par(new = TRUE)
 #' plot(lw2 ~ l, type = "l", col = "blue", lwd = 2, ylim = c(0,200), ylab = "")
-#' par(new = T)
+#' par(new = TRUE)
 #' plot(lw3 ~ l, type = "l", col = "red", lwd = 2, ylim = c(0,200), ylab = "")
 canlw <- function(tc, l, ref = 0.02, skyem = 0.9) {
   lwout <- (1 - ref) * 5.67 * 10^-8 * (tc + 273.15) ^ 4

@@ -4,7 +4,7 @@
 \name{globalclimate}
 \alias{globalclimate}
 \title{A dataset of global climate variables}
-\format{An array with 94 rows, 192 columns and the following five climate vaiables:
+\format{An array with 94 rows, 192 columns and the following five climate variables:
 \describe{
 \item{1}{mean annual temperature (ºC)}
 \item{2}{coefficient of variation in temperature (K)}
@@ -20,6 +20,6 @@ globalclimate
 }
 \description{
 A global dataset containing containing the following climate variables averaged
-over the period 2008 to 2017 as used by \code{\link[=laifromhabitat]{laifromhabitat()}}.
+over the period 2008 to 2017 as used by \code{\link[=PAIfromhabitat]{PAIfromhabitat()}}.
 }
 \keyword{datasets}

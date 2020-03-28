@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors@R: c(
     person("Ilya", "Maclean", email = "i.m.d.maclean@exeter.ac.uk", role = "cre"))
 Maintainer: Ilya M. D. Maclean <i.m.d.maclean@exeter.ac.uk>
-Description: The functions in the microCtools packageare used by the microclimC 
+Description: The functions in the microctools packageare used by the microclimc 
     package for modelling the mechanistic processes that govern microclimate above 
     or vegetated canopies. It includes tools for heat and vapour conductance, radiation 
     absorbed or emmited by leaves and an implementation of the Thomas and Newton-Raphson 

@@ -15,6 +15,6 @@ habitats
 }
 \description{
 A dataset containing habitat descriptors and habitat numbers as used by
-\code{\link[=paifromhabitat]{paifromhabitat()}}.
+\code{\link[=PAIfromhabitat]{PAIfromhabitat()}}.
 }
 \keyword{datasets}

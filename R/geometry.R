@@ -1,3 +1,4 @@
+globalVariables(c("globalclimate", "habitats", "soilparams"))
 #' Generates plant area index profile
 #'
 #' @param m number of canopy nodes
@@ -12,7 +13,7 @@
 #' completely evenly spread.
 #' @return a vector of length `m` of plant area indices for each canopy layer
 #' @export
-#' @import stats
+#' @importFrom stats dbeta
 #' @examples
 #' pai <- PAIgeometry(100, 10, 7, 70)
 #' plot(pai, type = "l")
@@ -40,7 +41,7 @@ PAIgeometry <- function(m, PAI, skew, spread) {
 #'
 #' @param m number of canopy nodes
 #' @param mthick mean thickness of vegetation
-#' @param thmx mean thickness of lowest portion of canopy
+#' @param thmax mean thickness of lowest portion of canopy
 #' @param thmin mean thickness of upper portion of canopy
 #' @return a vector of thicknesses for each canopy node (m)
 #' @export
@@ -106,7 +107,7 @@ LAIfrac <- function(m, pLAI, skew = 7) {
 #' @param m number of canopy nodes
 #' @param iwmin minimum relative turbulence intensity
 #' @param iwmax maximum relative turbulence intensity
-#' @param logical indicating whether turbulence intensity increases (TRUE) or decreases
+#' @param increasing logical indicating whether turbulence intensity increases (TRUE) or decreases
 #' (FALSE) with height
 #' @return relative turbulence intensity for each node `m`.
 #' @details default values are for a maize crop Shaw et al (1974) Agricultural Meteorology,
@@ -141,7 +142,8 @@ iwgeometry <- function(m, iwmin = 0.36, iwmax = 0.9, increasing = FALSE) {
 #' @return `height` the heigbht of the canopy in metres
 #' @return `obs_time` an object of class POSIXlt of dates and times coressponding to
 #' each value of `lai`
-#' @import sp raster stats
+#' @import sp raster
+#' @importFrom stats spline
 #' @export
 #'
 #' @details

@@ -48,6 +48,7 @@ layermerge<-function(z, gt, hgt, timestep, ph = rep(42.24, length(z))){
 #' @param lmm list of layers to merge as returned by [layermerge()]
 #' @param tc air temperature of unmerged canopy layers (dec C)
 #' @param tleaf leaf temperature of unmerged canopy layers
+#' @param hgt height of canopy (m)
 #' @param gha molar heat conductance between leaf and air (mol / m^2 / sec)
 #' @param gt molar heat conductance between air layers due to turbulent convection (mol / m^2 / sec)
 #' @param zla mean leaf-air distance (m)
@@ -77,7 +78,7 @@ layermerge<-function(z, gt, hgt, timestep, ph = rep(42.24, length(z))){
 #' @return `PAI` Plant Area Index (m^2 / m^2)
 #' @return `TT` Cumulative conductivity time to each canopy node (s)
 #' @export
-layeraverage<-function(lmm, tc, tleaf, gha, gt, zla, z, Vo, L, H, vden, pk, PAI, TT) {
+layeraverage<-function(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, L, H, vden, pk, PAI, TT) {
   mult<-1-vden
   u<-unique(lmm$mrge)
   sel<-which(lmm$mrge!=u[length(u)])
@@ -120,6 +121,7 @@ layeraverage<-function(lmm, tc, tleaf, gha, gt, zla, z, Vo, L, H, vden, pk, PAI,
 #'
 #' @description Calculates soil heat conductivity and capacity from soil properites
 #' @param timestep model time step (s)
+#' @param m number of soil layers
 #' @param theta volumetric soil water fraction (m^3 / m^3)
 #' @param frm volumetric soil mineral fraction (m^3 / m^3)
 #' @param frq volumetric soil quartz fraction (m^3 / m^3)
@@ -130,8 +132,8 @@ layeraverage<-function(lmm, tc, tleaf, gha, gt, zla, z, Vo, L, H, vden, pk, PAI,
 #' @return `k` thermal conductance of soil (W / m^2 / K)
 #' @export
 #'
-soilk <- function(timestep, theta = 0.3, frm = 0.3, frq = 0.3, frc = 0.01, rho = 2.65) {
-  # Calculate min z
+soilk <- function(timestep, m, theta = 0.3, frm = 0.3, frq = 0.3, frc = 0.01, rho = 2.65) {
+  xx<-(2:(m+1))
   ch<-(2400000*rho/2.64+4180000*theta)
   frs<-frm+frq
   c1<-(0.57+1.73*frq+0.93*frm)/(1-0.74*frq-0.49*frm)-2.8*frs*(1-frs)
