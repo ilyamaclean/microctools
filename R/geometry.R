@@ -21,7 +21,7 @@ PAIgeometry <- function(m, PAI, skew, spread) {
   skew <- 10 - skew
   # Plant area index of canopy layer
   shape1 <- 100 / spread
-  x<-c(1:m)/m
+  x<-c(1:m)/(m+1)
   if (skew > 5) {
     shape2 <- (10 - skew) / 5 + 1
     shape2 <- shape2 / 2 * shape1
