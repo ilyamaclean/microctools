@@ -54,6 +54,7 @@ roughlength <- function(hgt, PAI = 3, zm0 = 0.004) {
 #' @param pk atompsheric pressure (KPa). used for calculating molar density
 #' of air.
 #' @return conductance (mol / m^2 / sec)
+#' @export
 #'
 #' @details Calculates conductance under forced and free convection and selects
 #' whichever is greater. For conductance under free convection an estimate of
@@ -69,7 +70,6 @@ roughlength <- function(hgt, PAI = 3, zm0 = 0.004) {
 #' u <- c(1:200)/100
 #' g<-gforcedfree(0.1,u,11,4)
 #' plot(g~u, type = "l")
-#' @export
 gforcedfree <- function(d, u, tc, dtc, pk = 101.3) {
   # Reynolds etc
   tk <- tc + 273.15
@@ -178,6 +178,7 @@ gturb <- function(u, zu = 2, z1, z0 = NA, hgt, PAI= 3, tc = 15,
 #' @param phi_m diabatic correction factor
 #' @param pk atmospheric pressure used for calculating moar density of air (kPA)
 #' @return conductance under tubulent convection within the canopy (mol/m^2/sec)
+#' @export
 gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
                     cd = 0.2, iw = 0.5, phi_m = 1, pk = 101.3) {
   a <- attencoef(hgt, PAI, x, lw, cd, iw, phi_m)
