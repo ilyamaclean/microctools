@@ -11,6 +11,7 @@ phair <- function(tc = 15, pk = 101.3) {
 #' Calculate molar specific heat of air
 #' @param tc temperature (deg C)
 #' @return specific heat of air at constant pressure (J / mol / K)
+#' @export
 cpair <- function(tc) {
   cp <-  2e-05 * tc^2 + 0.0002 * tc + 29.119
   cp

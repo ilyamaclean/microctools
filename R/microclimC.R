@@ -234,6 +234,7 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' @param z height of canopy layer nodes (m)
 #' @param gt heat conductance by turbulent convection (mol / m^2 / s)
 #' @param gha leaf-air heat conductance (mol / m^2 / s)
+#' @param gv leaf-air vapour conductance (mol / m^2 / s)
 #' @param Rabs Flux density of absorbed radiation as returned by [leafabs()] (W/m2)
 #' @param previn list of values from previous timestep
 #' @param vegp list of vegetation paramaters (see e.g. `vegparams` dataset)
@@ -254,8 +255,19 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' radiation and evaorative fluxes and reference air and ground temperature. The function
 #' automatically determines whether heat storage should be considered, based the specific heat
 #' capacity of the vegetation layer and the time step of the model.
-leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, Rabs, previn, vegp, soilp, theta = 0.3) {
-  lambda <- -42.575*previn$tc+44994
+#' @examples
+#' # Generate paramaters for function:
+#' tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
+#' previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
+#' vegp <- habitatvars(3, 50, -5, tme, m = 20)
+#' soilp <- soilinit("Loam")
+#' z<-c((1:20) - 0.5) / 20 * vegp$hgt
+#' # run function (setting conductances in current time step to same as in previous):
+#' ltemp <- leaftemp(11, 80, 101.3, 60, z, previn$gt, previn$gha, previn$gv, previn$Rabs, previn,
+#'                   vegp, soilp, 0.3)
+#' plot(z ~ ltemp$tleaf, type = "l", xlab = "Leaf temperature", ylab = "Height")
+leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, vegp, soilp, theta) {
+  lambda <- -42.575*tair+44994
   # Sort out thicknesses
   m<-length(gt)-1
   zth<-c(z[2:m]-z[1:(m-1)],vegp$hgt-(z[m]+z[m-1])/2)
@@ -281,7 +293,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, Rabs, previn, vegp,
   esref<-0.6108*exp(17.27*mtref/(mtref+237.3))
   eref<-(mrh/100)*esref
   delta <- 4098*(0.6108*exp(17.27*previn$tleaf/(previn$tleaf+237.3)))/(previn$tleaf+237.3)^2
-  rhsoil<-soilrh(theta,soilp$b,soilp$psi_e,soilp$thetawp, previn$soiltc[1])
+  rhsoil<-soilrh(theta,soilp$b,-soilp$psi_e,soilp$Smax, previn$soiltc[1])
   esoil<-rhsoil*0.6108*exp(17.27*previn$soiltc[1]/(previn$soiltc[1]+237.3))
   # Test whether steady state
   test<-pmax(timestep*gtt/zref,timestep*gv/zla,timestep*gtt2/z)
@@ -300,7 +312,8 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, Rabs, previn, vegp,
   sel<-which(test>1)
   ph<-phair(previn$tc,previn$pk)
   cp<-cpair(previn$tc)
-  ma<-(timestep*PAIm*(1-vegp$vden))/cp*ph
+  vden<-vegp$thickw*vegp$PAI
+  ma<-(timestep*PAIm*(1-vden))/cp*ph
   K1<-gtt*cp/zref; K2<-gtt2*cp/z; K3<-gha*cp/zla;
   K4<-(lambda*gv)/(zla*mpk); K5<-(lambda*gtt2)/(z*mpk)
   btm<-1+0.5*ma*(K1+K2+K3)
@@ -308,7 +321,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, Rabs, previn, vegp,
   bL<-ma*(0.25*K3+0.25*K4*delta-0.5*be*(K4+K5))/btm
   # ~Steady state
   K1<-gtt[sel]*cp[sel]; K2<-gtt2[sel]*cp[sel]; K3<-gha[sel]*cp[sel]
-  K4<-lambda[sel]*gv[sel]/mpk; K5<-lambda[sel]*gtt2[sel]/mpk
+  K4<-lambda*gv[sel]/mpk; K5<-lambda*gtt2[sel]/mpk
   aL[sel]<-(K1*mtref+K2*previn$soiltc[1]+K3*previn$tleaf[sel]+K4*(estl[sel]-ae[sel])+K5*(esoil-ae[sel]))/(K1+K2+K3)
   bL<-(0.5*(K3+K4*delta[sel]-be[sel]*(K4+K5)))/(K1+K2+K3)
   # Sensible Heat
@@ -323,7 +336,8 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, Rabs, previn, vegp,
   aR<-vegp$vegem*sb*(previn$tleaf+273.15)^4
   bR<-vegp$vegem*sb*2*(previn$tleaf+273.15)^3
   # Leaf temperature
-  ml<-timestep*PAIm/soilp$Ch
+  Ch<-vden*vegp$cpw*vegp$phw
+  ml<-timestep*PAIm/Ch
   dTL<-(ml*(Rabs-aR-aX-aH))/(zla+ml*(bR+bX+bH))
   # Latent heat if condensation
   tn<-aL+bL*dTL
@@ -331,7 +345,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, Rabs, previn, vegp,
   es<-0.6108*exp(17.27*tn/(tn+237.3))
   sel<-which(ea>es)
   tn2<-(237.3*log(ea/0.6108))/(17.27-log(es/0.6108))
-  Lc<-(tn2-tn)*cp*ph*(1-vegp$vden)
+  Lc<-(tn2-tn)*cp*ph*(1-vden)
   dTL2<- -Lc/soilp$Ch
   # Temperatures and fluxes
   tn[sel]<-tn2[sel]

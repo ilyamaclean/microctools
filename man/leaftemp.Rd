@@ -4,8 +4,8 @@
 \alias{leaftemp}
 \title{Calculates leaf temperature of canopy layers}
 \usage{
-leaftemp(tair, relhum, pk, timestep, z, gt, gha, Rabs, previn, vegp, soilp,
-  theta = 0.3)
+leaftemp(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, vegp,
+  soilp, theta)
 }
 \arguments{
 \item{tair}{air temperature at two metres above canopy (deg C)}
@@ -21,6 +21,8 @@ leaftemp(tair, relhum, pk, timestep, z, gt, gha, Rabs, previn, vegp, soilp,
 \item{gt}{heat conductance by turbulent convection (mol / m^2 / s)}
 
 \item{gha}{leaf-air heat conductance (mol / m^2 / s)}
+
+\item{gv}{leaf-air vapour conductance (mol / m^2 / s)}
 
 \item{Rabs}{Flux density of absorbed radiation as returned by \code{\link[=leafabs]{leafabs()}} (W/m2)}
 
@@ -60,4 +62,16 @@ and ground tempertaure
 radiation and evaorative fluxes and reference air and ground temperature. The function
 automatically determines whether heat storage should be considered, based the specific heat
 capacity of the vegetation layer and the time step of the model.
+}
+\examples{
+# Generate paramaters for function:
+tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
+previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
+vegp <- habitatvars(3, 50, -5, tme, m = 20)
+soilp <- soilinit("Loam")
+z<-c((1:20) - 0.5) / 20 * vegp$hgt
+# run function (setting conductances in current time step to same as in previous):
+ltemp <- leaftemp(11, 80, 101.3, 60, z, previn$gt, previn$gha, previn$gv, previn$Rabs, previn,
+                  vegp, soilp, 0.3)
+plot(z ~ ltemp$tleaf, type = "l", xlab = "Leaf temperature", ylab = "Height")
 }
