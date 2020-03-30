@@ -6,6 +6,10 @@
 \usage{
 layercond(Rsw, gsmax, q50 = 100)
 }
+\value{
+stomatal conductance mol / m^2 / sec)
+@export
+}
 \description{
 adjusts stomatal conductivity based on available incoming shortwave
 radiation
@@ -13,6 +17,4 @@ radiation
 @param gsmax maximum stomatal conductivity (mol / m^2 / sec)
 @param q50 amount of photosynthetically active radiation when stomatal conductance
 is at 50% of its maximum
-@return stomatal conductance (mol / m^2 / sec)
-@export
 }
