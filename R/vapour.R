@@ -73,3 +73,17 @@ soilrh <- function(theta, b = 5.2, Psie = -2.6, Smax = 0.419, tc = 11) {
   hr<-exp((0.018*matric)/(8.31*(tc+273.15)))
   hr
 }
+#' Calculate canopy layer vapour conductivity
+#'
+#' @description adjusts stomatal conductivity based on available incoming shortwave
+#'  radiation
+#'  @param Rsw incoming shortwave radiation (W / m^2)
+#'  @param gsmax maximum stomatal conductivity (mol / m^2 / sec)
+#'  @param q50 amount of photosynthetically active radiation when stomatal conductance
+#'  is at 50% of its maximum
+#'  @export
+layercond <- function(Rsw, gsmax, q50 = 100) {
+  rpar <- Rsw * 4.6
+  gs <- (gsmax * rpar) / (rpar + q50)
+  gs
+}
