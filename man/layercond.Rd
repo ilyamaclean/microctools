@@ -6,15 +6,18 @@
 \usage{
 layercond(Rsw, gsmax, q50 = 100)
 }
+\arguments{
+\item{Rsw}{incoming shortwave radiation (W / m^2)}
+
+\item{gsmax}{maximum stomatal conductivity (mol / m^2 / sec)}
+
+\item{q50}{amount of photosynthetically active radiation when stomatal conductance
+is at 50% of its maximum}
+}
 \value{
 stomatal conductance mol / m^2 / sec)
-@export
 }
 \description{
 adjusts stomatal conductivity based on available incoming shortwave
 radiation
-@param Rsw incoming shortwave radiation (W / m^2)
-@param gsmax maximum stomatal conductivity (mol / m^2 / sec)
-@param q50 amount of photosynthetically active radiation when stomatal conductance
-is at 50% of its maximum
 }
