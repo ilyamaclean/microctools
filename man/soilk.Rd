@@ -4,13 +4,15 @@
 \alias{soilk}
 \title{Calculates soil heat conductivity and capacity}
 \usage{
-soilk(timestep, m, theta = 0.3, frm = 0.3, frq = 0.3, frc = 0.01,
-  rho = 2.65)
+soilk(timestep, m, sdepth = 2, theta = 0.3, frm = 0.3, frq = 0.3,
+  frc = 0.01, rho = 2.65)
 }
 \arguments{
 \item{timestep}{model time step (s)}
 
 \item{m}{number of soil layers}
+
+\item{sdepth}{depth of deepest soil layer (m)}
 
 \item{theta}{volumetric soil water fraction (m^3 / m^3)}
 

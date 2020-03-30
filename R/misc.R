@@ -122,6 +122,7 @@ layeraverage<-function(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, L, H, vden, pk,
 #' @description Calculates soil heat conductivity and capacity from soil properites
 #' @param timestep model time step (s)
 #' @param m number of soil layers
+#' @param sdepth depth of deepest soil layer (m)
 #' @param theta volumetric soil water fraction (m^3 / m^3)
 #' @param frm volumetric soil mineral fraction (m^3 / m^3)
 #' @param frq volumetric soil quartz fraction (m^3 / m^3)
@@ -132,7 +133,7 @@ layeraverage<-function(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, L, H, vden, pk,
 #' @return `k` thermal conductance of soil (W / m^2 / K)
 #' @export
 #'
-soilk <- function(timestep, m, theta = 0.3, frm = 0.3, frq = 0.3, frc = 0.01, rho = 2.65) {
+soilk <- function(timestep, m, sdepth = 2, theta = 0.3, frm = 0.3, frq = 0.3, frc = 0.01, rho = 2.65) {
   xx<-(2:(m+1))
   ch<-(2400000*rho/2.64+4180000*theta)
   frs<-frm+frq
@@ -141,8 +142,8 @@ soilk <- function(timestep, m, theta = 0.3, frm = 0.3, frq = 0.3, frc = 0.01, rh
   c4<-0.03+0.7*frs^2
   la<-(c1+c2*theta-(c1-c4)*exp(-(c3*theta)^4))
   zmn<-sqrt((la*timestep)/ch)*sqrt(2)
-  p<-log(2/zmn,6)
-  z<-c(0,0,(2/6^p)*c(1:6)^p)
+  p<-log(2/zmn,m)
+  z<-c(0,0,(sdepth/m^p)*c(1:m)^p)
   cd<-ch*(z[xx+1]-z[xx-1])/(2*timestep)
   k<-la/(z[xx+1]-z[xx])
   return(list(cd=cd, k=k))
