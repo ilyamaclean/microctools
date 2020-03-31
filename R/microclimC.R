@@ -63,10 +63,14 @@ leafem <- function(tc, vegem) {
 #' absorbed by top soil layer
 #' @return a vector of temperatures (deg C) for each soil / air layer for current time step.
 #' @export
-#' @details `tc` must be ordered with reference air temperature first and the soil tmeperature
-#' of the  deepest layer last. The  weighting factor `f`  may range from 0 to 1. If `f` = 0,
-#' the flux is determined by the temperature difference at the beginning of the time step.
-#' If `f` = 0.5, the average of the old and new temperatures is used to compute heat flux.
+#' @details The vector `tc` must be ordered with reference air temperature first and the soil temperature
+#' of the  deepest layer last. I.e. the length of the vector `tc` is the number of nodes + 2.
+#' The vector `k` is the conductivity between each node and that diectly below it, the first value
+#' representing conductivity between reference height and the top canopy node. I.e. the length
+#' of the vector `k` is the number of nodes + 1. The vector `cd` is the heat storage at each node.
+#' I.e. the length of the vector `cd` is the same as the number of nodes. The  weighting factor `f`  may
+#' range from 0 to 1. If `f` = 0, the flux is determined by the temperature difference at the beginning
+#' of the time step. If `f` = 0.5, the average of the old and new temperatures is used to compute heat flux.
 #' If `f` = 1, fluxes are computed using only the new temperatures. The best value to use
 #' for `f` is determined by considerations of numerical stability and accuracy and experimentation
 #' may be required. If `f` = 0  more heat transfer between nodes is predicted than would actually
@@ -84,8 +88,8 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
   xx<-(2:(m+1))
   cc[xx]<- -k[xx]*f
   a[xx+1]<-cc[xx]
-  b[xx]<-f*(k[xx]+k[xx-1])+cd[xx]
-  d[xx]<-X+g*k[xx-1]*tc[xx-1]+(cd[xx]-g*(k[xx]+k[xx-1]))*tc[xx]+g*k[xx]*tc[xx+1]
+  b[xx]<-f*(k[xx]+k[xx-1])+cd
+  d[xx]<-X+g*k[xx-1]*tc[xx-1]+(cd-g*(k[xx]+k[xx-1]))*tc[xx]+g*k[xx]*tc[xx+1]
   d[2]<-d[2]+k[1]*tn[1]*f
   d[m+1] <- d[m+1] + k[m+1] * f * tn[m+2]
   for (i in 2:m) {
@@ -408,7 +412,7 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, globrad) {
   gv <- spline(c(1, 2), c(0.25, 0.32), n = m)$y
   gha <- spline(c(1, 2), c(0.13, 0.19), n = m)$y
   return(list(tc = tc, soiltc = soiltc, tleaf = tleaf, rh = rh, relhum = relhum,
-              tair = tair, pk = 101.3, Rabs = Rabs, gt = gt, gv = gv, gha = gha))
+              tair = tair, tsoil = tsoil, pk = 101.3, Rabs = Rabs, gt = gt, gv = gv, gha = gha))
 }
 #' Returns soil parameters for a given soil type
 #'

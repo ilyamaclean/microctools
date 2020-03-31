@@ -30,10 +30,14 @@ a vector of temperatures (deg C) for each soil / air layer for current time step
 fluxes between soil / air layers.
 }
 \details{
-\code{tc} must be ordered with reference air temperature first and the soil tmeperature
-of the  deepest layer last. The  weighting factor \code{f}  may range from 0 to 1. If \code{f} = 0,
-the flux is determined by the temperature difference at the beginning of the time step.
-If \code{f} = 0.5, the average of the old and new temperatures is used to compute heat flux.
+The vector \code{tc} must be ordered with reference air temperature first and the soil temperature
+of the  deepest layer last. I.e. the length of the vector \code{tc} is the number of nodes + 2.
+The vector \code{k} is the conductivity between each node and that diectly below it, the first value
+representing conductivity between reference height and the top canopy node. I.e. the length
+of the vector \code{k} is the number of nodes + 1. The vector \code{cd} is the heat storage at each node.
+I.e. the length of the vector \code{cd} is the same as the number of nodes. The  weighting factor \code{f}  may
+range from 0 to 1. If \code{f} = 0, the flux is determined by the temperature difference at the beginning
+of the time step. If \code{f} = 0.5, the average of the old and new temperatures is used to compute heat flux.
 If \code{f} = 1, fluxes are computed using only the new temperatures. The best value to use
 for \code{f} is determined by considerations of numerical stability and accuracy and experimentation
 may be required. If \code{f} = 0  more heat transfer between nodes is predicted than would actually
