@@ -117,6 +117,29 @@ layeraverage<-function(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, L, H, vden, pk,
   return(list(tc=tc2,tleaf=tleaf2,gha=gha2,gt=gt2,zla=zla2,z=z2,ph=ph2,cp=cp2,
               Vo=Vo2,lambda=lambda2,L=L2,H=H2,vden=1-mult2,m=m2,PAI=PAI2,TT=TT2))
 }
+#' Interpolates values from merged canopy layers
+#'
+#' @description interpolates temperature of vapour concentrations from merged canopy layers
+#' to derlive values for the original canopy layers
+#'
+#' @param y1 Conductance times from ground to each merged canopy node (s)
+#' @param y2 Conductance times from ground to each unmerged canopy node (s)
+#' @param x1 value to be interpolated (temperature or vapour)
+#' @return interpolated value (temperature of vapour)
+#' @export
+layerinterp <- function(y1, y2, x1) {
+  x2 <- 0
+  for (i in 1:length(y2)) {
+    sel <- which(y1 < y2[i])
+    d1 <- abs(y1[max(sel)]-y2[i])
+    d2 <- abs(y1[max(sel)+1]-y2[i])
+    p1 <- d2/(d1+d2)
+    p2 <- d1/(d1+d2)
+    x2[i] <- p1*x1[max(sel)]+p2*x1[max(sel)+1]
+  }
+  x2
+}
+
 #' Calculates soil heat conductivity and capacity
 #'
 #' @description Calculates soil heat conductivity and capacity from soil properites
