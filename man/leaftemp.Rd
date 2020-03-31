@@ -52,6 +52,8 @@ a list with the following elements:
 \code{L} Latent heat of vapourisation from leaf to air (W / m^2)
 
 \code{Lc} Latent heat of condenstation from leaf to air (W / m^2)
+
+\code{Vflux} Vapour flux to air from leaves (mol / m^2 / s)
 }
 \description{
 Calculates leaf temperature from radiation fluxes and reference air

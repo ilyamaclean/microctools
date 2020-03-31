@@ -123,6 +123,7 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
 #' @param gt vector of molar conductances between each canopy node at that directly below it (mol / m^2 / sec).
 #' The first value is the conductivity between the ground and the lowest node, and the last value the
 #' conductivity between the highest node and reference height.
+#' @param Vflux Total vapour flux from leaves to air (mol /m^3)
 #' @param f forward / backward weighting of algorithm (as for [Thomas()])
 #' @param previn a list of model outputs form the previous timestep
 #' @param soilp a list of soil parameters as returned by [soilinit()]
@@ -130,7 +131,7 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
 #' current time step. The first value is that for the ground and the last value that at reference height
 #' @export
 #' @seealso [Thomas()]
-ThomasV <- function(Vo, tn, pk, theta, thetap, relhum, tair, tsoil, zth, gt, f = 0.6, previn, soilp) {
+ThomasV <- function(Vo, tn, pk, theta, thetap, relhum, tair, tsoil, zth, gt, Vflux, f = 0.6, previn, soilp) {
   m<-length(zth)
   ph<-phair(tn,pk)
   ea<-0.6108*exp(17.27*tair/(tair+237.3))*(relhum/100)
@@ -144,7 +145,7 @@ ThomasV <- function(Vo, tn, pk, theta, thetap, relhum, tair, tsoil, zth, gt, f =
   easp<-0.6108*exp(17.27*previn$tsoil/(previn$tsoil+237.3))*rhsoilp
   Vsoil<-eas/pk
   Vo<-c(easp/previn$pk,Vo,eap/previn$pk)
-  Vn<-Thomas(rev(Vo), Vsoil, Vair, rev(gt), rev(ph), f, 0)
+  Vn<-Thomas(rev(Vo), Vsoil, Vair, rev(gt), rev(ph), f, Vflux)
   Vn<-rev(Vn)
 }
 #' Calculates wind profile for entire canopy
@@ -297,6 +298,7 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' @return `H` Sensible heat flux from leaf to air (W / m^2)
 #' @return `L` Latent heat of vapourisation from leaf to air (W / m^2)
 #' @return `Lc` Latent heat of condenstation from leaf to air (W / m^2)
+#' @return `Vflux` Vapour flux to air from leaves (mol / m^2 / s)
 #' @export
 #' @details `leaftemp` computes the average leaf and air temperature of each canopy layer based on
 #' radiation and evaorative fluxes and reference air and ground temperature. The function
@@ -402,9 +404,14 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   Lc2<-ea*0; Lc2[sel]<-Lc[sel]
   eam<-ae+be*dTL
   neaj<-eaj+2*(eam-eaj)
+  # Vapour flux from leaves
+  mTl<-previn$tleaf+0.5*dTL
+  mVl<-(0.6108*exp(17.27* mTl/(mTl+237.3)))/mpk
+  mVa<-eam/mpk
+  Vflux<-(gv/zla)*(mVl-mVa)
   # Save outputs
   return(list(tn=tn, tleaf=previn$tleaf+dTL, ea=neaj, gtt=gtt,
-              Rem=aR+bR*dTL, H=aH+bH*dTL, L=aX+bX*dTL, Lc=Lc2))
+              Rem=aR+bR*dTL, H=aH+bH*dTL, L=aX+bX*dTL, Lc=Lc2, Vflux = Vflux))
 }
 #' Initialise paramaters for first time step of model
 #'

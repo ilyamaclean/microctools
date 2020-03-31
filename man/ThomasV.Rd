@@ -4,8 +4,8 @@
 \alias{ThomasV}
 \title{Thomas algorithm for solving simultanious vapour fluxes}
 \usage{
-ThomasV(Vo, tn, pk, theta, thetap, relhum, tair, tsoil, zth, gt, f = 0.6,
-  previn, soilp)
+ThomasV(Vo, tn, pk, theta, thetap, relhum, tair, tsoil, zth, gt, Vflux,
+  f = 0.6, previn, soilp)
 }
 \arguments{
 \item{Vo}{a vector of air vapour concentrations for each canopy node in the previos timestep (mol fraction)}
@@ -30,6 +30,8 @@ the height difference between the lowest canopy node and the ground}
 \item{gt}{vector of molar conductances between each canopy node at that directly below it (mol / m^2 / sec).
 The first value is the conductivity between the ground and the lowest node, and the last value the
 conductivity between the highest node and reference height.}
+
+\item{Vflux}{Total vapour flux from leaves to air (mol /m^3)}
 
 \item{f}{forward / backward weighting of algorithm (as for \code{\link[=Thomas]{Thomas()}})}
 
