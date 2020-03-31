@@ -352,9 +352,11 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   btm<-(1/timestep)+0.5*(gtt/zref+gtt2/z+gv/zla)
   ae<-eaj+0.5*((gtt/zref)*(eref-eaj)+(gtt2/z)*(esoil-eaj)+(gv/zla)*(estl-eaj))/btm
   be<-(0.25*gv*delta)/btm
-  btm<-1+(gtt/zref)+(gtt2/z)+(gv/zla)
-  ae[sel]<-((gtt[sel]/zref[sel])*eref+(gtt2[sel]/z[sel])*esoil+(gv[sel]/zla[sel])*estl[sel])/btm[sel]
-  be[sel]<-(0.5*(gv[sel]/zla[sel])*delta[sel])/btm[sel]
+  tp <- eaj+0.5*((gtt/zref)*eref+(gtt2/z)*esoil+(gv/zla)*estl)
+  tp2 <-0.5*(gv/zla)*delta
+  btm<-1+0.5*((gtt/zref)+(gtt2/z)+(gv/zla))
+  ae[sel]<-tp[sel]/btm[sel]
+  be[sel]<-tp2[sel]
   PAIm<-vegp$PAI/zth
   # Air temperature
   # Test whether steady state
@@ -402,8 +404,10 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   tn[sel]<-tn2[sel]
   dTL[sel]<-dTL[sel]+dTL2[sel]
   Lc2<-ea*0; Lc2[sel]<-Lc[sel]
+  eam<-ae+be*dTL
+  neaj<-eaj+2*(eam-eaj)
   # Save outputs
-  return(list(tn=tn, tleaf=previn$tleaf+dTL, ea=ae+be*dTL, gtt=gtt,
+  return(list(tn=tn, tleaf=previn$tleaf+dTL, ea=neaj, gtt=gtt,
               Rem=aR+bR*dTL, H=aH+bH*dTL, L=aX+bX*dTL, Lc=Lc2))
 }
 #' Initialise paramaters for first time step of model
