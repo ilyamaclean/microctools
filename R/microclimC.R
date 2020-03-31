@@ -352,9 +352,11 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   btm<-(1/timestep)+0.5*(gtt/zref+gtt2/z+gv/zla)
   ae<-eaj+0.5*((gtt/zref)*(eref-eaj)+(gtt2/z)*(esoil-eaj)+(gv/zla)*(estl-eaj))/btm
   be<-(0.25*gv*delta)/btm
-  btm<-1+(gtt/zref)+(gtt2/z)+(gv/zla)
-  ae[sel]<-((gtt[sel]/zref[sel])*eref+(gtt2[sel]/z[sel])*esoil+(gv[sel]/zla[sel])*estl[sel])/btm[sel]
-  be[sel]<-(0.5*(gv[sel]/zla[sel])*delta[sel])/btm[sel]
+  tp <- eaj+0.5*((gtt/zref)*eref+(gtt2/z)*esoil+(gv/zla)*estl)
+  tp2 <-0.5*(gv/zla)*delta
+  btm<-1+0.5*((gtt/zref)+(gtt2/z)+(gv/zla))
+  ae[sel]<-tp[sel]/btm[sel]
+  be[sel]<-tp2[sel]
   PAIm<-vegp$PAI/zth
   # Air temperature
   # Test whether steady state
