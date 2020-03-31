@@ -127,7 +127,8 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
 #' @param L vector of Latent heat fluxes from leaves (W / m^2)
 #' @param previn a list of model outputs form the previous timestep
 #' @param soilp a list of soil parameters as returned by [soilinit()]
-#' @return a vector of vapour concentrations expressed as mole fractions for each canopy node in the current time step.
+#' @return a vector of vapour concentrations expressed as mole fractions for each canopy node in the
+#' current time step. The first value is that for the ground and the last value that at reference height
 #' @export
 #' @seealso [Thomas()]
 ThomasV <- function(Vo, tn, pk, theta, thetap, relhum, tair, tsoil, zth, gt, f = 0.6, L = 0, previn, soilp) {
@@ -148,8 +149,7 @@ ThomasV <- function(Vo, tn, pk, theta, thetap, relhum, tair, tsoil, zth, gt, f =
   Vsoil<-eas/pk
   Vo<-c(easp/previn$pk,Vo,eap/previn$pk)
   Vn<-Thomas(rev(Vo), Vsoil, Vair, rev(gt), rev(ph), f, rev(X))
-  Vn<-Vn[2:(length(Vn)-1)]
-  rev(Vn)
+  Vn<-rev(Vn)
 }
 #' Calculates wind profile for entire canopy
 #'

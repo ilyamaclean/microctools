@@ -40,7 +40,8 @@ conductivity between the highest node and reference height.}
 \item{soilp}{a list of soil parameters as returned by \code{\link[=soilinit]{soilinit()}}}
 }
 \value{
-a vector of vapour concentrations expressed as mole fractions for each canopy node in the current time step.
+a vector of vapour concentrations expressed as mole fractions for each canopy node in the
+current time step. The first value is that for the ground and the last value that at reference height
 }
 \description{
 \code{ThomasV} implements the Thomas algorithm for solving simultanious vapour
