@@ -47,3 +47,23 @@
 #' }
 #' @source: \url{https://onlinelibrary.wiley.com/doi/full/10.1002/ird.1751}
 "soilparams"
+#'
+#' A list of climate variables
+#'
+#' A list of climate variables needed to run the below canopy microclimate model for one time step
+#'
+#' @format a list with the following elements:
+#' \describe{
+#'  \item{tair}{air temperature at reference height (deg C)}
+#'  \item{relhum}{relative humidity at reference height (percentage)}
+#'  \item{pk}{Atmospheric pressure (kPa)}
+#'  \item{u}{Wind speed at reference height (m/s)}
+#'  \item{tsoil}{temperature of deepest soil layer (deg C)}
+#'  \item{skyem}{sky emissivity}
+#'  \item{Rsw}{Incoming shortwave radiation (W/m^2)}
+#'  \item{dp}{Diffuse fraction of incoming shortwave radiation}
+#'  \item{psi_h}{diabatic correction factor for above canopy heat transfer}
+#'  \item{psi_m}{diabatic correction factor for above canopy momentum transfer}
+#'  \item{phi_m}{diabatic correction factor for below canopy momentum transfer}
+#' }
+"climvars"

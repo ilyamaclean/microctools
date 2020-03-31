@@ -500,4 +500,151 @@ soilinit <- function(soiltype) {
   soilp <- soilparams[sel,]
   as.list(soilp)
 }
+#' Run canopy model for a single time step
+#' @description run the below-canopy model for a single timestep
 #'
+#' @param climvars a of climate variables needed to run the run the model for one timestep (see dataset [climvars()])
+#' @param previn a list of model outputs form the previous timestep as returned initially by [paraminit()]
+#' @param vegp a list of vegetation parameters as returned by [habitatvars()]
+#' @param soilp a list of soil parameters as returned by [soilinit()]
+#' @param timestep length of model timestep (s)
+#' @param tme POSIXlt object of the date and time of the current time step
+#' @param lat latitude of location (decimal degrees)
+#' @param long lonitude of location (decimal degrees)
+#' @param edgedist distance to open ground (m)
+#' @param reqhgt optional height for which temperature is required (see details)
+#' @param sdepth depth of deepest soil node (m)
+#' @param m number of canopy nodes
+#' @param zu height above ground of reference climate measurements (m)
+#' @param theta volumetric water content of upper most soil layer in current time step (m^3 / m^3)
+#' @param thetap volumetric water content of upper most soil layer in previous time step (m^3 / m^3)
+#' @param merid an optional numeric value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT).
+#' @param dst an optional numeric value representing the time difference from the timezone meridian (hours, e.g. +1 for BST if `merid` = 0).
+#' @param n forward / backward weighting for Thomas algorithm (see [Thomas()])
+#' @return a list of of model outputs for the current timestep with the same format as `previn`
+#' @details model outputs are returned for each canopy node, with the number of canopy nodes (m)
+#' determined by `previn`. Canopy nodes are spaced at equal heights throughout the canopy as in the
+#' example. If `reqhgt` is set, the canopy node nearest to that height is set at the value specified.
+#' @examples
+#' # Create initail parameters
+#' tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
+#' previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
+#' vegp <- habitatvars(4, 50, -5, tme, m = 20)
+#' z<-c((1:m)-0.5)/m*vegp$hgt
+#' soilp<- soilinit("Loam")
+#' climavars <- list(tair=16,relhum=90,pk=101.3,u=2.1,tsoil=11,skyem=0.9,Rsw=500,dp=NA,
+#'                  psi_h=0,psi_m=0,phi_m=0)
+#' # Run model 100 times for current time step
+#' for (i in 1:100) {
+#'   tc <- plot(z ~ previn$tc, type = "l", xlab = "Temperature", ylab = "Height")
+#'   previn <- runcanopy(climvars, previn, vegp, soilp, 60, tme, 50, -5)
+#' }
+runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, edgedist = 100,
+                      sdepth = 2, reqhgt = NA, zu = 2, theta = 0.3, thetap = 0.3, merid = 0,
+                      dst = 0, n = 0.6) {
+  # =============   Unpack climate variables ========== #
+  m <- length(previn$tc)
+  tair<-climvars$tair; relhum<-climvars$relhum; pk<-climvars$pk; u<-climvars$u
+  tsoil<-climvars$tsoil; skyem<-climvars$skyem; Rsw<-climvars$Rsw; dp<-climvars$dp
+  psi_h<-climvars$psi_h; phi_m<-climvars$phi_m; psi_m<-climvars$psi_m
+  # ========== Calculate baseline variables ============== #
+  tc<-previn$tc; ppk<-previn$pk; hgt<-vegp$hgt
+  ph<-phair(tc,ppk); pha<-phair(tair,pk) # molar density of air
+  cp<-cpair(tc) # specific heat of air
+  lambda <- -42.575*tc+44994 # Latent heat of vapourisation (J / mol)
+  # Adjust wind to 2 m above canopy
+  u2<-u*log(67.8*hgt-5.42)/log(67.8*zu-5.42)
+  # Generate heights of nodes
+  z<-c((1:m)-0.5)/m*vegp$hgt
+  if (is.na(reqhgt) == F) z[abs(z-reqhgt)==min(abs(z-reqhgt))][1]<-reqhgt
+  zt<-z[2:(m)]-z[1:(m-1)] # difference in height between layers
+  # ========== Calculate wind speed and turbulent conductances ======== #
+  ac<- attencoef(hgt,sum(vegp$PAI),vegp$x,vegp$lw,vegp$cd,vegp$iw,phi_m)
+  uz<-rep(0,m); gt<-rep(0,m)
+  uh<-windprofile(u2,hgt+2,hgt,ac[m],sum(vegp$PAI),hgt,psi_m,vegp$hgtg,vegp$zm0)
+  uz[m]<-windcanopy(uh,z[m],hgt,sum(vegp$PAI),vegp$x,vegp$lw,vegp$cd,vegp$iw[m],
+                    phi_m,edgedist,u,zu)
+  gt[m]<-gcanopy(uh,z[m],z[m-1],tc[m],tc[m-1],hgt,sum(vegp$PAI),vegp$x,vegp$lw,
+                 vegp$cd,vegp$iw[m],phi_m,pk)
+  tc<-c(previn$soiltc[1],tc)
+  # ========== Calculate canopy turbulences ========== #
+  for (i in (m-1):1) {
+    zi<-z[i+1]+0.5*zt[i]; zo<-z[i+1]-0.5*zt[i]
+    uh<-windcanopy(uh,zo,zi,sum(vegp$PAI[1:i]),vegp$x,vegp$lw,vegp$cd,vegp$iw[i],
+                   phi_m,edgedist,u,zu)
+    if (i>1) {
+      z0<-z[i-1]
+    } else z0<-0
+    uz[i]<-windcanopy(uh,zi,zo,sum(vegp$PAI[1:i]),vegp$x,vegp$lw,vegp$cd,
+                      vegp$iw[i],phi_m,edgedist,u,zu)
+    gt[i]<-gcanopy(uh,z[i],z0,tc[i+1],tc[i],zi,sum(vegp$PAI[1:i]),vegp$x,vegp$lw,
+                   vegp$cd,vegp$iw[i],phi_m,pk)
+  }
+  # Turbulent air conductivity and layer merge
+  gt[m+1]<-gturb(u2,hgt+2,hgt+2,hgt,hgt,sum(vegp$PAI),tair,psi_m,psi_h,vegp$zm0,pk)
+  lmm<-layermerge(z,gt,hgt,timestep,ph)
+  mrge<-lmm$mrge; gtx<-lmm$gtx; zth<-lmm$zth
+  tc <- tc[-1]
+  # ========== Calculate absorbed radiation =========== #
+  PAIc<-rev(cumsum(rev(vegp$PAI)))
+  Rabss<-leafabs(Rsw,tme,tair,previn$soiltc[1],lat,long,PAIc,vegp$pLAI,vegp$x,vegp$refls,
+                 vegp$refw,vegp$vegem,skyem,dp,merid,dst)
+  Rabs<-Rabss$aRsw+Rabss$aRlw
+  # ============= Conductivities =============== #
+  # Vapour conductivity
+  gv<-layercond(Rabss$aRsw/(1-Rabss$ref),vegp$gsmax,vegp$q50)
+  # Leaf conductivity
+  tc2<-c(tc[2:length(tc)],tair); dtc<-tc2-tc
+  gha<-1.41*gforcedfree(vegp$lw*0.71,uz,tc,dtc,pk)
+  tln<-leaftemp(tair,relhum,pk,timestep,z,gt,gha,gv,Rabs,previn,vegp,soilp,theta)
+  tleafm <- 0.5*tln$tleaf+0.5*previn$tleaf
+  eaj<-0.6108*exp(17.27*tc/(tc+237.3))*(previn$rh/100)
+  Vo<-eaj/previn$pk
+  # =============== Soil conductivity =========== #
+  sm<-length(previn$soiltc)
+  cdk<-soilk(timestep,sm,sdepth,theta,soilp$Vm,soilp$Vq,soilp$Mc,soilp$rho)
+  # conductivity and specific heat
+  vden<-(vegp$PAI*vegp$thickw)
+  mult<-1-vden
+  zla <- mixinglength(vegp$PAI,vegp$hgt,vegp$x,vegp$lw)
+  L<-tln$L-tln$Lc
+  TT<-cumsum((ph/gt[1:m])*(z-c(0,z[1:(m-1)])))
+  lav<-layeraverage(lmm,tc,tleafm,vegp$hgt,gha,gt,zla,z,Vo,tln$Vflux,L,tln$H,vden,ppk,vegp$PAI,TT)
+  cda<-lav$cp*lav$ph*(1-lav$vden)*(lav$z[3:(lav$m+2)]-lav$z[1:(lav$m)])/2*timestep
+  ka<-lav$gt*c(lav$cp,cpair(previn$tair))
+  ka[1:lav$m]<-ifelse(ka[1:lav$m]>cda,cda,ka[1:lav$m])
+  k<-c(rev(ka),cdk$k)
+  cd<-c(rev(cda),cdk$cd)
+  # Heat to add
+  ma<-(timestep*lav$PAI)/(c(lav$ph,phair(previn$tair,previn$pk))*
+                            c(lav$cp,cpair(previn$tair))*c((1-lav$vden),1))
+  Xa<-rev(c(ma*(lav$H+lav$L))); Xa<-Xa[-1]
+  ref<-vegp$pLAI[1]*vegp$refls+(1-vegp$pLAI[1])*vegp$refw
+  Xs<-(timestep/cdk$cd[1])*(1-vegp$refg)*Rabss$aRsw[1]/(1-ref)
+  X<-c(Xa,Xs,rep(0,(sm-1)))
+  # Heat exchange between layers
+  tc2<-c(previn$tair,rev(lav$tc),previn$soiltc, previn$tsoil)
+  tn2<-Thomas(tc2, tsoil, tair, k, cd, n, X)
+  tnair<-rev(tn2[1:(lav$m+2)])
+  tnsoil<-tn2[(lav$m+2):(length(tn2)-1)]
+  # vapour exchange
+  zth2<-lav$z[2:(lav$m+1)]-lav$z[1:lav$m]
+  Vmflux<-(timestep*lav$Vflux*lav$PAI[1:lav$m])/zth2
+  gtmx<-c(lav$ph/zth2*(2*timestep),Inf)
+  gt2<-ifelse(lav$gt>gtmx,gtmx,lav$gt)
+  tn2<-tnair[-1]; tn2<-tn2[-length(tn2)]
+  Vn<-ThomasV(lav$Vo,tn2,pk,theta,thetap,relhum,tair,tnsoil[1],zth2,gt2,Vmflux,n,previn,soilp)
+  # Interpolate
+  TX<-TT[length(TT)]+(pha/gt[m+1])*2
+  T2<-c(0,lav$TT,TX)
+  tn<-layerinterp(T2, TT, tnair)
+  vn<-layerinterp(T2, TT, Vn)
+  # relative humidity
+  ea<-vn*pk
+  es<-0.6108*exp(17.27*tn/(tn+237.3))
+  rh<-(ea/es)*100
+  rh[rh>100]<-100
+  dataout<-list(tc=tn,soiltc=tnsoil,tleaf=tln$tleaf,rh=rh,relhum=relhum,
+                tair=tair,tsoil=tsoil,pk=pk,Rabs=Rabs,gt=gt,gv=gv,gha=gha)
+  return(dataout)
+}

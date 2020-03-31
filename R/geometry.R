@@ -1,4 +1,4 @@
-globalVariables(c("globalclimate", "habitats", "soilparams"))
+globalVariables(c("globalclimate", "habitats", "soilparams", "climvars"))
 #' Generates plant area index profile
 #'
 #' @param m number of canopy nodes
