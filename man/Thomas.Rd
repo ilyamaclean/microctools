@@ -23,7 +23,8 @@ Thomas(tc, tmsoil, tair, k, cd, f = 0.6, X = 0)
 absorbed by top soil layer}
 }
 \value{
-a vector of temperatures (deg C) for each soil / air layer for current time step.
+a vector of temperatures (deg C) for each soil / air layer for current time step. The first value
+is \code{tair} and the last \code{tmsoil}
 }
 \description{
 \code{Thomas} implements the Thomas algorithm for solving simultanious heat

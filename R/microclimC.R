@@ -61,7 +61,8 @@ leafem <- function(tc, vegem) {
 #' @param f forward / backward weighting of algorithm (see details)
 #' @param X vector of temperatures to be added resulting from e.g. leaf heat fluxes or radiation
 #' absorbed by top soil layer
-#' @return a vector of temperatures (deg C) for each soil / air layer for current time step.
+#' @return a vector of temperatures (deg C) for each soil / air layer for current time step. The first value
+#' is `tair` and the last `tmsoil`
 #' @export
 #' @details The vector `tc` must be ordered with reference air temperature first and the soil temperature
 #' of the  deepest layer last. I.e. the length of the vector `tc` is the number of nodes + 2.
@@ -103,6 +104,52 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
     tn[i]<-d[i]-cc[i]*tn[i+1]
   }
   tn
+}
+#' Thomas algorithm for solving simultanious vapour fluxes
+#'
+#' @description `ThomasV` implements the Thomas algorithm for solving simultanious vapour
+#' fluxes between air layers.
+#'
+#' @param Vo a vector of air vapour concentrations for each canopy node in the previos timestep (mol fraction)
+#' @param tn vector of air temperatures (deg C) for each canopy node in the current timestep (deg C)
+#' @param pk atmospheric pressure (kPa)
+#' @param theta Volumetric water content of the upper most soil layer in the current time step (m3 / m3)
+#' @param thetap Volumetric water content of the upper most soil layer in the previous time step (m3 / m3)
+#' @param relhum relative humidity (percentage) at reference height 2 m above canopy in current time step (percentage)
+#' @param tair air temperature at reference height 2 m above canopy in current time step (deg C)
+#' @param tsoil temperature of upper soil layer in current time step (deg C)
+#' @param zth heightdifference between each canopy node and that directly below it. the first value is
+#' the height difference between the lowest canopy node and the ground
+#' @param gt vector of molar conductances between each canopy node at that directly below it (mol / m^2 / sec).
+#' The first value is the conductivity between the ground and the lowest node, and the last value the
+#' conductivity between the highest node and reference height.
+#' @param f forward / backward weighting of algorithm (as for [Thomas()])
+#' @param L vector of Latent heat fluxes from leaves (W / m^2)
+#' @param previn a list of model outputs form the previous timestep
+#' @param soilp a list of soil parameters as returned by [soilinit()]
+#' @return a vector of vapour concentrations expressed as mole fractions for each canopy node in the current time step.
+#' @export
+#' @seealso [Thomas()]
+ThomasV <- function(Vo, tn, pk, theta, thetap, relhum, tair, tsoil, zth, gt, f = 0.6, L = 0, previn, soilp) {
+  m<-length(zth)
+  Jm3<-(L/zth)*timestep
+  lambda <- -42.575*tn+44994
+  ph<-phair(tn,pk)
+  X<-(Jm3/lambda)/ph
+  ea<-0.6108*exp(17.27*tair/(tair+237.3))*(relhum/100)
+  eap<-0.6108*exp(17.27*previn$tair/(previn$tair+237.3))*(previn$relhum/100)
+  Vair<-ea/pk
+  rhsoil<-soilrh(theta,soilp$b,soilp$psi_e,soilp$Smax,tsoil)
+  rhsoilp<-soilrh(thetap,soilp$b,soilp$psi_e,soilp$Smax,previn$soiltc[1])
+  rhsoil[rhsoil>1]<-1
+  rhsoilp[rhsoilp>1]<-1
+  eas<-0.6108*exp(17.27*tsoil/(tsoil+237.3))*rhsoil
+  easp<-0.6108*exp(17.27*previn$tsoil/(previn$tsoil+237.3))*rhsoilp
+  Vsoil<-eas/pk
+  Vo<-c(easp/previn$pk,Vo,eap/previn$pk)
+  Vn<-Thomas(rev(Vo), Vsoil, Vair, rev(gt), rev(ph), f, rev(X))
+  Vn<-Vn[2:(length(Vn)-1)]
+  rev(Vn)
 }
 #' Calculates wind profile for entire canopy
 #'
