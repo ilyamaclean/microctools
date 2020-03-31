@@ -5,7 +5,7 @@
 \title{Thomas algorithm for solving simultanious vapour fluxes}
 \usage{
 ThomasV(Vo, tn, pk, theta, thetap, relhum, tair, tsoil, zth, gt, f = 0.6,
-  L = 0, previn, soilp)
+  previn, soilp)
 }
 \arguments{
 \item{Vo}{a vector of air vapour concentrations for each canopy node in the previos timestep (mol fraction)}
@@ -32,8 +32,6 @@ The first value is the conductivity between the ground and the lowest node, and 
 conductivity between the highest node and reference height.}
 
 \item{f}{forward / backward weighting of algorithm (as for \code{\link[=Thomas]{Thomas()}})}
-
-\item{L}{vector of Latent heat fluxes from leaves (W / m^2)}
 
 \item{previn}{a list of model outputs form the previous timestep}
 
