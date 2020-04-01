@@ -466,7 +466,7 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, Rsw) {
   gv <- spline(c(1, 2), c(0.25, 0.32), n = m)$y
   gha <- spline(c(1, 2), c(0.13, 0.19), n = m)$y
   z<-c((1:m)-0.5)/m*hgt
-  sz<-2/sm^2.42*c(1:m)^2.42
+  sz<-2/sm^2.42*c(1:sm)^2.42
   return(list(tc = tc, soiltc = soiltc, tleaf = tleaf, z = z, sz = sz, rh = rh, relhum = relhum,
               tair = tair, tsoil = tsoil, pk = 101.3, Rabs = Rabs, gt = gt, gv = gv, gha = gha))
 }
