@@ -638,7 +638,13 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   tn2<-tnair[-1]; tn2<-tn2[-length(tn2)]
   if (length(lav$Vo)>1) {
     Vn<-ThomasV(lav$Vo,tn2,pk,theta,thetap,relhum,tair,tnsoil[1],zth2,gt2,Vmflux,n,previn,soilp)
-  } else Vn<-lav$ea/pk
+  } else {
+    Vair<-(0.6108*exp(17.27*tair/(tair+237.3))*(relhum/100))/pk
+    rhsoil<-soilrh(theta,soilp$b,soilp$psi_e,soilp$Smax,tnsoil[1])
+    rhsoil[rhsoil>1]<-1
+    Vsoil<-(0.6108*exp(17.27*tnsoil[1]/(tnsoil[1]+237.3))*rhsoil)/pk
+    Vn<-c(Vsoil,lav$ea/pk,Vair)
+  }
   # Interpolate
   TX<-TT[length(TT)]+(pha/gt[m+1])*2
   T2<-c(0,lav$TT,TX)
