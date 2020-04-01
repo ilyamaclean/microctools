@@ -374,7 +374,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   K1<-gtt[sel]*cp[sel]; K2<-gtt2[sel]*cp[sel]; K3<-gha[sel]*cp[sel]
   K4<-lambda*gv[sel]/mpk; K5<-lambda*gtt2[sel]/mpk
   aL[sel]<-(K1*mtref+K2*previn$soiltc[1]+K3*previn$tleaf[sel]+K4*(estl[sel]-ae[sel])+K5*(esoil-ae[sel]))/(K1+K2+K3)
-  bL<-(0.5*(K3+K4*delta[sel]-be[sel]*(K4+K5)))/(K1+K2+K3)
+  bL[sel]<-(0.5*(K3+K4*delta[sel]-be[sel]*(K4+K5)))/(K1+K2+K3)
   # Sensible Heat
   aH<-cp*gha*(previn$tleaf-aL)
   bH<-cp*gha*(0.5-0.5*bL)
