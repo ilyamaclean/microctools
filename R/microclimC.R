@@ -612,7 +612,7 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   zla <- mixinglength(vegp$PAI,vegp$hgt,vegp$x,vegp$lw)
   L<-tln$L-tln$Lc
   TT<-cumsum((ph/gt[1:m])*(z-c(0,z[1:(m-1)])))
-  lav<-layeraverage(lmm,tc,tleafm,vegp$hgt,gha,gt,zla,z,Vo,tln$Vflux,L,tln$H,vden,ppk,vegp$PAI,TT)
+  lav<-layeraverage(lmm,tc,tleafm,vegp$hgt,gha,gt,zla,z,Vo,tln$Vflux,tln$ea,L,tln$H,vden,ppk,vegp$PAI,TT)
   cda<-lav$cp*lav$ph*(1-lav$vden)*(lav$z[3:(lav$m+2)]-lav$z[1:(lav$m)])/2*timestep
   ka<-lav$gt*c(lav$cp,cpair(previn$tair))
   ka[1:lav$m]<-ifelse(ka[1:lav$m]>cda,cda,ka[1:lav$m])
@@ -636,8 +636,10 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   gtmx<-c(lav$ph/zth2*(2*timestep),Inf)
   gt2<-ifelse(lav$gt>gtmx,gtmx,lav$gt)
   tn2<-tnair[-1]; tn2<-tn2[-length(tn2)]
-  Vn<-ThomasV(lav$Vo,tn2,pk,theta,thetap,relhum,tair,tnsoil[1],zth2,gt2,Vmflux,n,previn,soilp)
-  # Interpolate
+  if (length(lav$Vo)>1) {
+    Vn<-ThomasV(lav$Vo,tn2,pk,theta,thetap,relhum,tair,tnsoil[1],zth2,gt2,Vmflux,n,previn,soilp)
+  } else Vn<-lav$ea/pk
+    # Interpolate
   TX<-TT[length(TT)]+(pha/gt[m+1])*2
   T2<-c(0,lav$TT,TX)
   tn<-layerinterp(T2, TT, tnair)
