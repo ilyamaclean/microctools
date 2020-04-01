@@ -396,7 +396,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   es<-0.6108*exp(17.27*tn/(tn+237.3))
   tn2<-(237.3*log(es/0.6108))/(17.27-log(es/0.6108))
   sel<-which(ea>es)
-  Lc<-lambda*((ea-es)/pk)*ph
+  Lc<-(lambda/timestep)*((ea-es)/pk)*ph
   dTL2<-(ml/zla)*Lc
   # Temperatures and fluxes
   tn[sel]<-tn2[sel]
