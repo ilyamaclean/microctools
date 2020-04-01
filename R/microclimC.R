@@ -639,7 +639,7 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   if (length(lav$Vo)>1) {
     Vn<-ThomasV(lav$Vo,tn2,pk,theta,thetap,relhum,tair,tnsoil[1],zth2,gt2,Vmflux,n,previn,soilp)
   } else Vn<-lav$ea/pk
-    # Interpolate
+  # Interpolate
   TX<-TT[length(TT)]+(pha/gt[m+1])*2
   T2<-c(0,lav$TT,TX)
   tn<-layerinterp(T2, TT, tnair)
