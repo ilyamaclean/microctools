@@ -465,7 +465,9 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, Rsw) {
   gt[m+1] <- gt[m+1] * (hgt / m) * 0.5
   gv <- spline(c(1, 2), c(0.25, 0.32), n = m)$y
   gha <- spline(c(1, 2), c(0.13, 0.19), n = m)$y
-  return(list(tc = tc, soiltc = soiltc, tleaf = tleaf, rh = rh, relhum = relhum,
+  z<-c((1:m)-0.5)/m*hgt
+  sz<-2/sm^2.42*c(1:m)^2.42
+  return(list(tc = tc, soiltc = soiltc, tleaf = tleaf, z = z, sz = sz, rh = rh, relhum = relhum,
               tair = tair, tsoil = tsoil, pk = 101.3, Rabs = Rabs, gt = gt, gv = gv, gha = gha))
 }
 #' Returns soil parameters for a given soil type
@@ -532,7 +534,7 @@ soilinit <- function(soiltype) {
 #' vegp <- habitatvars(4, 50, -5, tme, m = 20)
 #' z<-c((1:20)-0.5)/20*vegp$hgt
 #' soilp<- soilinit("Loam")
-#' climavars <- list(tair=16,relhum=90,pk=101.3,u=2.1,tsoil=11,skyem=0.9,Rsw=500,dp=NA,
+#' climvars <- list(tair=16,relhum=90,pk=101.3,u=2.1,tsoil=11,skyem=0.9,Rsw=500,dp=NA,
 #'                  psi_h=0,psi_m=0,phi_m=0)
 #' # Run model 100 times for current time step
 #' for (i in 1:100) {
@@ -603,6 +605,7 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   # =============== Soil conductivity =========== #
   sm<-length(previn$soiltc)
   cdk<-soilk(timestep,sm,sdepth,theta,soilp$Vm,soilp$Vq,soilp$Mc,soilp$rho)
+  sz<-cdk$z
   # conductivity and specific heat
   vden<-(vegp$PAI*vegp$thickw)
   mult<-1-vden
@@ -644,7 +647,8 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   es<-0.6108*exp(17.27*tn/(tn+237.3))
   rh<-(ea/es)*100
   rh[rh>100]<-100
-  dataout<-list(tc=tn,soiltc=tnsoil,tleaf=tln$tleaf,rh=rh,relhum=relhum,
-                tair=tair,tsoil=tsoil,pk=pk,Rabs=Rabs,gt=gt,gv=gv,gha=gha)
+  dataout<-list(tc=tn,soiltc=tnsoil,tleaf=tln$tleaf,z=z,sz=sz,rh=rh,
+                relhum=relhum,tair=tair,tsoil=tsoil,pk=pk,Rabs=Rabs,
+                gt=gt,gv=gv,gha=gha)
   return(dataout)
 }

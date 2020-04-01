@@ -30,6 +30,8 @@ a list with the following components:
 \code{cd} specific heat capacity of soil (J / m^3 / K)
 
 \code{k} thermal conductance of soil (W / m^2 / K)
+
+\code{z} depth of soil nodes (m)
 }
 \description{
 Calculates soil heat conductivity and capacity from soil properites

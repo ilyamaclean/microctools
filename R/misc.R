@@ -156,6 +156,7 @@ layerinterp <- function(y1, y2, x1) {
 #' @return a list with the following components:
 #' @return `cd` specific heat capacity of soil (J / m^3 / K)
 #' @return `k` thermal conductance of soil (W / m^2 / K)
+#' @return `z` depth of soil nodes (m)
 #' @export
 #'
 soilk <- function(timestep, m, sdepth = 2, theta = 0.3, frm = 0.3, frq = 0.3, frc = 0.01, rho = 2.65) {
@@ -171,7 +172,7 @@ soilk <- function(timestep, m, sdepth = 2, theta = 0.3, frm = 0.3, frq = 0.3, fr
   z<-c(0,0,(sdepth/m^p)*c(1:m)^p)
   cd<-ch*(z[xx+1]-z[xx-1])/(2*timestep)
   k<-la/(z[xx+1]-z[xx])
-  return(list(cd=cd, k=k))
+  return(list(cd=cd, k=k, z=z[xx+1]))
 }
 
 
