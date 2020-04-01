@@ -320,7 +320,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   # Sort out thicknesses
   m<-length(gt)-1
   zth<-c(z[2:m]-z[1:(m-1)],vegp$hgt-(z[m]+z[m-1])/2)
-  zla<-mixinglength(vegp$hgt,vegp$PAI,vegp$x,vegp$lw)
+  zla<-mixinglength(zth,vegp$PAI,vegp$x,vegp$lw)
   # Sort out conductivitites
   gt<-0.5*gt+0.5*previn$gt
   gv<-0.5*gv+0.5*previn$gv
@@ -619,11 +619,15 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   k<-c(rev(ka),cdk$k)
   cd<-c(rev(cda),cdk$cd)
   # Heat to add
+  # Heat to add
   ma<-(timestep*lav$PAI)/(c(lav$ph,phair(previn$tair,previn$pk))*
                             c(lav$cp,cpair(previn$tair))*c((1-lav$vden),1))
   Xa<-rev(c(ma*(lav$H+lav$L))); Xa<-Xa[-1]
-  ref<-vegp$pLAI[1]*vegp$refls+(1-vegp$pLAI[1])*vegp$refw
-  Xs<-(timestep/cdk$cd[1])*(1-vegp$refg)*Rabss$aRsw[1]/(1-ref)
+  Xamx<-rev((lav$tleaf-lav$tc)+(lav$L[1:lav$m]+lav$H[1:lav$m])/(lav$gha*lav$cp))
+  Xa<-ifelse(Xa>Xamx,Xamx,Xa)
+  Xs<-(timestep/cdk$cd[1])*(1-vegp$refg)*Rabss$aRsw[1]
+  Xsmx<-((1-vegp$refg)*Rabss$aRsw[1])/(gha[1]*cp[1])+(tln$tn[1]-previn$soiltc[1])
+  Xs<-ifelse(Xs>Xsmx,Xsmx,Xs)
   X<-c(Xa,Xs,rep(0,(sm-1)))
   # Heat exchange between layers
   tc2<-c(previn$tair,rev(lav$tc),previn$soiltc, previn$tsoil)
