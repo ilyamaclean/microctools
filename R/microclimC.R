@@ -530,14 +530,15 @@ soilinit <- function(soiltype) {
 #' tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
 #' previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
 #' vegp <- habitatvars(4, 50, -5, tme, m = 20)
-#' z<-c((1:m)-0.5)/m*vegp$hgt
+#' z<-c((1:20)-0.5)/20*vegp$hgt
 #' soilp<- soilinit("Loam")
 #' climavars <- list(tair=16,relhum=90,pk=101.3,u=2.1,tsoil=11,skyem=0.9,Rsw=500,dp=NA,
 #'                  psi_h=0,psi_m=0,phi_m=0)
 #' # Run model 100 times for current time step
 #' for (i in 1:100) {
-#'   tc <- plot(z ~ previn$tc, type = "l", xlab = "Temperature", ylab = "Height")
+#'   plot(z ~ previn$tc, type = "l", xlab = "Temperature", ylab = "Height", main = i)
 #'   previn <- runcanopy(climvars, previn, vegp, soilp, 60, tme, 50, -5)
+#'   Sys.sleep(0.25)
 #' }
 runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, edgedist = 100,
                       sdepth = 2, reqhgt = NA, zu = 2, theta = 0.3, thetap = 0.3, merid = 0,
