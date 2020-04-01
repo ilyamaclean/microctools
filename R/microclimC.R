@@ -394,10 +394,10 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   tn<-aL+bL*dTL
   ea<-ae+be*dTL
   es<-0.6108*exp(17.27*tn/(tn+237.3))
+  tn2<-(237.3*log(es/0.6108))/(17.27-log(es/0.6108))
   sel<-which(ea>es)
-  tn2<-(237.3*log(ea/0.6108))/(17.27-log(es/0.6108))
-  Lc<-(tn2-tn)*cp*ph*(1-vden)
-  dTL2<- -Lc/soilp$Ch
+  Lc<-lambda*((ea-es)/pk)*ph
+  dTL2<-(-Lc*ml)
   # Temperatures and fluxes
   tn[sel]<-tn2[sel]
   dTL[sel]<-dTL[sel]+dTL2[sel]
@@ -522,6 +522,7 @@ soilinit <- function(soiltype) {
 #' @param dst an optional numeric value representing the time difference from the timezone meridian (hours, e.g. +1 for BST if `merid` = 0).
 #' @param n forward / backward weighting for Thomas algorithm (see [Thomas()])
 #' @return a list of of model outputs for the current timestep with the same format as `previn`
+#' @export
 #' @details model outputs are returned for each canopy node, with the number of canopy nodes (m)
 #' determined by `previn`. Canopy nodes are spaced at equal heights throughout the canopy as in the
 #' example. If `reqhgt` is set, the canopy node nearest to that height is set at the value specified.
