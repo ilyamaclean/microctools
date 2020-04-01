@@ -650,10 +650,16 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
     Vn<-c(Vsoil,lav$ea/pk,Vair)
   }
   # Interpolate
-  TX<-TT[length(TT)]+(pha/gt[m+1])*2
-  T2<-c(0,lav$TT,TX)
-  tn<-layerinterp(T2, TT, tnair)
-  vn<-layerinterp(T2, TT, Vn)
+  # Interpolate
+  if (length(lav$Vo) < m) {
+    TX<-TT[length(TT)]+(pha/gt[m+1])*2
+    T2<-c(0,lav$TT,TX)
+    tn<-layerinterp(T2, TT, tnair)
+    vn<-layerinterp(T2, TT, Vn)
+  } else {
+    tn <- tnair[2:(m+1)]
+    vn <- Vn[2:(m+1)]
+  }
   # relative humidity
   ea<-vn*pk
   es<-0.6108*exp(17.27*tn/(tn+237.3))
