@@ -4,8 +4,8 @@
 \alias{layeraverage}
 \title{Merges canopy air layers and calculates average properties}
 \usage{
-layeraverage(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, Vflux, L, H, vden,
-  pk, PAI, TT)
+layeraverage(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, Vflux, ea, L, H,
+  vden, pk, PAI, TT)
 }
 \arguments{
 \item{lmm}{list of layers to merge as returned by \code{\link[=layermerge]{layermerge()}}}
@@ -24,9 +24,11 @@ layeraverage(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, Vflux, L, H, vden,
 
 \item{z}{height above ground of canopy nodes (m)}
 
-\item{Vo}{mole fraction of water vapour in air (mol / mol)}
+\item{Vo}{mole fraction of water vapour in air in previous time-step (mol / mol)}
 
 \item{Vflux}{molar flux density of water vapour from leaves to air (mol / m^2/ sec)}
+
+\item{ea}{vapur pressure in current timestep}
 
 \item{L}{Latent heat flux from canopy layer (W / m^2)}
 
@@ -62,6 +64,8 @@ A list of average values for merged canopy layers of the following components:
 \code{Vo} mole fraction of water vapour in air (mol / mol)
 
 \code{Vflux} molar flux density of water vapour from leaves to air (mol / m^2/ sec)
+
+\code{ea} vapur pressure in current time step (kPa)
 
 \code{lambda} Latent heat of vapourization of water (J / mol)
 
