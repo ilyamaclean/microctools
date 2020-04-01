@@ -929,6 +929,6 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   return(list(hgt = pai$height, PAI = PAI, x = pai$x, lw = lw, cd = 0.2, iw = iw,
               hgtg = uhgt, zm0 = zm0, pLAI = pLAI, refls = refls,
-              refg = 0.15, refw = refw, reflp - reflp, vegem = 0.97, gsmax = gsmax,
+              refg = 0.15, refw = refw, reflp = reflp, vegem = 0.97, gsmax = gsmax,
               q50 = 100, thickw = thickw, cpw = 1200, phw = phw, kwood = 0.14))
 }

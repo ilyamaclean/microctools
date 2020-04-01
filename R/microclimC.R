@@ -2,7 +2,7 @@
 #'
 #' @description Calculates the flux density of radiation absorbed by leaf.
 #'
-#' @param globrad Incoming shortwave radiation (W / m2)
+#' @param Rsw Incoming shortwave radiation (W / m2)
 #' @param tme POSIXlt object of time(s)
 #' @param tair air temperature (deg C)
 #' @param tground ground temperature (deg C)
@@ -15,7 +15,7 @@
 #' @param refw reflectivity of woody vegetation to shortwave radiation
 #' @param vegem emissivity of vegetation
 #' @param skyem sky emissivity
-#' @param dp proportion of `globrad` that is diffuse radiation. If not provided, then calculated using [difprop()]
+#' @param dp proportion of `Rsw` that is diffuse radiation. If not provided, then calculated using [difprop()]
 #' @param merid optional longitude (decimal degrees) of the local time zone meridian (0 for GMT).
 #' @param dst optional value representing the time difference from the timezone meridian
 #'
@@ -24,15 +24,15 @@
 #' @return `aRlw` absorbed longwave radiation (W / m2)
 #' @return `ref` mean area-wighted reflectivity of vegetation (green and woody)
 #' @export
-leafabs <-function(globrad, tme, tair, tground, lat, long, PAIc, pLAI, x, refls, refw, vegem, skyem, dp = NA,
+leafabs <-function(Rsw, tme, tair, tground, lat, long, PAIc, pLAI, x, refls, refw, vegem, skyem, dp = NA,
                  merid = round(long/15, 0) * 15, dst = 0) {
   jd<-julday(tme = tme)
   lt<-tme$hour+tme$min/60+tme$sec/3600
-  if (is.na(dp)) dp<-difprop(globrad,jd,lt,lat,long,merid=merid,dst=dst)
+  if (is.na(dp)) dp<-difprop(Rsw,jd,lt,lat,long,merid=merid,dst=dst)
   sa<-solalt(lt,lat,long,jd,merid=merid,dst=dst)
   ref<-pLAI*refls+(1-pLAI)*refw
-  aRsw <- (1-ref) * cansw(globrad,dp,jd,lt,lat,long,PAIc,x,ref,merid=merid,dst=dst)
-  aRlw <- canlw(tair, PAIc, 1-vegem, skyem = skyem)
+  aRsw <- (1-ref) * cansw(Rsw,dp,jd,lt,lat,long,PAIc,x,ref,merid=merid,dst=dst)
+  aRlw <- canlw(tair, PAIc, 1-vegem, skyem = skyem)$lwabs
   return(list(aRsw=aRsw, aRlw=aRlw, ref=ref))
 }
 #' Calculates radiation emitted by leaf
@@ -397,7 +397,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   tn2<-(237.3*log(es/0.6108))/(17.27-log(es/0.6108))
   sel<-which(ea>es)
   Lc<-lambda*((ea-es)/pk)*ph
-  dTL2<-(-Lc*ml)
+  dTL2<-(ml/zla)*Lc
   # Temperatures and fluxes
   tn[sel]<-tn2[sel]
   dTL[sel]<-dTL[sel]+dTL2[sel]
@@ -425,7 +425,7 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
 #' @param relhum relative humidity at 2 m above canopy (percentage)
 #' @param tsoil temperature of deepest soil layer. Usually ~mean annual temperature
 #' (deg C). See details.
-#' @param globrad total incoming shortwave radiation (W / m^2)
+#' @param Rsw total incoming shortwave radiation (W / m^2)
 #' @return a list with the following elements:
 #' @return `tc` a vector of air temperatures for each canopy layer (deg C)
 #' @return `soiltc` a vector of airsoil temperatures for each soil layer (deg C)
@@ -446,19 +446,19 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
 #'
 #' @details All values are approximate. Values for `tc` and `tsoil` are derived by
 #' linear intepolation between `tair` and `tsoil`. Values for `Rabs` are derived from
-#' `globrad` but attenuate through the canopy. Values for `tleaf` are derived
+#' `Rsw` but attenuate through the canopy. Values for `tleaf` are derived
 #' from `tc` and `Rabs`. Values for `rh` are the same as `relhum`. Values for `gt`
 #' `gv` and `gha` are typical for decidious woodland with wind above canopy at 2 m/s.
 #' `gt` is scaled by canopy height and `m` (and hence distance between nodes). The first
 #' value represents conductivity between the ground and the lowest canopy node. The last
 #' value represents conductivity between the air at 2 m above canopy and the highest
 #' canopy node.
-paraminit <- function(m, sm, hgt, tair, relhum, tsoil, globrad) {
+paraminit <- function(m, sm, hgt, tair, relhum, tsoil, Rsw) {
   tcb <- spline(c(1,2), c(tsoil, tair), n = m + sm)
   tc <- tcb$y[(sm + 1): (m + sm)]
   soiltc <- rev(tcb$y[1:sm])
   rh <- rep(relhum, m)
-  Rabs <- spline(c(1, 2), c(0.2 * globrad + 20, globrad + 20), n = m)$y
+  Rabs <- spline(c(1, 2), c(0.2 * Rsw + 20, Rsw + 20), n = m)$y
   tleaf <- tc + 0.01 * Rabs
   gt <- rep(50, m + 1) * (m / hgt) * (2 / m)
   gt[1] <- 2 * gt[1]
@@ -514,7 +514,6 @@ soilinit <- function(soiltype) {
 #' @param edgedist distance to open ground (m)
 #' @param reqhgt optional height for which temperature is required (see details)
 #' @param sdepth depth of deepest soil node (m)
-#' @param m number of canopy nodes
 #' @param zu height above ground of reference climate measurements (m)
 #' @param theta volumetric water content of upper most soil layer in current time step (m^3 / m^3)
 #' @param thetap volumetric water content of upper most soil layer in previous time step (m^3 / m^3)
@@ -539,7 +538,6 @@ soilinit <- function(soiltype) {
 #' for (i in 1:100) {
 #'   plot(z ~ previn$tc, type = "l", xlab = "Temperature", ylab = "Height", main = i)
 #'   previn <- runcanopy(climvars, previn, vegp, soilp, 60, tme, 50, -5)
-#'   Sys.sleep(0.25)
 #' }
 runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, edgedist = 100,
                       sdepth = 2, reqhgt = NA, zu = 2, theta = 0.3, thetap = 0.3, merid = 0,

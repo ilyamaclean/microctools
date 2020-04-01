@@ -11,7 +11,7 @@ layercond(Rsw, gsmax, q50 = 100)
 
 \item{gsmax}{maximum stomatal conductivity (mol / m^2 / sec)}
 
-\item{q50}{amount of photosynthetically active radiation when stomatal conductance is at 50% of its maximum}
+\item{q50}{amount of photosynthetically active radiation when stomatal conductance is at 50 percent of its maximum}
 }
 \value{
 stomatal conductance (mol / m^2 / sec)

@@ -2,9 +2,9 @@
 % Please edit documentation in R/solar.R
 \name{canlw}
 \alias{canlw}
-\title{Calculates net outgoing longwave radiation underneath vegetated canopies}
+\title{Calculates longwave radiation underneath vegetated canopies}
 \usage{
-canlw(tc, l, ref = 0.02, skyem = 0.9)
+canlw(tc, l, ref = 0.03, skyem = 0.9)
 }
 \arguments{
 \item{tc}{temperature (deg C)}
@@ -16,20 +16,28 @@ canlw(tc, l, ref = 0.02, skyem = 0.9)
 \item{skyem}{sky emissivity}
 }
 \value{
-Flux density of net outgoing longwave radiation emitted under leaf area \code{l} (W / m2)
+A list wiht the following elements:
+
+\code{lwout} Flux density of total outgoing longwave radiation emitted under leaf area \code{l} (W / m2)
+
+\code{lwin} Flux density of incoming longwave radiation received under leaf area \code{l} (W / m2)
+
+\code{lwabs} Flux density of absorbed longwave radiation under leaf area \code{l} (W / m2)
+
+\code{lwnet} Flux density of net longwave radiation emitted under leaf area \code{l} (W / m2)
 }
 \description{
-\code{canlw} calculates the flux density (W / m^2) of net outgoing longwave
-radiation underneath vegetated canopies
+\code{canlw} calculates the flux density (W / m^2) of incoming and
+outgoing longwave radiation underneath vegetated canopies
 }
 \examples{
 l <- c(0:1000) / 500
 lw1 <- canlw(11, l, skyem = 0.9)
 lw2 <- canlw(11, l, skyem = 0.7)
 lw3 <- canlw(11, l, skyem = 0.5)
-plot(lw1 ~ l, type = "l", lwd = 2, ylim = c(0,200), ylab = "Net longwave")
+plot(lw1$lwnet ~ l, type = "l", lwd = 2, ylim = c(0,200), ylab = "Net longwave")
 par(new = TRUE)
-plot(lw2 ~ l, type = "l", col = "blue", lwd = 2, ylim = c(0,200), ylab = "")
+plot(lw2$lwnet ~ l, type = "l", col = "blue", lwd = 2, ylim = c(0,200), ylab = "")
 par(new = TRUE)
-plot(lw3 ~ l, type = "l", col = "red", lwd = 2, ylim = c(0,200), ylab = "")
+plot(lw3$lwnet ~ l, type = "l", col = "red", lwd = 2, ylim = c(0,200), ylab = "")
 }

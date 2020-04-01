@@ -4,11 +4,11 @@
 \alias{leafabs}
 \title{Calculates radiation absorbed by leaf}
 \usage{
-leafabs(globrad, tme, tair, tground, lat, long, PAIc, pLAI, x, refls, refw,
+leafabs(Rsw, tme, tair, tground, lat, long, PAIc, pLAI, x, refls, refw,
   vegem, skyem, dp = NA, merid = round(long/15, 0) * 15, dst = 0)
 }
 \arguments{
-\item{globrad}{Incoming shortwave radiation (W / m2)}
+\item{Rsw}{Incoming shortwave radiation (W / m2)}
 
 \item{tme}{POSIXlt object of time(s)}
 
@@ -34,7 +34,7 @@ leafabs(globrad, tme, tair, tground, lat, long, PAIc, pLAI, x, refls, refw,
 
 \item{skyem}{sky emissivity}
 
-\item{dp}{proportion of \code{globrad} that is diffuse radiation. If not provided, then calculated using \code{\link[=difprop]{difprop()}}}
+\item{dp}{proportion of \code{Rsw} that is diffuse radiation. If not provided, then calculated using \code{\link[=difprop]{difprop()}}}
 
 \item{merid}{optional longitude (decimal degrees) of the local time zone meridian (0 for GMT).}
 

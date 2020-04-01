@@ -42,8 +42,6 @@ runcanopy(climvars, previn, vegp, soilp, timestep, tme, lat, long,
 \item{dst}{an optional numeric value representing the time difference from the timezone meridian (hours, e.g. +1 for BST if \code{merid} = 0).}
 
 \item{n}{forward / backward weighting for Thomas algorithm (see \code{\link[=Thomas]{Thomas()}})}
-
-\item{m}{number of canopy nodes}
 }
 \value{
 a list of of model outputs for the current timestep with the same format as \code{previn}
@@ -69,6 +67,5 @@ climavars <- list(tair=16,relhum=90,pk=101.3,u=2.1,tsoil=11,skyem=0.9,Rsw=500,dp
 for (i in 1:100) {
   plot(z ~ previn$tc, type = "l", xlab = "Temperature", ylab = "Height", main = i)
   previn <- runcanopy(climvars, previn, vegp, soilp, 60, tme, 50, -5)
-  Sys.sleep(0.25)
 }
 }

@@ -79,7 +79,7 @@ soilrh <- function(theta, b = 5.2, Psie = -2.6, Smax = 0.419, tc = 11) {
 #' radiation
 #' @param Rsw incoming shortwave radiation (W / m^2)
 #' @param gsmax maximum stomatal conductivity (mol / m^2 / sec)
-#' @param q50 amount of photosynthetically active radiation when stomatal conductance is at 50% of its maximum
+#' @param q50 amount of photosynthetically active radiation when stomatal conductance is at 50 percent of its maximum
 #' @return stomatal conductance (mol / m^2 / sec)
 #' @export
 layercond <- function(Rsw, gsmax, q50 = 100) {

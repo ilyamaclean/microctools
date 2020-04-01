@@ -4,7 +4,7 @@
 \alias{paraminit}
 \title{Initialise paramaters for first time step of model}
 \usage{
-paraminit(m, sm, hgt, tair, relhum, tsoil, globrad)
+paraminit(m, sm, hgt, tair, relhum, tsoil, Rsw)
 }
 \arguments{
 \item{m}{number of canopy layer nodes}
@@ -20,7 +20,7 @@ paraminit(m, sm, hgt, tair, relhum, tsoil, globrad)
 \item{tsoil}{temperature of deepest soil layer. Usually ~mean annual temperature
 (deg C). See details.}
 
-\item{globrad}{total incoming shortwave radiation (W / m^2)}
+\item{Rsw}{total incoming shortwave radiation (W / m^2)}
 }
 \value{
 a list with the following elements:
@@ -54,7 +54,7 @@ first time step of the model
 \details{
 All values are approximate. Values for \code{tc} and \code{tsoil} are derived by
 linear intepolation between \code{tair} and \code{tsoil}. Values for \code{Rabs} are derived from
-\code{globrad} but attenuate through the canopy. Values for \code{tleaf} are derived
+\code{Rsw} but attenuate through the canopy. Values for \code{tleaf} are derived
 from \code{tc} and \code{Rabs}. Values for \code{rh} are the same as \code{relhum}. Values for \code{gt}
 \code{gv} and \code{gha} are typical for decidious woodland with wind above canopy at 2 m/s.
 \code{gt} is scaled by canopy height and \code{m} (and hence distance between nodes). The first
