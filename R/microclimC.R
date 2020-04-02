@@ -87,7 +87,7 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
   g<-1-f
   a <- c(0,0); b <- 0; cc <-0; d <- 0
   xx<-(2:(m+1))
-  tc[xx]<-tc[xx]+0.5*X
+  tc[xx]<-tc[xx]+g*X
   cc[xx]<- -k[xx]*f
   a[xx+1]<-cc[xx]
   b[xx]<-f*(k[xx]+k[xx-1])+cd
@@ -104,7 +104,7 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
   for (i in m:2) {
     tn[i]<-d[i]-cc[i]*tn[i+1]
   }
-  tn<-tn+0.5*X
+  tn[xx]<-tn[xx]+f*X
   tn
 }
 #' Thomas algorithm for solving simultanious vapour fluxes
