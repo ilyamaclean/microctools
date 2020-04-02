@@ -53,6 +53,7 @@ run the below-canopy model for a single timestep
 model outputs are returned for each canopy node, with the number of canopy nodes (m)
 determined by \code{previn}. Canopy nodes are spaced at equal heights throughout the canopy as in the
 example. If \code{reqhgt} is set, the canopy node nearest to that height is set at the value specified.
+If temperatures below ground are needed, the depth can be set using \code{\link[=soilinit]{soilinit()}}
 }
 \examples{
 # Create initail parameters
@@ -60,7 +61,7 @@ tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
 previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
 vegp <- habitatvars(4, 50, -5, tme, m = 20)
 z<-c((1:20)-0.5)/20*vegp$hgt
-soilp<- soilinit("Loam")
+soilp<- soilinit("Loam", timestep = 60)
 climvars <- list(tair=16,relhum=90,pk=101.3,u=2.1,tsoil=11,skyem=0.9,Rsw=500,dp=NA,
                  psi_h=0,psi_m=0,phi_m=0)
 # Run model 100 times for current time step

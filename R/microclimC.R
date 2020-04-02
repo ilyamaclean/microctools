@@ -87,12 +87,13 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
   g<-1-f
   a <- c(0,0); b <- 0; cc <-0; d <- 0
   xx<-(2:(m+1))
+  tc[xx]<-tc[xx]+X
   cc[xx]<- -k[xx]*f
   a[xx+1]<-cc[xx]
   b[xx]<-f*(k[xx]+k[xx-1])+cd
-  d[xx]<-X+g*k[xx-1]*tc[xx-1]+(cd-g*(k[xx]+k[xx-1]))*tc[xx]+g*k[xx]*tc[xx+1]
+  d[xx]<-g*k[xx-1]*tc[xx-1]+(cd-g*(k[xx]+k[xx-1]))*tc[xx]+g*k[xx]*tc[xx+1]
   d[2]<-d[2]+k[1]*tn[1]*f
-  d[m+1] <- d[m+1] + k[m+1] * f * tn[m+2]
+  d[m+1]<-d[m+1] + k[m+1] * f * tn[m+2]
   for (i in 2:m) {
     cc[i]<-cc[i]/b[i]
     d[i]<-d[i]/b[i]
@@ -309,7 +310,7 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
 #' previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
 #' vegp <- habitatvars(3, 50, -5, tme, m = 20)
-#' soilp <- soilinit("Loam")
+#' soilp <- soilinit("Loam", timestep = 60)
 #' z<-c((1:20) - 0.5) / 20 * vegp$hgt
 #' # run function (setting conductances in current time step to same as in previous):
 #' ltemp <- leaftemp(11, 80, 101.3, 60, z, previn$gt, previn$gha, previn$gv, previn$Rabs, previn,
@@ -478,7 +479,10 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, Rsw) {
 #' @param soiltype one of `Sand`, `Loamy sand`, `Sandy loam`, `Loam`, `Silt`,
 #' `Silt loam`, `Sandy clay loam`, `Clay loam`, `Silty clay loam`, `Sandy clay`,
 #' `Silty clay` or `Clay`.
-#'
+#' @param timestep length of time step (see details)
+#' @param m number of soil nodes (see details)
+#' @param sdepth depth of deepest soil node (m)
+#' @param reqdepth optional depth (m) for which temperature is required (m)
 #' @return a list with the following items:
 #' @return `Soil.type` description of soil type
 #' @return `Smax` Volumetric water content at saturation (m^3 / m^3)
@@ -493,14 +497,50 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, Rsw) {
 #' @return `rho` Soil bulk density (Mg / m^3)
 #' @return `b` Shape parameter for Campbell model (dimensionless, > 1)
 #' @return `psi_e` Matric potential (J / m^3)
-#'
+#' @return `z` depth (m) of soil nodes (see details)
+#' @details the depth of the soil nodes are automatically calculated so
+#' as to ensure the top soil node is as shallow as possible, but also
+#' ensuring that during a single time step, the volumetric heat capacity
+#' of the soil would not be exceeded, so as to ensure a stable solution to soil
+#' heat fluxes. Since volumetric heat capacity depends on water content, the
+#' solution is derived by iteration. If `reqdepth` is not NA, the soil node
+#' nearest to `reqdepth` is set to `reqdepth`.
 #' @export
 #' @examples
-#' soilinit("Loam")
-soilinit <- function(soiltype) {
-  sel <- which(soilparams$Soil.type == soiltype)
-  soilp <- soilparams[sel,]
-  as.list(soilp)
+#' soilinit("Loam", 3600)
+soilinit <- function(soiltype, timestep, m = 10, sdepth = 2, reqdepth = NA) {
+  sel<-which(soilparams$Soil.type==soiltype)
+  soilp<-soilparams[sel,]
+  thetas<-c(0:1000)/1000*(soilp$Smax-soilp$Smin)+soilp$Smin
+  rtn<-0
+  for (i in 1:1000) {
+    theta<-thetas[i]
+    ch<-(2400000*soilp$rho/2.64+4180000*theta)
+    frs<-soilp$Vm+soilp$Vq
+    c1<-(0.57+1.73*soilp$Vq+0.93*soilp$Vm)/(1-0.74*soilp$Vq-0.49*soilp$Vm)-2.8*frs*(1-frs)
+    c2<-1.06*soilp$rho*theta; c3<-1+2.6*soilp$Mc^-0.5
+    c4<-0.03+0.7*frs^2
+    la<-(c1+c2*theta-(c1-c4)*exp(-(c3*theta)^4))
+    zmn<-sqrt((la*timestep)/ch)*sqrt(2)
+    p<-log(2/zmn,m)
+    z<-(sdepth/m^p)*c(1:m)^p
+    rtn[i]<-z[1]
+  }
+  sel<-which(rtn==max(rtn))[1]
+  theta<-thetas[sel]
+  ch<-(2400000*soilp$rho/2.64+4180000*theta)
+  frs<-soilp$Vm+soilp$Vq
+  c1<-(0.57+1.73*soilp$Vq+0.93*soilp$Vm)/(1-0.74*soilp$Vq-0.49*soilp$Vm)-2.8*frs*(1-frs)
+  c2<-1.06*soilp$rho*theta; c3<-1+2.6*soilp$Mc^-0.5
+  c4<-0.03+0.7*frs^2
+  la<-(c1+c2*theta-(c1-c4)*exp(-(c3*theta)^4))
+  zmn<-sqrt((la*timestep)/ch)*sqrt(2)
+  p<-log(2/zmn,m)
+  z<-(sdepth/m^p)*c(1:m)^p
+  if (is.na(reqdepth) == F) z[abs(z-reqdepth)==min(abs(z-reqdepth))][1]<-reqdepth
+  soilp<-as.list(soilp)
+  soilp$z<-z
+  return(soilp)
 }
 #' Run canopy model for a single time step
 #' @description run the below-canopy model for a single timestep
@@ -527,13 +567,14 @@ soilinit <- function(soiltype) {
 #' @details model outputs are returned for each canopy node, with the number of canopy nodes (m)
 #' determined by `previn`. Canopy nodes are spaced at equal heights throughout the canopy as in the
 #' example. If `reqhgt` is set, the canopy node nearest to that height is set at the value specified.
+#' If temperatures below ground are needed, the depth can be set using [soilinit()]
 #' @examples
 #' # Create initail parameters
 #' tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
 #' previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
 #' vegp <- habitatvars(4, 50, -5, tme, m = 20)
 #' z<-c((1:20)-0.5)/20*vegp$hgt
-#' soilp<- soilinit("Loam")
+#' soilp<- soilinit("Loam", timestep = 60)
 #' climvars <- list(tair=16,relhum=90,pk=101.3,u=2.1,tsoil=11,skyem=0.9,Rsw=500,dp=NA,
 #'                  psi_h=0,psi_m=0,phi_m=0)
 #' # Run model 100 times for current time step
@@ -604,8 +645,8 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   Vo<-eaj/previn$pk
   # =============== Soil conductivity =========== #
   sm<-length(previn$soiltc)
-  cdk<-soilk(timestep,sm,sdepth,theta,soilp$Vm,soilp$Vq,soilp$Mc,soilp$rho)
-  sz<-cdk$z
+  cdk<-soilk(timestep,theta,soilp)
+  sz<-soilp$z
   # conductivity and specific heat
   vden<-(vegp$PAI*vegp$thickw)
   mult<-1-vden

@@ -149,33 +149,24 @@ layerinterp <- function(y1, y2, x1) {
 #'
 #' @description Calculates soil heat conductivity and capacity from soil properites
 #' @param timestep model time step (s)
-#' @param m number of soil layers
-#' @param sdepth depth of deepest soil layer (m)
 #' @param theta volumetric soil water fraction (m^3 / m^3)
-#' @param frm volumetric soil mineral fraction (m^3 / m^3)
-#' @param frq volumetric soil quartz fraction (m^3 / m^3)
-#' @param frc mass fraction of clay (kg / kg)
-#' @param rho bulk density of soil (Mg / m^3)
+#' @param soilp a list of soil parameters as returned by [soilinit()]
 #' @return a list with the following components:
 #' @return `cd` specific heat capacity of soil (J / m^3 / K)
 #' @return `k` thermal conductance of soil (W / m^2 / K)
-#' @return `z` depth of soil nodes (m)
 #' @export
-#'
-soilk <- function(timestep, m, sdepth = 2, theta = 0.3, frm = 0.3, frq = 0.3, frc = 0.01, rho = 2.65) {
+soilk <- function(timestep, theta = 0.3, soilp) {
+  m<-length(soilp$z)
   xx<-(2:(m+1))
-  ch<-(2400000*rho/2.64+4180000*theta)
-  frs<-frm+frq
-  c1<-(0.57+1.73*frq+0.93*frm)/(1-0.74*frq-0.49*frm)-2.8*frs*(1-frs)
-  c2<-1.06*rho*theta; c3<-1+2.6*frc^-0.5
+  sdepth<-soilp$z[m]
+  ch<-(2400000*soilp$rho/2.64+4180000*theta)
+  frs<-soilp$Vm+soilp$Vq
+  c1<-(0.57+1.73*soilp$Vq+0.93*soilp$Vm)/(1-0.74*soilp$Vq-0.49*soilp$Vm)-2.8*frs*(1-frs)
+  c2<-1.06*soilp$rho*theta; c3<-1+2.6*soilp$Mc^-0.5
   c4<-0.03+0.7*frs^2
   la<-(c1+c2*theta-(c1-c4)*exp(-(c3*theta)^4))
-  zmn<-sqrt((la*timestep)/ch)*sqrt(2)
-  p<-log(2/zmn,m)
-  z<-c(0,0,(sdepth/m^p)*c(1:m)^p)
+  z<-c(0,0,soilp$z)
   cd<-ch*(z[xx+1]-z[xx-1])/(2*timestep)
   k<-la/(z[xx+1]-z[xx])
-  return(list(cd=cd, k=k, z=z[xx+1]))
+  return(list(cd=cd, k=k))
 }
-
-

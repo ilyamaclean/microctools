@@ -4,25 +4,14 @@
 \alias{soilk}
 \title{Calculates soil heat conductivity and capacity}
 \usage{
-soilk(timestep, m, sdepth = 2, theta = 0.3, frm = 0.3, frq = 0.3,
-  frc = 0.01, rho = 2.65)
+soilk(timestep, theta = 0.3, soilp)
 }
 \arguments{
 \item{timestep}{model time step (s)}
 
-\item{m}{number of soil layers}
-
-\item{sdepth}{depth of deepest soil layer (m)}
-
 \item{theta}{volumetric soil water fraction (m^3 / m^3)}
 
-\item{frm}{volumetric soil mineral fraction (m^3 / m^3)}
-
-\item{frq}{volumetric soil quartz fraction (m^3 / m^3)}
-
-\item{frc}{mass fraction of clay (kg / kg)}
-
-\item{rho}{bulk density of soil (Mg / m^3)}
+\item{soilp}{a list of soil parameters as returned by \code{\link[=soilinit]{soilinit()}}}
 }
 \value{
 a list with the following components:
@@ -30,8 +19,6 @@ a list with the following components:
 \code{cd} specific heat capacity of soil (J / m^3 / K)
 
 \code{k} thermal conductance of soil (W / m^2 / K)
-
-\code{z} depth of soil nodes (m)
 }
 \description{
 Calculates soil heat conductivity and capacity from soil properites
