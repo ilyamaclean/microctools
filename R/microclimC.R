@@ -665,6 +665,7 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
                             c(lav$cp,cpair(previn$tair))*c((1-lav$vden),1))
   Xa<-rev(c(ma*(lav$H+lav$L))); Xa<-Xa[-1]
   Xamx<-rev((lav$tleaf-lav$tc)+(lav$L[1:lav$m]+lav$H[1:lav$m])/(lav$gha*lav$cp))
+  Xamx<-abs(Xamx)
   Xa<-ifelse(Xa>Xamx,Xamx,Xa)
   Xs<-(timestep/cdk$cd[1])*(1-vegp$refg)*Rabss$aRsw[1]
   Xsmx<-((1-vegp$refg)*Rabss$aRsw[1])/(gha[1]*cp[1])+(tln$tn[1]-previn$soiltc[1])
