@@ -500,8 +500,9 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, Rsw) {
 #' @return `psi_e` Matric potential (J / m^3)
 #' @return `z` depth (m) of soil nodes (see details)
 #' @details the depth of the soil nodes are automatically calculated so
-#' as to ensure the top soil node is as shallow as possible, but also
-#' ensuring that during a single time step, the volumetric heat capacity
+#' as to ensure the top soil node is as shallow as possible, though not
+#' shallower than 1/200 x `sdepth` (e.g. one cm when `sdepth` = two m)
+#' and also ensuring that during a single time step, the volumetric heat capacity
 #' of the soil would not be exceeded, so as to ensure a stable solution to soil
 #' heat fluxes. Since volumetric heat capacity depends on water content, the
 #' solution is derived by iteration. If `reqdepth` is not NA, the soil node
@@ -537,6 +538,7 @@ soilinit <- function(soiltype, timestep, m = 10, sdepth = 2, reqdepth = NA) {
   la<-(c1+c2*theta-(c1-c4)*exp(-(c3*theta)^4))
   zmn<-sqrt((la*timestep)/ch)*sqrt(2)
   p<-log(2/zmn,m)
+  p<-ifelse(p>2.301,2.301,p)
   z<-(sdepth/m^p)*c(1:m)^p
   if (is.na(reqdepth) == F) z[abs(z-reqdepth)==min(abs(z-reqdepth))][1]<-reqdepth
   soilp<-as.list(soilp)
