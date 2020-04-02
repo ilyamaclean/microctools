@@ -661,7 +661,6 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   k<-c(rev(ka),cdk$k)
   cd<-c(rev(cda),cdk$cd)
   # Heat to add
-  # Heat to add
   ma<-(timestep*lav$PAI)/(c(lav$ph,phair(previn$tair,previn$pk))*
                             c(lav$cp,cpair(previn$tair))*c((1-lav$vden),1))
   Xa<-rev(c(ma*(lav$H+lav$L))); Xa<-Xa[-1]
@@ -691,7 +690,6 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
     Vsoil<-(0.6108*exp(17.27*tnsoil[1]/(tnsoil[1]+237.3))*rhsoil)/pk
     Vn<-c(Vsoil,lav$ea/pk,Vair)
   }
-  # Interpolate
   # Interpolate
   if (length(lav$Vo) < m) {
     TX<-TT[length(TT)]+(pha/gt[m+1])*2
