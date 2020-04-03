@@ -89,9 +89,9 @@ layeraverage<-function(lmm, tc, hgt, gha, gt, zla, z, Vo, ea, X, vden, pk, PAI, 
   wdv<-wdv[-1]
   wgts<-mult[sel]/wdv
   tc2<-aggregate(tc[sel]*wgts,by=list(mrge),sum)$x
-  ea2<-aggregate(ea*wgts,by=list(mrge),sum)$x
-  Vo2<-aggregate(Vo*wgts,by=list(mrge),sum)$x
-  X2<-aggregate(X*wgts,by=list(mrge),sum)$x
+  ea2<-aggregate(ea[sel]*wgts,by=list(mrge),sum)$x
+  Vo2<-aggregate(Vo[sel]*wgts,by=list(mrge),sum)$x
+  X2<-aggregate(X[sel]*wgts,by=list(mrge),sum)$x
   # Conductances (in series)
   gha2<-1/aggregate(1/gha[sel],by=list(mrge),mean)$x  # Need to check
   gt2<-1/aggregate(1/gt,list(lmm$mrge),sum)$x
