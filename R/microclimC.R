@@ -659,7 +659,7 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   k<-c(rev(ka),cdk$k)
   cd<-c(rev(cda),cdk$cd)
   # Heat to add / loose
-  Lc<-lambda[1]*ph[1]*(tln$esoil-tln$ea[1])/pk
+  Lc<-lambda[1]*ph[1]*z[1]*(tln$esoil-tln$ea[1])/pk
   Lc[Lc<0]<-0
   Xs<-(1-vegp$refg)*(Rabss$aRsw[1]/cdk$cd[1])
   Xs<-Xs-Lc/cdk$cd[1]
