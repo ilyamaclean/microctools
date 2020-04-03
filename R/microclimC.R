@@ -87,7 +87,7 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
   g<-1-f
   a <- c(0,0); b <- 0; cc <-0; d <- 0
   xx<-(2:(m+1))
-  tc[xx]<-tc[xx]+X
+  tc[xx]<-tc[xx]+g*X
   cc[xx]<- -k[xx]*f
   a[xx+1]<-cc[xx]
   b[xx]<-f*(k[xx]+k[xx-1])+cd
@@ -104,6 +104,7 @@ Thomas <- function(tc, tmsoil, tair, k, cd, f = 0.6, X = 0) {
   for (i in m:2) {
     tn[i]<-d[i]-cc[i]*tn[i+1]
   }
+  tn[xx]<-tn[xx]+f*X
   tn
 }
 #' Thomas algorithm for solving simultanious vapour fluxes
@@ -280,7 +281,6 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' @param relhum relative humidity at two metres above canopy (Percentage)
 #' @param pk air pressure at two metres above canopy (kPa)
 #' @param timestep duration of time step (s)
-#' @param z height of canopy layer nodes (m)
 #' @param gt heat conductance by turbulent convection (mol / m^2 / s)
 #' @param gha leaf-air heat conductance (mol / m^2 / s)
 #' @param gv leaf-air vapour conductance (mol / m^2 / s)
@@ -298,8 +298,6 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' @return `Rem` emitted radiation (W / m^2)
 #' @return `H` Sensible heat flux from leaf to air (W / m^2)
 #' @return `L` Latent heat of vapourisation from leaf to air (W / m^2)
-#' @return `Lc` Latent heat of condenstation from leaf to air (W / m^2)
-#' @return `Vflux` Vapour flux to air from leaves (mol / m^2 / s)
 #' @export
 #' @details `leaftemp` computes the average leaf and air temperature of each canopy layer based on
 #' radiation and evaorative fluxes and reference air and ground temperature. The function
@@ -316,7 +314,14 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' ltemp <- leaftemp(11, 80, 101.3, 60, z, previn$gt, previn$gha, previn$gv, previn$Rabs, previn,
 #'                   vegp, soilp, 0.3)
 #' plot(z ~ ltemp$tleaf, type = "l", xlab = "Leaf temperature", ylab = "Height")
-leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, vegp, soilp, theta) {
+leaftemp <- function(tair, relhum, pk, timestep, gt, gha, gv, Rabs, previn, vegp, soilp, theta) {
+  edf<-function(ea1,ea2,tc) {
+    es<-0.6108*exp(17.27*tc/(tc+237.3))
+    y<-ifelse(ea1>ea2,ea1-ea2,0)
+    y<-ifelse(ea2>es,0,y)
+    y
+  }
+  z<-previn$z
   lambda <- -42.575*tair+44994
   # Sort out thicknesses
   m<-length(gt)-1
@@ -349,7 +354,8 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   test<-pmax(timestep*gtt/zref,timestep*gv/zla,timestep*gtt2/z)
   sel<-which(test>1)
   btm<-(1/timestep)+0.5*(gtt/zref+gtt2/z+gv/zla)
-  ae<-eaj+0.5*((gtt/zref)*(eref-eaj)+(gtt2/z)*(esoil-eaj)+(gv/zla)*(estl-eaj))/btm
+  ae<-eaj+0.5*((gtt/zref)*edf(eref,eaj,previn$tc)+(gtt2/z)*edf(esoil,eaj,previn$tc)+
+                 (gv/zla)*edf(estl,eaj,previn$tc))/btm
   be<-(0.25*gv*delta)/btm
   tp <- eaj+0.5*((gtt/zref)*eref+(gtt2/z)*esoil+(gv/zla)*estl)
   tp2 <-0.5*(gv/zla)*delta
@@ -361,27 +367,32 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   # Test whether steady state
   test<-pmax(timestep*gtt/zref,timestep*gha/zla,timestep*gtt2/z)
   # ~Transient
+  ae2<-ifelse(ae>estl,estl,ae)
+  ae3<-ifelse(ae>esoil,esoil,ae)
   sel<-which(test>1)
   ph<-phair(previn$tc,previn$pk)
   cp<-cpair(previn$tc)
   vden<-vegp$thickw*vegp$PAI
-  ma<-(timestep*PAIm*(1-vden))/cp*ph
+  ma<-(timestep*PAIm)/(cp*ph*(1-vden))
   K1<-gtt*cp/zref; K2<-gtt2*cp/z; K3<-gha*cp/zla;
   K4<-(lambda*gv)/(zla*mpk); K5<-(lambda*gtt2)/(z*mpk)
   btm<-1+0.5*ma*(K1+K2+K3)
-  aL<-(previn$tc+0.5*ma*(K1*mtref+K2*previn$soiltc[1]+K3*previn$tleaf+K4*(estl-ae)+K5*(esoil-ae)))/btm
+  aL<-(previn$tc+0.5*ma*(K1*mtref+K2*previn$soiltc[1]+K3*previn$tleaf+K4*edf(estl,ae2,previn$tc)+
+                           K5*edf(esoil,ae3,previn$tc)))/btm
   bL<-ma*(0.25*K3+0.25*K4*delta-0.5*be*(K4+K5))/btm
   # ~Steady state
   K1<-gtt[sel]*cp[sel]; K2<-gtt2[sel]*cp[sel]; K3<-gha[sel]*cp[sel]
   K4<-lambda*gv[sel]/mpk; K5<-lambda*gtt2[sel]/mpk
-  aL[sel]<-(K1*mtref+K2*previn$soiltc[1]+K3*previn$tleaf[sel]+K4*(estl[sel]-ae[sel])+K5*(esoil-ae[sel]))/(K1+K2+K3)
+  aL[sel]<-(K1*mtref+K2*previn$soiltc[1]+K3*previn$tleaf[sel]+
+              K4*edf(estl[sel],ae2[sel],previn$tc[sel])+
+              K5*edf(esoil,ae3[sel],previn$tc[sel]))/(K1+K2+K3)
   bL[sel]<-(0.5*(K3+K4*delta[sel]-be[sel]*(K4+K5)))/(K1+K2+K3)
   bL<-ifelse(bL<0,0,bL)
   # Sensible Heat
   aH<-cp*gha*(previn$tleaf-aL)
   bH<-cp*gha*(0.5-0.5*bL)
   # Latent Heat
-  aX<-(lambda*gv/mpk)*(estl-ae)
+  aX<-(lambda*gv/mpk)*edf(estl,ae,previn$tc)
   bX<-(lambda*gv/mpk)*(delta-be)
   # Radiation
   Rabs<-0.5*Rabs+0.5*previn$Rabs
@@ -392,28 +403,14 @@ leaftemp <- function(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, v
   Ch<-vden*vegp$cpw*vegp$phw
   ml<-timestep*PAIm/Ch
   dTL<-(ml*(Rabs-aR-aX-aH))/(zla+ml*(bR+bX+bH))
-  # Latent heat if condensation
+  # Check whether saturated
   tn<-aL+bL*dTL
-  ea<-ae+be*dTL
-  es<-0.6108*exp(17.27*tn/(tn+237.3))
-  tn2<-(237.3*log(es/0.6108))/(17.27-log(es/0.6108))
-  sel<-which(ea>es)
-  Lc<-(lambda/timestep)*((ea-es)/pk)*ph
-  dTL2<-(ml/zla)*Lc
-  # Temperatures and fluxes
-  tn[sel]<-tn2[sel]
-  dTL[sel]<-dTL[sel]+dTL2[sel]
-  Lc2<-ea*0; Lc2[sel]<-Lc[sel]
   eam<-ae+be*dTL
-  neaj<-eaj+2*(eam-eaj)
-  # Vapour flux from leaves
-  mTl<-previn$tleaf+0.5*dTL
-  mVl<-(0.6108*exp(17.27* mTl/(mTl+237.3)))/mpk
-  mVa<-eam/mpk
-  Vflux<-(gv/zla)*(mVl-mVa)
-  # Save outputs
-  return(list(tn=tn, tleaf=previn$tleaf+dTL, ea=neaj, gtt=gtt,
-              Rem=aR+bR*dTL, H=aH+bH*dTL, L=aX+bX*dTL, Lc=Lc2, Vflux = Vflux))
+  ean<-eaj+2*(eam-eaj)
+  es<-0.6108*exp(17.27*tn/(tn+237.3))
+  ean<-ifelse(ean>es,es,ean)
+  return(list(tn=tn, tleaf=previn$tleaf+dTL, ea=ean, gtt=gtt, Rem=aR+bR*dTL,
+              H=aH+bH*dTL, L=aX+bX*dTL, esoil = esoil))
 }
 #' Initialise paramaters for first time step of model
 #'
@@ -642,8 +639,7 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   # Leaf conductivity
   tc2<-c(tc[2:length(tc)],tair); dtc<-tc2-tc
   gha<-1.41*gforcedfree(vegp$lw*0.71,uz,tc,dtc,pk)
-  tln<-leaftemp(tair,relhum,pk,timestep,z,gt,gha,gv,Rabs,previn,vegp,soilp,theta)
-  tleafm <- 0.5*tln$tleaf+0.5*previn$tleaf
+  tln<-leaftemp(tair,relhum,pk,timestep,gt,gha,gv,Rabs,previn,vegp,soilp,theta)
   eaj<-0.6108*exp(17.27*tc/(tc+237.3))*(previn$rh/100)
   Vo<-eaj/previn$pk
   # =============== Soil conductivity =========== #
@@ -654,25 +650,22 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   vden<-(vegp$PAI*vegp$thickw)
   mult<-1-vden
   zla <- mixinglength(vegp$PAI,vegp$hgt,vegp$x,vegp$lw)
-  L<-tln$L-tln$Lc
+  X<-tln$tn-tc # Heat to add
   TT<-cumsum((ph/gt[1:m])*(z-c(0,z[1:(m-1)])))
-  lav<-layeraverage(lmm,tc,tleafm,vegp$hgt,gha,gt,zla,z,Vo,tln$Vflux,tln$ea,L,tln$H,vden,ppk,vegp$PAI,TT)
+  lav<-layeraverage(lmm,tc,vegp$hgt,gha,gt,zla,z,Vo,tln$ea,X,vden,ppk,vegp$PAI,TT)
   cda<-lav$cp*lav$ph*(1-lav$vden)*(lav$z[3:(lav$m+2)]-lav$z[1:(lav$m)])/2*timestep
   ka<-lav$gt*c(lav$cp,cpair(previn$tair))
   ka[1:lav$m]<-ifelse(ka[1:lav$m]>cda,cda,ka[1:lav$m])
   k<-c(rev(ka),cdk$k)
   cd<-c(rev(cda),cdk$cd)
-  # Heat to add
-  ma<-(timestep*lav$PAI)/(c(lav$ph,phair(previn$tair,previn$pk))*
-                            c(lav$cp,cpair(previn$tair))*c((1-lav$vden),1))
-  Xa<-rev(c(ma*(lav$H+lav$L))); Xa<-Xa[-1]
-  Xamx<-rev((lav$tleaf-lav$tc)+(lav$L[1:lav$m]+lav$H[1:lav$m])/(lav$gha*lav$cp))
-  Xamx<-abs(Xamx)
-  Xa<-ifelse(Xa>Xamx,Xamx,Xa)
-  Xs<-(timestep/cdk$cd[1])*(1-vegp$refg)*Rabss$aRsw[1]
+  # Heat to add / loose
+  Lc<-lambda[1]*ph[1]*(tln$esoil-tln$ea[1])/pk
+  Lc[Lc<0]<-0
+  Xs<-(1-vegp$refg)*(Rabss$aRsw[1]/cdk$cd[1])
+  Xs<-Xs-Lc/cdk$cd[1]
   Xsmx<-((1-vegp$refg)*Rabss$aRsw[1])/(gha[1]*cp[1])+(tln$tn[1]-previn$soiltc[1])
-  Xs<-ifelse(Xs>Xsmx,Xsmx,Xs)
-  X<-c(Xa,Xs,rep(0,(sm-1)))
+  Xs<-ifelse(abs(Xs)>abs(Xsmx),Xsmx,Xs)
+  X<-c(rev(lav$X),Xs,rep(0,(sm-1)))
   # Heat exchange between layers
   tc2<-c(previn$tair,rev(lav$tc),previn$soiltc, previn$tsoil)
   tn2<-Thomas(tc2, tsoil, tair, k, cd, n, X)
@@ -680,7 +673,8 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   tnsoil<-tn2[(lav$m+2):(length(tn2)-1)]
   # vapour exchange
   zth2<-lav$z[2:(lav$m+1)]-lav$z[1:lav$m]
-  Vmflux<-(timestep*lav$Vflux*lav$PAI[1:lav$m])/zth2
+  Vmflux<-(lav$ea/pk)-lav$Vo
+  Vmflux[Vmflux<0]<-0
   gtmx<-c(lav$ph/zth2*(2*timestep),Inf)
   gt2<-ifelse(lav$gt>gtmx,gtmx,lav$gt)
   tn2<-tnair[-1]; tn2<-tn2[-length(tn2)]
@@ -708,6 +702,7 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   es<-0.6108*exp(17.27*tn/(tn+237.3))
   rh<-(ea/es)*100
   rh[rh>100]<-100
+  rh[rh<0]<-0
   dataout<-list(tc=tn,soiltc=tnsoil,tleaf=tln$tleaf,z=z,sz=sz,rh=rh,
                 relhum=relhum,tair=tair,tsoil=tsoil,pk=pk,Rabs=Rabs,
                 gt=gt,gv=gv,gha=gha)

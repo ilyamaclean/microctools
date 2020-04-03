@@ -47,24 +47,19 @@ layermerge<-function(z, gt, hgt, timestep, ph = rep(42.24, length(z))){
 #'
 #' @param lmm list of layers to merge as returned by [layermerge()]
 #' @param tc air temperature of unmerged canopy layers (dec C)
-#' @param tleaf leaf temperature of unmerged canopy layers
 #' @param hgt height of canopy (m)
 #' @param gha molar heat conductance between leaf and air (mol / m^2 / sec)
 #' @param gt molar heat conductance between air layers due to turbulent convection (mol / m^2 / sec)
 #' @param zla mean leaf-air distance (m)
 #' @param z height above ground of canopy nodes (m)
 #' @param Vo mole fraction of water vapour in air in previous time-step (mol / mol)
-#' @param Vflux molar flux density of water vapour from leaves to air (mol / m^2/ sec)
 #' @param ea vapur pressure in current timestep
-#' @param L Latent heat flux from canopy layer (W / m^2)
-#' @param H Sensible heat flux from canopy layer (W / m^2)
 #' @param vden  Volumetric density of vegetation (m^3 / m^3.
 #' @param pk air pressure (kPa)
 #' @param PAI Vector of Plant Area Indices for each canopy layer
 #' @param TT Cumulative conductivity time to each canopy node (s)
 #' @return A list of average values for merged canopy layers of the following components:
 #' @return `tc` air temperature (deg C)
-#' @return `tleaf` leaf temperature (dec C)
 #' @return `gha` molar heat conductance between leaf and air (mol / m^2 / sec)
 #' @return `gt` molar heat conductance between air layers due to turbulent convection (mol / m^2 / sec)
 #' @return `zla` mean leaf-air distance (m)
@@ -72,36 +67,31 @@ layermerge<-function(z, gt, hgt, timestep, ph = rep(42.24, length(z))){
 #' @return `ph` molar density of air layers (mol / m3)
 #' @return `cp` specific heat of air layer at constant pressure (J / mol / K)
 #' @return `Vo` mole fraction of water vapour in air (mol / mol)
-#' @return `Vflux` molar flux density of water vapour from leaves to air (mol / m^2/ sec)
 #' @return `ea` vapur pressure in current time step (kPa)
 #' @return `lambda` Latent heat of vapourization of water (J / mol)
-#' @return `L` Latent heat flux from canopy layer (W / m^2)
-#' @return `H` Sensible heat flux from canopy layer (W / m^2)
+#' @return `X` Heat to add during time step (deg C)
 #' @return `vden` Volumetric density of vegetation (m^3 / m^3.
 #' @return `m` number of merged canopy layers
 #' @return `PAI` Plant Area Index (m^2 / m^2)
 #' @return `TT` Cumulative conductivity time to each canopy node (s)
 #' @export
-layeraverage<-function(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, Vflux, ea, L, H, vden, pk, PAI, TT) {
+layeraverage<-function(lmm, tc, hgt, gha, gt, zla, z, Vo, ea, X, vden, pk, PAI, TT) {
   mult<-1-vden
   u<-unique(lmm$mrge)
   sel<-which(lmm$mrge!=u[length(u)])
   mrge<-lmm$mrge[sel]
   m2<-length(u)-1
   mult<-1-vden
-  # Temperature (air)
+  # Air variables
   awgts<-aggregate(mult[sel],by=list(mrge),sum)$x
   lwgts<-aggregate(mult[sel],by=list(mrge),length)$x
   wdv <- 0; for (i in 1:m2) wdv<-c(wdv,rep(awgts[i],lwgts[i]))
   wdv<-wdv[-1]
   wgts<-mult[sel]/wdv
   tc2<-aggregate(tc[sel]*wgts,by=list(mrge),sum)$x
-  # Temperature (leaf)
-  awgts <-aggregate(vden[sel],by=list(mrge),sum)$x
-  lwgts <-aggregate(vden[sel],by=list(mrge),length)$x
-  wdv<-0; for (i in 1:m2) wdv<-c(wdv,rep(awgts[i],lwgts[i]))
-  wdv<-wdv[-1]; wgts<-vden[sel]/wdv
-  tleaf2 <- aggregate(tleaf[sel]*wgts,by=list(mrge),sum)$x
+  ea2<-aggregate(ea*wgts,by=list(mrge),sum)$x
+  Vo2<-aggregate(Vo*wgts,by=list(mrge),sum)$x
+  X2<-aggregate(X*wgts,by=list(mrge),sum)$x
   # Conductances (in series)
   gha2<-1/aggregate(1/gha[sel],by=list(mrge),mean)$x  # Need to check
   gt2<-1/aggregate(1/gt,list(lmm$mrge),sum)$x
@@ -112,16 +102,11 @@ layeraverage<-function(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, Vflux, ea, L, H
   # PAI needs to be leaf area per metre
   PAI2 <- aggregate(c(PAI,0)/c(lmm$zth,2),list(lmm$mrge),mean)$x
   z2 <- aggregate(z[sel],list(mrge),mean)$x; z2<-c(0,z2,hgt+2)
-  # Moisture variables
-  Vo2<-aggregate(Vo[sel],list(mrge),mean)$x
-  ea2<-aggregate(ea[sel],list(mrge),mean)$x
-  Vflux2<-aggregate(Vflux[sel],list(mrge),mean)$x
+  # Other variables
   lambda2<- -42.575*tc2+44994
-  L2<-aggregate(c(L,0),list(lmm$mrge),mean)$x
-  H2<-aggregate(c(H,0),list(lmm$mrge),mean)$x
   TT2 <- aggregate(TT[sel],list(mrge),mean)$x
-  return(list(tc=tc2,tleaf=tleaf2,gha=gha2,gt=gt2,zla=zla2,z=z2,ph=ph2,cp=cp2,Vo=Vo2,
-              Vflux=Vflux2,ea=ea2,lambda=lambda2,L=L2,H=H2,vden=1-mult2,m=m2,PAI=PAI2,TT=TT2))
+  return(list(tc=tc2,gha=gha2,gt=gt2,zla=zla2,z=z2,ph=ph2,cp=cp2,Vo=Vo2,
+              ea=ea2,lambda=lambda2,X=X2,vden=1-mult2,m=m2,PAI=PAI2,TT=TT2))
 }
 #' Interpolates values from merged canopy layers
 #'

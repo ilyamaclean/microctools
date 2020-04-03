@@ -4,7 +4,7 @@
 \alias{leaftemp}
 \title{Calculates leaf temperature of canopy layers}
 \usage{
-leaftemp(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, vegp,
+leaftemp(tair, relhum, pk, timestep, gt, gha, gv, Rabs, previn, vegp,
   soilp, theta)
 }
 \arguments{
@@ -15,8 +15,6 @@ leaftemp(tair, relhum, pk, timestep, z, gt, gha, gv, Rabs, previn, vegp,
 \item{pk}{air pressure at two metres above canopy (kPa)}
 
 \item{timestep}{duration of time step (s)}
-
-\item{z}{height of canopy layer nodes (m)}
 
 \item{gt}{heat conductance by turbulent convection (mol / m^2 / s)}
 
@@ -50,10 +48,6 @@ a list with the following elements:
 \code{H} Sensible heat flux from leaf to air (W / m^2)
 
 \code{L} Latent heat of vapourisation from leaf to air (W / m^2)
-
-\code{Lc} Latent heat of condenstation from leaf to air (W / m^2)
-
-\code{Vflux} Vapour flux to air from leaves (mol / m^2 / s)
 }
 \description{
 Calculates leaf temperature from radiation fluxes and reference air

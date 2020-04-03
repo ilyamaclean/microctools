@@ -4,15 +4,12 @@
 \alias{layeraverage}
 \title{Merges canopy air layers and calculates average properties}
 \usage{
-layeraverage(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, Vflux, ea, L, H,
-  vden, pk, PAI, TT)
+layeraverage(lmm, tc, hgt, gha, gt, zla, z, Vo, ea, X, vden, pk, PAI, TT)
 }
 \arguments{
 \item{lmm}{list of layers to merge as returned by \code{\link[=layermerge]{layermerge()}}}
 
 \item{tc}{air temperature of unmerged canopy layers (dec C)}
-
-\item{tleaf}{leaf temperature of unmerged canopy layers}
 
 \item{hgt}{height of canopy (m)}
 
@@ -26,13 +23,7 @@ layeraverage(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, Vflux, ea, L, H,
 
 \item{Vo}{mole fraction of water vapour in air in previous time-step (mol / mol)}
 
-\item{Vflux}{molar flux density of water vapour from leaves to air (mol / m^2/ sec)}
-
 \item{ea}{vapur pressure in current timestep}
-
-\item{L}{Latent heat flux from canopy layer (W / m^2)}
-
-\item{H}{Sensible heat flux from canopy layer (W / m^2)}
 
 \item{vden}{Volumetric density of vegetation (m^3 / m^3.}
 
@@ -46,8 +37,6 @@ layeraverage(lmm, tc, tleaf, hgt, gha, gt, zla, z, Vo, Vflux, ea, L, H,
 A list of average values for merged canopy layers of the following components:
 
 \code{tc} air temperature (deg C)
-
-\code{tleaf} leaf temperature (dec C)
 
 \code{gha} molar heat conductance between leaf and air (mol / m^2 / sec)
 
@@ -63,15 +52,11 @@ A list of average values for merged canopy layers of the following components:
 
 \code{Vo} mole fraction of water vapour in air (mol / mol)
 
-\code{Vflux} molar flux density of water vapour from leaves to air (mol / m^2/ sec)
-
 \code{ea} vapur pressure in current time step (kPa)
 
 \code{lambda} Latent heat of vapourization of water (J / mol)
 
-\code{L} Latent heat flux from canopy layer (W / m^2)
-
-\code{H} Sensible heat flux from canopy layer (W / m^2)
+\code{X} Heat to add during time step (deg C)
 
 \code{vden} Volumetric density of vegetation (m^3 / m^3.
 
