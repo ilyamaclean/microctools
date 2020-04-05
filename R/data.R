@@ -67,3 +67,19 @@
 #'  \item{phi_m}{diabatic correction factor for below canopy momentum transfer}
 #' }
 "climvars"
+#'
+#' A data frame of hourly weather
+#'
+#' A data frame of hourly weather in 1995 at Camborne weather station, Cornwall (50.2178N, 5.32656W)
+#'
+#' @format a data frame with the following elements:
+#' \describe{
+#'  \item{obs_time}{POSIXlt object of dates and times}
+#'  \item{temp}{temperature (degrees C)}
+#'  \item{relhum}{relative humidity (percentage)}
+#'  \item{pres}{atmospheric press (kPa)}
+#'  \item{swrad}{Total incoming shortwave radiation (W / m^2)}
+#'  \item{difrad}{Diffuse radiation (W / m^2)}
+#'  \item{skyem}{Sky emissivity (0-1)}
+#' }
+"weather"
