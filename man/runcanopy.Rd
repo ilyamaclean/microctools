@@ -61,7 +61,7 @@ tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
 previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
 vegp <- habitatvars(4, 50, -5, tme, m = 20)
 z<-c((1:20)-0.5)/20*vegp$hgt
-soilp<- soilinit("Loam", timestep = 60)
+soilp<- soilinit("Loam")
 climvars <- list(tair=16,relhum=90,pk=101.3,u=2.1,tsoil=11,skyem=0.9,Rsw=500,dp=NA,
                  psi_h=0,psi_m=0,phi_m=0)
 # Run model 100 times for current time step

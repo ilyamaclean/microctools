@@ -54,6 +54,7 @@ layermerge<-function(z, gt, hgt, timestep, ph = rep(42.24, length(z))){
 #' @param z height above ground of canopy nodes (m)
 #' @param Vo mole fraction of water vapour in air in previous time-step (mol / mol)
 #' @param ea vapur pressure in current timestep
+#' @param X temperature to add during timestep (deg C)
 #' @param vden  Volumetric density of vegetation (m^3 / m^3.
 #' @param pk air pressure (kPa)
 #' @param PAI Vector of Plant Area Indices for each canopy layer
@@ -137,7 +138,7 @@ layerinterp <- function(y1, y2, x1) {
 #' @param theta volumetric soil water fraction (m^3 / m^3)
 #' @param soilp a list of soil parameters as returned by [soilinit()]
 #' @return a list with the following components:
-#' @return `cd` specific heat capacity of soil (J / m^3 / K)
+#' @return `cd` specific heat capacity of soil x height / time (W / m^2 / K)
 #' @return `k` thermal conductance of soil (W / m^2 / K)
 #' @export
 soilk <- function(timestep, theta = 0.3, soilp) {

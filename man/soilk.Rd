@@ -16,7 +16,7 @@ soilk(timestep, theta = 0.3, soilp)
 \value{
 a list with the following components:
 
-\code{cd} specific heat capacity of soil (J / m^3 / K)
+\code{cd} specific heat capacity of soil x height / time (W / m^2 / K)
 
 \code{k} thermal conductance of soil (W / m^2 / K)
 }

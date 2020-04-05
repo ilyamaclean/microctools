@@ -4,14 +4,12 @@
 \alias{soilinit}
 \title{Returns soil parameters for a given soil type}
 \usage{
-soilinit(soiltype, timestep, m = 10, sdepth = 2, reqdepth = NA)
+soilinit(soiltype, m = 10, sdepth = 2, reqdepth = NA)
 }
 \arguments{
 \item{soiltype}{one of \code{Sand}, \code{Loamy sand}, \code{Sandy loam}, \code{Loam}, \code{Silt},
 \code{Silt loam}, \code{Sandy clay loam}, \code{Clay loam}, \code{Silty clay loam}, \code{Sandy clay},
 \code{Silty clay} or \code{Clay}.}
-
-\item{timestep}{length of time step (see details)}
 
 \item{m}{number of soil nodes (see details)}
 
@@ -56,12 +54,7 @@ for a given soil type
 }
 \details{
 the depth of the soil nodes are automatically calculated so
-as to ensure the top soil node is as shallow as possible, though not
-shallower than 1/100 x \code{sdepth} (e.g. two cm when \code{sdepth} = two m)
-and also ensuring that during a single time step, the volumetric heat capacity
-of the soil would not be exceeded, so as to ensure a stable solution to soil
-heat fluxes. Since volumetric heat capacity depends on water content, the
-solution is derived by iteration. If \code{reqdepth} is not NA, the soil node
+as to ensure to ensure progressively thicker soil layers. If \code{reqdepth} is not NA, the soil node
 nearest to \code{reqdepth} is set to \code{reqdepth}.
 }
 \examples{

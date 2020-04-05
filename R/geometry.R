@@ -555,7 +555,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
     pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.4 # reflectivity (shortwave radiation) of leaves
+    refls = 0.25 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.3 #  Reflectivity of leaves to PAR
     lw <- 0.01
@@ -584,7 +584,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
     pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.35
@@ -613,7 +613,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
     pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.4 # reflectivity (shortwave radiation) of leaves
+    refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.25 #  Reflectivity of leaves to PAR
     lw <- 0.01
@@ -642,7 +642,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
     pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.07
@@ -671,7 +671,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
     pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.45 # reflectivity (shortwave radiation) of leaves
+    refls = 0.28 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.25 #  Reflectivity of leaves to PAR
     lw <- 0.04
@@ -692,7 +692,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI <- LAIfrac(m, 0.85, 6)
     pLAI <- (mxpLAI / max(pLAI)) * pLAI
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.03
@@ -713,7 +713,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI <- LAIfrac(m, 0.75, 6)
     pLAI <- (mxpLAI / max(pLAI)) * pLAI
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.03
@@ -742,7 +742,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
     pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.6 # reflectivity (shortwave radiation) of leaves
+    refls = 0.35 # reflectivity (shortwave radiation) of leaves
     refw = 0.2 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.01
@@ -763,7 +763,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI <- LAIfrac(m, 0.7, 6)
     pLAI <- (mxpLAI / max(pLAI)) * pLAI
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.35 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.01
@@ -784,7 +784,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI <- LAIfrac(m, 0.85, 6)
     pLAI <- (mxpLAI / max(pLAI)) * pLAI
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.35 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.01
@@ -805,7 +805,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI <- LAIfrac(m, 0.85, 6)
     pLAI <- (mxpLAI / max(pLAI)) * pLAI
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.35 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.01
@@ -847,7 +847,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI <- LAIfrac(m, 0.8, 6)
     pLAI <- (mxpLAI / max(pLAI)) * pLAI
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.02
@@ -876,7 +876,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
     pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.04
@@ -897,7 +897,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI <- LAIfrac(m, 0.75, 6)
     pLAI <- (mxpLAI / max(pLAI)) * pLAI
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.03
@@ -918,7 +918,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
     pLAI <- LAIfrac(m, 0.55, 6)
     pLAI <- (mxpLAI / max(pLAI)) * pLAI
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
-    refls = 0.5 # reflectivity (shortwave radiation) of leaves
+    refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
     lw <- 0.015

@@ -235,3 +235,37 @@ diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2) {
   psi_m[sel] <- 0.6 * psi_h[sel]
   return(list(psi_m = psi_m, psi_h = psi_h))
 }
+#' Calculates temperature at top of canopy
+#'
+#' @description calaculates the temperature at the top of the canopy based
+#' on the standard logarithmic height profile
+#' @param tz temperature at height `zu` above the canopy (deg C)
+#' @param uz wind speed at height `zu` above the canopy (m / s)
+#' @param zu height above the canopy of `tz` and `uz` (m)
+#' @param H sensible heat flux density (W / m^2). See details.
+#' @param hgt height of the canopy (m)
+#' @param PAI total plant area index of the canopy. Used to calculate roughness lengths.
+#' @param zm0 roughness length governing momentum transfer of ground vegetation
+#' @param pk atmospheric pressure (kPa)
+#' @param psi_h diabatic correction factor for heat transfer
+#' @details Estimation of `H` requires estimation of temperature,
+#' so most either be derived by iteration of taken form the previous timestep.
+#' `H` is given by the net energy balance equation: `H` = `Rabs` - `Rem` - `L` - `G`
+#' where `Rabs` is absorbed radiation, `Rem` emitted radiation, `L` Latent heat
+#' exchange and `G` ground heat flux.
+#' @export
+#' @examples
+#' canopytoptemp(11, 2, 2, 500, 10, 3, 0.004)
+#' canopytoptemp(11, 2, 2, 500, 0.25, 3, 0.004)
+canopytoptemp <- function(tz, uz, zu, H, hgt, PAI, zm0, pk = 101.3, psi_h = 0) {
+  d <- zeroplanedis(hgt, PAI)
+  zm <- roughlength(hgt, PAI, zm0)
+  zh <- 0.2 * zm
+  uf <- (0.4 * uz) /  (log((hgt + zu - d) / zm) + psi_h)
+  ph <- phair(tz, pk)
+  cp <- cpair(tz)
+  m <- H / (0.4 * ph * cp * uf)
+  tref <- tz + m * (log((zu + hgt - d) / zh) + psi_h)
+  tc <- tref - m * (log((hgt - d) / zh) + psi_h)
+  tc
+}

@@ -64,10 +64,10 @@ capacity of the vegetation layer and the time step of the model.
 tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
 previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
 vegp <- habitatvars(3, 50, -5, tme, m = 20)
-soilp <- soilinit("Loam", timestep = 60)
+soilp <- soilinit("Loam")
 z<-c((1:20) - 0.5) / 20 * vegp$hgt
 # run function (setting conductances in current time step to same as in previous):
-ltemp <- leaftemp(11, 80, 101.3, 60, z, previn$gt, previn$gha, previn$gv, previn$Rabs, previn,
+ltemp <- leaftemp(11, 80, 101.3, 60, previn$gt, previn$gha, previn$gv, previn$Rabs, previn,
                   vegp, soilp, 0.3)
 plot(z ~ ltemp$tleaf, type = "l", xlab = "Leaf temperature", ylab = "Height")
 }

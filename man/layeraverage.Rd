@@ -25,6 +25,8 @@ layeraverage(lmm, tc, hgt, gha, gt, zla, z, Vo, ea, X, vden, pk, PAI, TT)
 
 \item{ea}{vapur pressure in current timestep}
 
+\item{X}{temperature to add during timestep (deg C)}
+
 \item{vden}{Volumetric density of vegetation (m^3 / m^3.}
 
 \item{pk}{air pressure (kPa)}
