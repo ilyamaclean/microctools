@@ -571,7 +571,6 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   cp<-cpair(tc) # specific heat of air
   lambda <- -42.575*tc+44994 # Latent heat of vapourisation (J / mol)
   # Adjust wind to 2 m above canopy
-  u2[u2<0.5]<-0.5
   u2<-u*log(67.8*hgt-5.42)/log(67.8*zu-5.42)
   # Calculate temperatures and relative humidities for top of canopy
   tcan <- canopytoptemp(tair, u2, zu, H, hgt, sum(vegp$PAI), vegp$zm0, pk, psi_h)
