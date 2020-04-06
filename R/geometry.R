@@ -533,7 +533,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 #' @return `kwood` # thermal conductivity of wood (W / m / K)
 #' @export
 habitatvars <- function(habitat, lat, long, tme, m = 20) {
-  hr <- tme$yday * 24 + tme$hour
+  hr <- tme$yday * 24 + tme$hour + 1
   # By habitat type
   if (habitat == "Evergreen needleleaf forest" | habitat == 1) {
     # Plant area
