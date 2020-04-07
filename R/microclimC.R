@@ -727,6 +727,6 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   H<-(1-alb)*Rsw-Rlw-G-Lt
   dataout<-list(tc=tn,soiltc=tnsoil,tleaf=tln$tleaf,z=z,sz=sz,rh=rh,
                 relhum=relhum,tair=tair,tsoil=tsoil,tcan=tcan,pk=pk,Rabs=Rabs,
-                gt=gt,gv=gv,gha=gha,H=H,L=)
+                gt=gt,gv=gv,gha=gha,H=H,L=L)
   return(dataout)
 }
