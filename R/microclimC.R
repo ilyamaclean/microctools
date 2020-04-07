@@ -574,7 +574,7 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   u2<-u*log(67.8*hgt-5.42)/log(67.8*zu-5.42)
   u2[u2 < 0.5] <- 0.5
   # Calculate temperatures and relative humidities for top of canopy
-  tcan <- canopytoptemp(tair, u2, zu, H, hgt, sum(vegp$PAI), vegp$zm0, pk, psi_h)
+  tcan <- abovecanopytemp(tair,u2,zu+hgt,hgt,H,hgt,sum(vegp$PAI),vegp$zm0,pk,psi_h)
   tcan<-ifelse(tcan<(tair-4),(tair-4),tcan)
   tcan<-ifelse(tcan>(tair+9),(tair+9),tcan)
   # Adjust relative humidity

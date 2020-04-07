@@ -241,7 +241,8 @@ diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2) {
 #' on the standard logarithmic height profile
 #' @param tz temperature at height `zu` above the canopy (deg C)
 #' @param uz wind speed at height `zu` above the canopy (m / s)
-#' @param zu height above the canopy of `tz` and `uz` (m)
+#' @param zi height of `tz` and `uz` (m)
+#' @param zo height (m) for which temperature is required (see details)
 #' @param H sensible heat flux density (W / m^2). See details.
 #' @param hgt height of the canopy (m)
 #' @param PAI total plant area index of the canopy. Used to calculate roughness lengths.
@@ -252,20 +253,22 @@ diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2) {
 #' so most either be derived by iteration of taken form the previous timestep.
 #' `H` is given by the net energy balance equation: `H` = `Rabs` - `Rem` - `L` - `G`
 #' where `Rabs` is absorbed radiation, `Rem` emitted radiation, `L` Latent heat
-#' exchange and `G` ground heat flux.
+#' exchange and `G` ground heat flux. This function is not valid for temperatures
+#' below canopy so `hgt` must be lower than `zi`.
 #' @export
 #' @examples
 #' canopytoptemp(11, 2, 2, 500, 10, 3, 0.004)
 #' canopytoptemp(11, 2, 2, 500, 0.25, 3, 0.004)
-canopytoptemp <- function(tz, uz, zu, H, hgt, PAI, zm0, pk = 101.3, psi_h = 0) {
+abovecanopytemp <- function(tz, uz, zi, zo, H, hgt, PAI, zm0, pk = 101.3, psi_h = 0) {
+  if (zi < hgt) stop("zi must be greater or equal to hgt")
   d <- zeroplanedis(hgt, PAI)
   zm <- roughlength(hgt, PAI, zm0)
   zh <- 0.2 * zm
-  uf <- (0.4 * uz) /  (log((hgt + zu - d) / zm) + psi_h)
+  uf <- (0.4 * uz) /  (log((zi - d) / zm) + psi_h)
   ph <- phair(tz, pk)
   cp <- cpair(tz)
   m <- H / (0.4 * ph * cp * uf)
-  tref <- tz + m * (log((zu + hgt - d) / zh) + psi_h)
-  tc <- tref - m * (log((hgt - d) / zh) + psi_h)
+  tref <- tz + m * (log((zi - d) / zh) + psi_h)
+  tc <- tref - m * (log((zo - d) / zh) + psi_h)
   tc
 }
