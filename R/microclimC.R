@@ -473,7 +473,7 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, Rsw) {
   sz<-2/sm^2.42*c(1:sm)^2.42
   return(list(tc = tc, soiltc = soiltc, tleaf = tleaf, z = z, sz = sz, rh = rh, relhum = relhum,
               tair = tair, tsoil = tsoil, tcan = tair, pk = 101.3, Rabs = Rabs, gt = gt,
-              gv = gv, gha = gha, H = 0))
+              gv = gv, gha = gha, H = 0, L = rep(0, m), G = 0))
 }
 #' Returns soil parameters for a given soil type
 #'
@@ -718,15 +718,15 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   Rlw<-5.67*10^-8*0.97*(0.5*tnsoil[1]+0.5*previn$soiltc[1]+273.15)^4
   # Latent heat
   L<-tln$L*vegp$PAI; L[L<-0]<-0
-  L<-sum(L)
+  Lt<-sum(L)
   tdif<-0.5*previn$soiltc[1]+0.5*tnsoil[1]-0.5*previn$tair-0.5*tair
   gta<-gturb(u2,hgt+2,hgt+2,hgt,hgt,sum(vegp$PAI),tair,psi_m, psi_h,vegp$zm0,pk)
   gt2<-c(gt,gta)
   mul<-1/sum(1/gt2)*cp[1]
   G<-mul*tdif
-  H<-(1-alb)*Rsw-Rlw-G-L
+  H<-(1-alb)*Rsw-Rlw-G-Lt
   dataout<-list(tc=tn,soiltc=tnsoil,tleaf=tln$tleaf,z=z,sz=sz,rh=rh,
                 relhum=relhum,tair=tair,tsoil=tsoil,tcan=tcan,pk=pk,Rabs=Rabs,
-                gt=gt,gv=gv,gha=gha,H=H)
+                gt=gt,gv=gv,gha=gha,H=H,L=)
   return(dataout)
 }
