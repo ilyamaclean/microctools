@@ -4,7 +4,7 @@
 \alias{cantransdif}
 \title{Calculates diffuse radiation transmission through vegetated canopies}
 \usage{
-cantransdif(l, ref = 0.2)
+cantransdif(l, ref = 0.25)
 }
 \arguments{
 \item{l}{leaf area index (total one-sided leaf area per unit ground area)}

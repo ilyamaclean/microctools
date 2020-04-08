@@ -434,6 +434,7 @@ leaftemp <- function(tair, relhum, pk, timestep, gt, gha, gv, Rabs, previn, vegp
 #' @return `tc` a vector of air temperatures for each canopy layer (deg C)
 #' @return `soiltc` a vector of airsoil temperatures for each soil layer (deg C)
 #' @return `tleaf` a vector of leaf temperatures for each canopy layer (deg C)
+#' @return `tabove` initially set temperature above canopy temperature, here set as `tair`
 #' @return `rh` a vector of relative humidities
 #' @return `relhum` relative humidity at 2 m above canopy (percentage)
 #' @return `tair` air temperature at 2 m above canopy (deg C)
@@ -471,9 +472,10 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, Rsw) {
   gha <- spline(c(1, 2), c(0.13, 0.19), n = m)$y
   z<-c((1:m)-0.5)/m*hgt
   sz<-2/sm^2.42*c(1:sm)^2.42
-  return(list(tc = tc, soiltc = soiltc, tleaf = tleaf, z = z, sz = sz, rh = rh, relhum = relhum,
-              tair = tair, tsoil = tsoil, tcan = tair, pk = 101.3, Rabs = Rabs, gt = gt,
-              gv = gv, gha = gha, H = 0, L = rep(0, m), G = 0))
+  return(list(tc = tc, soiltc = soiltc, tleaf = tleaf, tabove = tair, z = z, sz = sz,
+              zabove = vegp$hgt, rh = rh, relhum = relhum, tair = tair, tsoil = tsoil,
+              pk = 101.3, Rabs = Rabs, gt = gt, gv = gv, gha = gha, H = 0, L = rep(0, m),
+              G = 0))
 }
 #' Returns soil parameters for a given soil type
 #'
@@ -517,7 +519,7 @@ soilinit <- function(soiltype, m = 10, sdepth = 2, reqdepth = NA) {
   return(soilp)
 }
 #' Run canopy model for a single time step
-#' @description run the below-canopy model for a single timestep
+#' @description run the above or below-canopy model for a single timestep
 #'
 #' @param climvars a of climate variables needed to run the run the model for one timestep (see dataset [climvars()])
 #' @param previn a list of model outputs form the previous timestep as returned initially by [paraminit()]
@@ -540,8 +542,12 @@ soilinit <- function(soiltype, m = 10, sdepth = 2, reqdepth = NA) {
 #' @export
 #' @details model outputs are returned for each canopy node, with the number of canopy nodes (m)
 #' determined by `previn`. Canopy nodes are spaced at equal heights throughout the canopy as in the
-#' example. If `reqhgt` is set, the canopy node nearest to that height is set at the value specified.
-#' If temperatures below ground are needed, the depth can be set using [soilinit()]
+#' example. If `reqhgt` is set, and below the height of the canopy, the node nearest to that
+#' height is set at the value specified. The returned value `tabove` is then the temperature
+#' at te top of the canopy. If `reqhgt` is above canopy, nodes are calculated automatically,
+#' but `tabove` is the temperature at height `reqhgt`. If temperatures below ground are
+#' needed, the depth can be set using [soilinit()]
+#'
 #' @examples
 #' # Create initail parameters
 #' tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
@@ -554,12 +560,11 @@ soilinit <- function(soiltype, m = 10, sdepth = 2, reqdepth = NA) {
 #' # Run model 100 times for current time step
 #' for (i in 1:100) {
 #'   plot(z ~ previn$tc, type = "l", xlab = "Temperature", ylab = "Height", main = i)
-#'   previn <- runcanopy(climvars, previn, vegp, soilp, 60, tme, 50, -5)
+#'   previn <- runonestep(climvars, previn, vegp, soilp, 60, tme, 50, -5)
 #' }
-
-runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, edgedist = 100,
-                      sdepth = 2, reqhgt = NA, zu = 2, theta = 0.3, thetap = 0.3, merid = 0,
-                      dst = 0, n = 0.6) {
+runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, edgedist = 100,
+                       sdepth = 2, reqhgt = NA, zu = 2, theta = 0.3, thetap = 0.3, merid = 0,
+                       dst = 0, n = 0.6) {
   # =============   Unpack climate variables ========== #
   m <- length(previn$tc)
   tair<-climvars$tair; relhum<-climvars$relhum; pk<-climvars$pk; u<-climvars$u
@@ -573,18 +578,21 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   # Adjust wind to 2 m above canopy
   u2<-u*log(67.8*hgt-5.42)/log(67.8*zu-5.42)
   u2[u2 < 0.5] <- 0.5
-  # Calculate temperatures and relative humidities for top of canopy
-  tcan <- abovecanopytemp(tair,u2,zu+hgt,hgt,H,hgt,sum(vegp$PAI),vegp$zm0,pk,psi_h)
-  tcan<-ifelse(tcan<(tair-4),(tair-4),tcan)
-  tcan<-ifelse(tcan>(tair+9),(tair+9),tcan)
-  # Adjust relative humidity
-  ea<-0.6108*exp(17.27*tair/(tair+237.3))*(relhum/100)
-  eas<-0.6108*exp(17.27*tcan/(tcan+237.3))
-  relhum<-(ea/eas)*100;
   # Generate heights of nodes
   z<-c((1:m)-0.5)/m*vegp$hgt
   if (is.na(reqhgt) == F) z[abs(z-reqhgt)==min(abs(z-reqhgt))][1]<-reqhgt
   zt<-z[2:(m)]-z[1:(m-1)] # difference in height between layers
+  #  Set z above
+  zabove <- vegp$hgt
+  if (is.na(reqhgt) == F) {
+    if (reqhgt > hgt) zabove <- reqhgt
+  }
+  # Calculate temperatures and relative humidities for top of canopy
+  tcan <- abovecanopytemp(tair,u2,zu+hgt,zabove,H,hgt,sum(vegp$PAI),vegp$zm0,pk,psi_h)
+  # Adjust relative humidity
+  ea<-0.6108*exp(17.27*tair/(tair+237.3))*(relhum/100)
+  eas<-0.6108*exp(17.27*tcan/(tcan+237.3))
+  relhum<-(ea/eas)*100;
   # ========== Calculate wind speed and turbulent conductances ======== #
   ac<- attencoef(hgt,sum(vegp$PAI),vegp$x,vegp$lw,vegp$cd,vegp$iw,phi_m)
   uz<-rep(0,m); gt<-rep(0,m)
@@ -725,8 +733,92 @@ runcanopy <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, e
   mul<-1/sum(1/gt2)*cp[1]
   G<-mul*tdif
   H<-(1-alb)*Rsw-Rlw-G-Lt
-  dataout<-list(tc=tn,soiltc=tnsoil,tleaf=tln$tleaf,z=z,sz=sz,rh=rh,
-                relhum=relhum,tair=tair,tsoil=tsoil,tcan=tcan,pk=pk,Rabs=Rabs,
+  dataout<-list(tc=tn,soiltc=tnsoil,tleaf=tln$tleaf,tabove=tcan,z=z,sz=sz,zabove=zabove,
+                rh=rh,relhum=relhum,tair=tair,tsoil=tsoil,pk=pk,Rabs=Rabs,
                 gt=gt,gv=gv,gha=gha,H=H,L=L)
+  return(dataout)
+}
+#' Runs the microclimate model over time
+#'
+#' @description `runmodel` is used to run the full model over time
+#'
+#' @param climdata a data.frame of climate variables (see e.g. `weather`)
+#' @param soiltype one of `Sand`, `Loamy sand`, `Sandy loam`, `Loam`, `Silt`,
+#' `Silt loam`, `Sandy clay loam`, `Clay loam`, `Silty clay loam`, `Sandy clay`,
+#' `Silty clay` or `Clay`.
+#' @param habitat a integer or character string specifying the habitat type (see `habitats`)
+#' @param lat Latitude (decimal degrees)
+#' @param long Longitude (decimal degrees, negative west of Greenwich meridion)
+#' @param m number of canopy nodes
+#' @param sm number of soil nodes
+#' @param edgedist distance to open ground (m)
+#' @param reqhgt optional height for which temperature is required (see details)
+#' @param sdepth depth of deepest soil node (m)
+#' @param zu height above ground of reference climate measurements (m)
+#' @param theta volumetric water content of upper most soil layer in current time step (m^3 / m^3)
+#' @param thetap volumetric water content of upper most soil layer in previous time step (m^3 / m^3)
+#' @param merid an optional numeric value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT).
+#' @param dst an optional numeric value representing the time difference from the timezone meridian (hours, e.g. +1 for BST if `merid` = 0).
+#' @param n forward / backward weighting for Thomas algorithm (see [Thomas()])
+#' @param steps number of iterations over which to run [spinup()]
+#' @param plotout optional logical indicating whether to a plot a profile of temperatures
+#' upon completion.
+#' @param plotsteps number of iterations run before resuls plotted if `plotout` set to TRUE
+#' @example
+#' #to be added shortly
+runmodel <- function(climdata, soiltype, habitat, lat, long, m, sm = 10,
+                     edgedist = 100, reqhgt = NA, sdepth = 2, zu = 2, theta = 0.3,
+                     thetap = 0.3, merid = 0, dst = 0, n = 0.6, steps = 200, plotout = TRUE,
+                     plotsteps = 100) {
+  # Code for calculating to be added shortly
+  psi_h = 0
+  psi_m = 0
+  phi_m = 1
+  tme<-as.POSIXlt(climdata$obs_time, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+  vegp <- habitatvars(habitat, lat, long, tme[1], m)
+  previn <- spinup(climdata, soiltype, habitat, lat, long, m, sm, edgedist,
+                   reqhgt, sdepth, zu, theta, thetap, merid, dst, n, plotout, steps)
+  # Check for singificant changes in PAI
+  timestep<-round(as.numeric(tme[2])-as.numeric(tme[1]),0)
+  reqdepth <- NA
+  if (is.na(reqhgt) == F) {
+    if (reqhgt < 0) reqdepth <- reqhgt
+  }
+  soilp <- soilinit(soiltype, sm, sdepth, reqdepth)
+  tsoil<-mean(climdata$temp)
+  tout <- 0
+  tleaf <- 0
+  dp <- climdata$difrad / climdata$swrad
+  dp[is.na(dp)] <- 0.5
+  for (i in 1:length(tme)) {
+    vegp<-habitatvars(habitat, lat, long, tme[i], m)
+    climvars<-list(tair = climdata$temp[i], relhum = climdata$relhum[i], pk = climdata$pres[i],
+                   u2 = climdata$windspeed[i], tsoil = tsoil, skyem = climdata$skyem[i],
+                   Rsw = climdata$swrad[i], dp = dp[i], psi_h = psi_h, psi_m = psi_m, phi_m = phi_m)
+    previn <- runonestep(climvars, previn, vegp, soilp, timestep, tme[i], lat,
+                        long, edgedist, sdepth, reqhgt, zu, theta, thetap,
+                        merid, dst, n)
+    if (i%%plotsteps == 0) plotresults(previn, vegp, climvars, climdata$temp[i], i)
+    if (is.na(reqhgt)) {
+      tout[i] <- mean(previn$tc)
+      tleaf[i] <- mean(previn$tleaf)
+    } else {
+      if (reqhgt >= vegp$hgt) {
+        tout[i] <- previn$tabove
+        tleaf[i] <- mean(previn$tleaf)
+      }
+      if (reqhgt >= 0 & reqhgt < vegp$hgt) {
+        sel <- which(previn$z == reqhgt)
+        tout[i] <- previn$tc[sel]
+        tleaf[i] <- previn$tleaf[sel]
+      }
+      if (reqhgt < 0) {
+        sel <- which(previn$sz == -reqhgt)
+        tout[i] <- previn$soiltc[sel]
+        tleaf[i] <- mean(previn$tleaf)
+      }
+    }
+  }
+  dataout <- data.frame(obs_time = tme, reftemp = climdata$temp, tout = tout, tleaf = tleaf)
   return(dataout)
 }

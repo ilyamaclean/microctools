@@ -197,7 +197,7 @@ cantransdir <- function(l, x, sa, ref = 0.2) {
 #' @export
 #'
 #' @seealso [cansw()] to calculate total shortwave radiation underneath canopies
-cantransdif <- function(l, ref = 0.2) {
+cantransdif <- function(l, ref = 0.25) {
   s <- sqrt(1 - ref)
   tr <- exp(-s * l)
   tr

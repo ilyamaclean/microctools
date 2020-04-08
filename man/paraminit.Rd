@@ -31,6 +31,8 @@ a list with the following elements:
 
 \code{tleaf} a vector of leaf temperatures for each canopy layer (deg C)
 
+\code{tabove} initially set temperature above canopy temperature, here set as \code{tair}
+
 \code{rh} a vector of relative humidities
 
 \code{relhum} relative humidity at 2 m above canopy (percentage)
