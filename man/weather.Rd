@@ -13,6 +13,8 @@
 \item{swrad}{Total incoming shortwave radiation (W / m^2)}
 \item{difrad}{Diffuse radiation (W / m^2)}
 \item{skyem}{Sky emissivity (0-1)}
+\item{windspeed}{Wind speed (m/s)}
+\item{winddir}{Wind direction (decimal degrees)}
 }}
 \usage{
 weather

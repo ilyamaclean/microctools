@@ -248,4 +248,35 @@ spinup <- function(climdata, soiltype, habitat, lat, long, m, sm = 10,
   if (plotout) plotresults(previn, vegp, climvars)
   previn
 }
-
+#' Reformats a data frame returned by [microclima::hourlyNCEP()]
+#' @details The `hourlyncep_convert` function reformats the data.frame returned by
+#' [microclima::hourlyNCEP()]  for use with `microclimc`
+#' @param climdata data.frame as returned by [microclima::hourlyNCEP()]
+#' @param latitude (declimal degrees)
+#' @param longitude (decimal degrees)
+#' @return a data.frame of hourly weather variables (see e.g. `weather`).
+#' @export
+#' @details The function [microclima::hourlyNCEP()] downloads the required climate and
+#' radiation forcing data needed to run microclimate models from the NOAA-NCEP reanalysis
+#' project and interpolates 4x daily data to hourly. Thius function reformats those data,
+#' converting humdity and radiation values for use with the microclimc package.
+hourlyncep_convert <- function(climdata, lat, long) {
+  tme<-as.POSIXlt(climdata$obs_time, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+  pres<-climdata$pressure/1000
+  relhum<-suppressWarnings(converthumidity(climdata$humidity, intype = "specific",
+                                           tc = climdata$temperature,
+                                           pk = pres)$relative)
+  relhum[relhum > 100] <- 100
+  jd<-julday(tme = tme)
+  lt <- tme$hour + tme$min/60 + tme$sec/3600
+  si<-solarcoef(0, 0, lt, lat, long, jd, merid = 0)
+  raddr<-(climdata$rad_dni * si) / 0.0036
+  difrad <- climdata$rad_dif / 0.0036
+  swrad <- raddr + difrad
+  weather <- data.frame(obs_time = tme, temp = climdata$temperature,
+                        relhum = relhum, pres = pres, swrad = swrad,
+                        difrad = difrad, skyem = climdata$emissivity,
+                        windspeed =  climdata$windspeed,
+                        winddir = climdata$winddir)
+  weather
+}
