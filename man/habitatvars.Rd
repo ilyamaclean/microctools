@@ -4,7 +4,7 @@
 \alias{habitatvars}
 \title{Derives vegetation paramaters from habitat type}
 \usage{
-habitatvars(habitat, lat, long, tme, m = 20)
+habitatvars(habitat, lat, long, tme, m = 20, PAIt = NA)
 }
 \arguments{
 \item{habitat}{a character string or numeric value indicating the habitat type. See \code{\link[=habitats]{habitats()}}}
@@ -16,6 +16,8 @@ habitatvars(habitat, lat, long, tme, m = 20)
 \item{tme}{a single value or vector of POSIXlt objects of date(s) and time(s). See details}
 
 \item{m}{number of canopy nodes}
+
+\item{PAIt}{optional single numeric value or vector of values of total plant area index for canopy (see details).}
 }
 \value{
 a list with the following components:
@@ -72,5 +74,10 @@ Plant Area Index values and proportions of green vegetation for each canopy node
 If \code{tme} is a vector of times, \code{PAI} and \code{pLAI} are arrays of dimension m x number of
 hours. I.e. seperate \code{PAI} and \code{pLAI} values are derived for each hour and node. If \code{tme}
 is not in hourly time increments, it is conveted to hourly time increments, from 00:00 hrs
-on the first day toup to and including 23:00 hrs on the final day.
+on the first day toup to and including 23:00 hrs on the final day. If \code{PAIt} is provided,
+and a single value, then the length of \code{tme} is ignored and returned \code{PAI} is a vector of values for
+each node. If \code{PAIt} is a vector of values of length \code{m} then seasonally adjusted values for
+each node and hour of \code{tme} are returned. If \code{PAIt} is a vector of values of any length
+other than \code{m} spline interpolated values for each node and hour of \code{tme} are returned.
+If \code{PAIt} is NA (the default) PAI is estimated from habitat and location using \code{\link[=PAIfromhabitat]{PAIfromhabitat()}}.
 }
