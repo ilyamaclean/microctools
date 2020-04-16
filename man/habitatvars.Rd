@@ -13,7 +13,7 @@ habitatvars(habitat, lat, long, tme, m = 20)
 
 \item{long}{a single numeric value representing the mean longitude of the location for which the solar index is required (decimal degrees, -ve west of Greenwich meridian).}
 
-\item{tme}{POSIXlt object of date and time}
+\item{tme}{a single value or vector of POSIXlt objects of date(s) and time(s). See details}
 
 \item{m}{number of canopy nodes}
 }
@@ -22,7 +22,7 @@ a list with the following components:
 
 \code{hgt} height of vegetation (m)
 
-\code{PAI} a vector of length \code{m} of Plant Area Index values
+\code{PAI} a vector or array of Plant Area Index values (see details)
 
 \code{x} the ratio of vertical to horizontal projections of leaf foliage
 
@@ -36,7 +36,7 @@ a list with the following components:
 
 \code{zm0} roughnes length governing momentum transfer of understory vegetation (m)
 
-\code{pLAI} a vector of length \code{m}  of the proportion of green vegetation
+\code{pLAI} a vector or array of proportions of green vegetation (see details)
 
 \code{refls} reflectivity (shortwave radiation) of leaves
 
@@ -65,4 +65,12 @@ x PAI = volume of vegetation (m^3 / m^3)
 \description{
 \code{habitatvars} generates vegetation parameters required to run the model
 from habitat type.
+}
+\details{
+if \code{tme} is a single value \code{PAI} and \code{pLAI} are vectors of length \code{m} giving
+Plant Area Index values and proportions of green vegetation for each canopy node \code{m}.
+If \code{tme} is a vector of times, \code{PAI} and \code{pLAI} are arrays of dimension m x number of
+hours. I.e. seperate \code{PAI} and \code{pLAI} values are derived for each hour and node. If \code{tme}
+is not in hourly time increments, it is conveted to hourly time increments, from 00:00 hrs
+on the first day toup to and including 23:00 hrs on the final day.
 }

@@ -498,6 +498,45 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   tme <- as.POSIXlt(tme * 3600, origin = paste0(year,"-01-01 00:00"), tz = "UTC")
   return(list(lai = lai, x = x, height = hgt, obs_time = tme))
 }
+#' Converts daily times to hourly
+#' @export
+.tme.sort <- function(tme) {
+  tme<-as.numeric(tme)
+  tme<-as.POSIXlt(tme, origin = "1970-01-01 00:00", tz = "UTC")
+  zero <- function(x) ifelse(x < 10, paste0("0", x), paste0("", x))
+  dstart<-paste0(tme$year[1]+1900,"-",zero(tme$mon[1]+1),"-",zero(tme$mday[1])," 00:00")
+  dfinish<-paste0(tme$year[length(tme)]+1900,"-",zero(tme$mon[length(tme)]+1),"-",
+                  zero(tme$mday[length(tme)])," 23:00")
+  tmeh<-seq(as.POSIXlt(dstart, format = "%Y-%m-%d %H:%M", origin = "1900-01-01", tz = "UTC"),
+            as.POSIXlt(dfinish, format = "%Y-%m-%d %H:%M", origin = "1900-01-01", tz = "UTC"),
+            by = 'hours')
+  as.POSIXlt(tmeh)
+}
+#' Returns PAI for multiple years
+#' @export
+.PAI.sort <- function(habitat, lat, long, tme) {
+  tme<-.tme.sort(tme)
+  lai<-0; ota<-as.POSIXlt(0,origin="1970-01-01 00:00",tz="UTC")
+  yrs<-unique(tme$year) +1900
+  for (i in 1:length(yrs)) {
+    pai <- PAIfromhabitat(1, lat, long, yrs[i])
+    sel<-which(tme$year+1900 == yrs[i])
+    tme1<-tme[sel]
+    tmemn<-as.numeric(min(tme1))
+    tmemx<-as.numeric(max(tme1))
+    ot<-as.numeric(pai$obs_time)
+    sel <- which(ot >= tmemn & ot <= tmemx)
+    l <- pai$lai[sel]
+    otx<- pai$obs_time[sel]
+    lai<-c(lai,l)
+    ota<-c(ota,otx)
+  }
+  lai<-lai[-1]; ota<-ota[-1]
+  ota<-as.POSIXlt(as.numeric(ota),origin="1970-01-01 00:00",tz="UTC")
+  pai$lai<-lai
+  pai$obs_time<-ota
+  pai
+}
 #' Derives vegetation paramaters from habitat type
 #'
 #' @description `habitatvars` generates vegetation parameters required to run the model
@@ -506,18 +545,18 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 #' @param habitat a character string or numeric value indicating the habitat type. See [habitats()]
 #' @param lat a single numeric value representing the mean latitude of the location for which the solar index is required (decimal degrees, -ve south of the equator).
 #' @param long a single numeric value representing the mean longitude of the location for which the solar index is required (decimal degrees, -ve west of Greenwich meridian).
-#' @param tme POSIXlt object of date and time
+#' @param tme a single value or vector of POSIXlt objects of date(s) and time(s). See details
 #' @param m number of canopy nodes
 #' @return a list with the following components:
 #' @return `hgt` height of vegetation (m)
-#' @return `PAI` a vector of length `m` of Plant Area Index values
+#' @return `PAI` a vector or array of Plant Area Index values (see details)
 #' @return `x` the ratio of vertical to horizontal projections of leaf foliage
 #' @return `lw` mean leaf width (m)
 #' @return `cd` drag coefficient
 #' @return `iw` a vector of length `m` of relative turbulence intensities
 #' @return `hgtg` height of understory vegetation (m)
 #' @return `zm0` roughnes length governing momentum transfer of understory vegetation (m)
-#' @return `pLAI` a vector of length `m`  of the proportion of green vegetation
+#' @return `pLAI` a vector or array of proportions of green vegetation (see details)
 #' @return `refls` reflectivity (shortwave radiation) of leaves
 #' @return `refg` reflectivity (shortwave radiation) of ground
 #' @return `refw` reflectivity (shortwave radiation) of dead vegetation and woody stems
@@ -531,29 +570,53 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 #' @return `cpw` Specific heat capacity of woody vegetation (J / kg / K)
 #' @return `phw` Density of woody vegetation (no air) (kg / m^3)
 #' @return `kwood` # thermal conductivity of wood (W / m / K)
+#' @details if `tme` is a single value `PAI` and `pLAI` are vectors of length `m` giving
+#' Plant Area Index values and proportions of green vegetation for each canopy node `m`.
+#' If `tme` is a vector of times, `PAI` and `pLAI` are arrays of dimension m x number of
+#' hours. I.e. seperate `PAI` and `pLAI` values are derived for each hour and node. If `tme`
+#' is not in hourly time increments, it is conveted to hourly time increments, from 00:00 hrs
+#' on the first day toup to and including 23:00 hrs on the final day.
 #' @export
 habitatvars <- function(habitat, lat, long, tme, m = 20) {
-  hr <- tme$yday * 24 + tme$hour + 1
   # By habitat type
   if (habitat == "Evergreen needleleaf forest" | habitat == 1) {
     # Plant area
-    pai <- PAIfromhabitat(1, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
+    pai <- .PAI.sort(1, lat, long, tme)
+    xx<-PAIfromhabitat(1, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
     m2 <- round((1 / pai$height) * m, 0)
     wgt <- (m2 / m) * 0.25
-    PAI <- PAIgeometry(m, PAIt * (1 - wgt), 7.5, 70)
-    PAIu <- PAIgeometry(m2, PAIt * wgt, 1, 50)
+    PAI <- PAIgeometry(m, mxPAI * (1 - wgt), 7.5, 70)
+    PAIu <- PAIgeometry(m2, mxPAI * wgt, 1, 50)
     PAIu <- c(PAIu, rep(0, m - m2))
-    PAI <- PAI + PAIu
+    PAIo <- PAI + PAIu
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.4,0.7,0.1)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.75, 6)
+    pLAIo <- LAIfrac(m, 0.75, 6)
     pLAIu <- c(LAIfrac(m2, 0.9, 6), rep(0, m - m2))
-    pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
-    pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
-    pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        pLAI2 <- pLAIo[i] * ((PAI[i,] - PAIu[i]) / PAI[i,]) + pLAIu[i] * (PAIu[i] / PAI[i,])
+        pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAI2
+      }
+    } else {
+      pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
+      pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+      mxpLAI <- max(pai$lai) / mxPAI
+      pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.25 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -566,23 +629,42 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Evergreen Broadleaf forest" | habitat == 2) {
     # Plant area
-    pai <- PAIfromhabitat(2, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
+    pai <- .PAI.sort(2, lat, long, tme)
+    xx<-PAIfromhabitat(2, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
     m2 <- round((4 / pai$height) * m, 0)
     wgt <- (m2 / m) * 0.25
-    PAI <- PAIgeometry(m, PAIt * (1 - wgt), 6.5, 70)
-    PAIu <- PAIgeometry(m2, PAIt * wgt, 1, 50)
+    PAI <- PAIgeometry(m, mxPAI * (1 - wgt), 6.5, 70)
+    PAIu <- PAIgeometry(m2, mxPAI * wgt, 1, 50)
     PAIu <- c(PAIu, rep(0, m - m2))
-    PAI <- PAI + PAIu
+    PAIo <- PAI + PAIu
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.55, 1,0.2)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.8, 6)
+    pLAIo <- LAIfrac(m, 0.8, 6)
     pLAIu <- c(LAIfrac(m2, 0.9, 6), rep(0, m - m2))
-    pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
-    pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
-    pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        pLAI2 <- pLAIo[i] * ((PAI[i,] - PAIu[i]) / PAI[i,]) + pLAIu[i] * (PAIu[i] / PAI[i,])
+        pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAI2
+      }
+    } else {
+      pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
+      pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+      mxpLAI <- max(pai$lai) / mxPAI
+      pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -595,23 +677,42 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Deciduous needleleaf forest" | habitat == 3) {
     # Plant area
-    pai <- PAIfromhabitat(3, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
+    pai <- .PAI.sort(3, lat, long, tme)
+    xx<-PAIfromhabitat(3, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
     m2 <- round((1 / pai$height) * m, 0)
     wgt <- (m2 / m) * 0.25
     PAI <- PAIgeometry(m, PAIt * (1 - wgt), 7.5, 70)
     PAIu <- PAIgeometry(m2, PAIt * wgt, 1, 50)
     PAIu <- c(PAIu, rep(0, m - m2))
-    PAI <- PAI + PAIu
+    PAIo <- PAI + PAIu
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.4,0.7,0.1)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.75, 6)
+    pLAIo <- LAIfrac(m, 0.75, 6)
     pLAIu <- c(LAIfrac(m2, 0.9, 6), rep(0, m - m2))
-    pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
-    pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
-    pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        pLAI2 <- pLAIo[i] * ((PAI[i,] - PAIu[i]) / PAI[i,]) + pLAIu[i] * (PAIu[i] / PAI[i,])
+        pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAI2
+      }
+    } else {
+      pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
+      pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+      mxpLAI <- max(pai$lai) / mxPAI
+      pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -624,23 +725,42 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Deciduous broadleaf forest" | habitat == 4) {
     # Plant area
-    pai <- PAIfromhabitat(4, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
+    pai <- .PAI.sort(4, lat, long, tme)
+    xx<-PAIfromhabitat(4, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
     m2 <- round((2 / pai$height) * m, 0)
     wgt <- (m2 / m) * 0.25
     PAI <- PAIgeometry(m, PAIt * (1 - wgt), 6.5, 70)
     PAIu <- PAIgeometry(m2, PAIt * wgt, 1, 50)
     PAIu <- c(PAIu, rep(0, m - m2))
-    PAI <- PAI + PAIu
+    PAIo <- PAI + PAIu
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.5, 0.6,0.15)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.75, 6)
+    pLAIo <- LAIfrac(m, 0.75, 6)
     pLAIu <- c(LAIfrac(m2, 0.9, 6), rep(0, m - m2))
-    pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
-    pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
-    pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        pLAI2 <- pLAIo[i] * ((PAI[i,] - PAIu[i]) / PAI[i,]) + pLAIu[i] * (PAIu[i] / PAI[i,])
+        pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAI2
+      }
+    } else {
+      pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
+      pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+      mxpLAI <- max(pai$lai) / mxPAI
+      pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -653,23 +773,42 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Mixed forest" | habitat == 5) {
     # Plant area
-    pai <- PAIfromhabitat(5, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
+    pai <- .PAI.sort(5, lat, long, tme)
+    xx<-PAIfromhabitat(5, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
     m2 <- round((1.5 / pai$height) * m, 0)
     wgt <- (m2 / m) * 0.25
     PAI <- PAIgeometry(m, PAIt * (1 - wgt), 7, 70)
     PAIu <- PAIgeometry(m2, PAIt * wgt, 1, 50)
     PAIu <- c(PAIu, rep(0, m - m2))
-    PAI <- PAI + PAIu
+    PAIo <- PAI + PAIu
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.45,0.65,0.12)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.775, 6)
+    pLAIo <- LAIfrac(m, 0.775, 6)
     pLAIu <- c(LAIfrac(m2, 0.9, 6), rep(0, m - m2))
-    pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
-    pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
-    pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        pLAI2 <- pLAIo[i] * ((PAI[i,] - PAIu[i]) / PAI[i,]) + pLAIu[i] * (PAIu[i] / PAI[i,])
+        pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAI2
+      }
+    } else {
+      pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
+      pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+      mxpLAI <- max(pai$lai) / mxPAI
+      pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.28 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -682,15 +821,31 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Closed shrublands" | habitat == 6) {
     # Plant area
-    pai <- PAIfromhabitat(6, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
-    PAI <- PAIgeometry(m, PAIt, 6, 80)
+    pai <- .PAI.sort(6, lat, long, tme)
+    xx<-PAIfromhabitat(6, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
+    PAIo <- PAIgeometry(m, PAIt, 6, 80)
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.2,0.5,0.05)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.85, 6)
-    pLAI <- (mxpLAI / max(pLAI)) * pLAI
+    pLAIo <- LAIfrac(m, 0.85, 6)
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAIo[i]
+      }
+    } else {
+      pLAI <- (mxpLAI / max(pLAI)) * pLAIo
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -703,15 +858,31 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Open shrublands" | habitat == 7) {
     # Plant area
-    pai <- PAIfromhabitat(7, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
-    PAI <- PAIgeometry(m, PAIt, 4, 70)
+    pai <- .PAI.sort(7, lat, long, tme)
+    xx<-PAIfromhabitat(7, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
+    PAIo <- PAIgeometry(m, PAIt, 6, 80)
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.2,0.5,0.05)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.75, 6)
-    pLAI <- (mxpLAI / max(pLAI)) * pLAI
+    pLAIo <- LAIfrac(m, 0.75, 6)
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAIo[i]
+      }
+    } else {
+      pLAI <- (mxpLAI / max(pLAI)) * pLAIo
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -724,23 +895,43 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Woody savannas" | habitat == 8) {
     # Plant area
-    pai <- PAIfromhabitat(8, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
+    pai <- .PAI.sort(8, lat, long, tme)
+    xx<-PAIfromhabitat(8, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
     m2 <- round((0.75 / pai$height) * m, 0)
     wgt <- (m2 / m) * 0.25
     PAI <- PAIgeometry(m, PAIt * (1 - wgt), 6.5, 70)
     PAIu <- PAIgeometry(m2, PAIt * wgt, 1, 50)
     PAIu <- c(PAIu, rep(0, m - m2))
-    PAI <- PAI + PAIu
+    PAIo <- PAI + PAIu
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.2,0.3,0.1)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.75, 6)
+    pLAIo <- LAIfrac(m, 0.75, 6)
     pLAIu <- c(LAIfrac(m2, 0.9, 6), rep(0, m - m2))
-    pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
-    pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
-    pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        pLAI2 <- pLAIo[i] * ((PAI[i,] - PAIu[i]) / PAI[i,]) + pLAIu[i] * (PAIu[i] / PAI[i,])
+        pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAI2
+      }
+    } else {
+      pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
+      pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+      mxpLAI <- max(pai$lai) / mxPAI
+      pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    }
+
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.35 # reflectivity (shortwave radiation) of leaves
     refw = 0.2 # reflectivity (shortwave radiation) of woody vegetation
@@ -753,15 +944,32 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Savannas" | habitat == 9) {
     # Plant area
-    pai <- PAIfromhabitat(9, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
-    PAI <- PAIgeometry(m, PAIt, 1, 50)
+    pai <- .PAI.sort(9, lat, long, tme)
+    xx<-PAIfromhabitat(9, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
+    PAIo <- PAIgeometry(m, PAIt, 1, 50)
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.7, 6)
-    pLAI <- (mxpLAI / max(pLAI)) * pLAI
+    pLAIo <- LAIfrac(m, 0.7, 6)
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAIo[i]
+      }
+    } else {
+      pLAI <- (mxpLAI / max(pLAI)) * pLAIo
+    }
+
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.35 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -774,15 +982,31 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Short grasslands" | habitat == 10) {
     # Plant area
-    pai <- PAIfromhabitat(10, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
-    PAI <- PAIgeometry(m, PAIt, 1, 50)
+    pai <- .PAI.sort(10, lat, long, tme)
+    xx<-PAIfromhabitat(10, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
+    PAIo <- PAIgeometry(m, PAIt, 1, 50)
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.85, 6)
-    pLAI <- (mxpLAI / max(pLAI)) * pLAI
+    pLAIo <- LAIfrac(m, 0.85, 6)
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAIo[i]
+      }
+    } else {
+      pLAI <- (mxpLAI / max(pLAI)) * pLAIo
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.35 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -795,15 +1019,31 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Tall grasslands" | habitat == 11) {
     # Plant area
-    pai <- PAIfromhabitat(11, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
-    PAI <- PAIgeometry(m, PAIt, 1, 50)
+    pai <- .PAI.sort(11, lat, long, tme)
+    xx<-PAIfromhabitat(11, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
+    PAIo <- PAIgeometry(m, PAIt, 1, 50)
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.85, 6)
-    pLAI <- (mxpLAI / max(pLAI)) * pLAI
+    pLAIo <- LAIfrac(m, 0.85, 6)
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAIo[i]
+      }
+    } else {
+      pLAI <- (mxpLAI / max(pLAI)) * pLAIo
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.35 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -816,15 +1056,31 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Permanent wetlands" | habitat == 12) {
     # Plant area
-    pai <- PAIfromhabitat(12, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
-    PAI <- PAIgeometry(m, PAIt, 1, 50)
+    pai <- .PAI.sort(12, lat, long, tme)
+    xx<-PAIfromhabitat(12, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
+    PAIo <- PAIgeometry(m, PAIt, 1, 50)
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.95, 6)
-    pLAI <- (mxpLAI / max(pLAI)) * pLAI
+    pLAIo <- LAIfrac(m, 0.95, 6)
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAIo[i]
+      }
+    } else {
+      pLAI <- (mxpLAI / max(pLAI)) * pLAIo
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.5 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -837,15 +1093,31 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Croplands" | habitat == 13) {
     # Plant area
-    pai <- PAIfromhabitat(13, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
-    PAI <- PAIgeometry(m, PAIt, 1, 50)
+    pai <- .PAI.sort(13, lat, long, tme)
+    xx<-PAIfromhabitat(13, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
+    PAIo <- PAIgeometry(m, PAIt, 1, 50)
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.25,0.3,0.02)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.8, 6)
-    pLAI <- (mxpLAI / max(pLAI)) * pLAI
+    pLAIo <- LAIfrac(m, 0.8, 6)
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAIo[i]
+      }
+    } else {
+      pLAI <- (mxpLAI / max(pLAI)) * pLAIo
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -858,23 +1130,42 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Urban and built-up" | habitat == 14) {
     # Plant area
-    pai <- PAIfromhabitat(14, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
+    pai <- .PAI.sort(14, lat, long, tme)
+    xx<-PAIfromhabitat(14, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
     m2 <- round((0.1 / pai$height) * m, 0)
     wgt <- (m2 / m) * 0.25
     PAI <- PAIgeometry(m, PAIt * (1 - wgt), 6.5, 70)
     PAIu <- PAIgeometry(m2, PAIt * wgt, 1, 50)
     PAIu <- c(PAIu, rep(0, m - m2))
-    PAI <- PAI + PAIu
+    PAIo <- PAI + PAIu
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.5, 0.6,0.15)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.75, 6)
+    pLAIo <- LAIfrac(m, 0.75, 6)
     pLAIu <- c(LAIfrac(m2, 0.9, 6), rep(0, m - m2))
-    pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
-    pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
-    pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        pLAI2 <- pLAIo[i] * ((PAI[i,] - PAIu[i]) / PAI[i,]) + pLAIu[i] * (PAIu[i] / PAI[i,])
+        pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAI2
+      }
+    } else {
+      pLAI2 <- pLAI * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
+      pLAI2[is.na(pLAI2)] <- pLAI[is.na(pLAI2)]
+      mxpLAI <- max(pai$lai) / mxPAI
+      pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -887,15 +1178,31 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Cropland/Natural vegetation mosaic" | habitat == 15) {
     # Plant area
-    pai <- PAIfromhabitat(15, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
-    PAI <- PAIgeometry(m, PAIt, 1, 50)
+    pai <- .PAI.sort(15, lat, long, tme)
+    xx<-PAIfromhabitat(15, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
+    PAIo <- PAIgeometry(m, PAIt, 1, 50)
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.35,0.5,0.02)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.75, 6)
-    pLAI <- (mxpLAI / max(pLAI)) * pLAI
+    pLAIo <- LAIfrac(m, 0.75, 6)
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAIo[i]
+      }
+    } else {
+      pLAI <- (mxpLAI / max(pLAI)) * pLAIo
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
@@ -908,15 +1215,31 @@ habitatvars <- function(habitat, lat, long, tme, m = 20) {
   }
   if (habitat == "Barren or sparsely vegetated" | habitat == 16) {
     # Plant area
-    pai <- PAIfromhabitat(16, lat, long, tme$year + 1900)
-    PAIt <- pai$lai[hr]
-    mxPAI <- max(pai$lai)
-    PAI <- PAIgeometry(m, PAIt, 1, 50)
+    pai <- .PAI.sort(16, lat, long, tme)
+    xx<-PAIfromhabitat(16, lat, long, tme$year[length(tme)]+1900)$lai
+    mxPAI <- max(xx,pai$lai)
+    PAIo <- PAIgeometry(m, PAIt, 1, 50)
+    if (length(tme) > 1) {
+      mn<-min(PAIo)
+      PAIo<-PAIo-mn
+      mu<-pai$lai/mxPAI
+      PAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        PAI[i,]<- PAIo[i]*mu+mn
+      }
+    } else PAI <- PAIo
     thickw <- thickgeometry(m, 0.25,0.3,0.02)
-    mxpLAI <- PAIt / mxPAI
     # Green leaves
-    pLAI <- LAIfrac(m, 0.55, 6)
-    pLAI <- (mxpLAI / max(pLAI)) * pLAI
+    pLAIo <- LAIfrac(m, 0.55, 6)
+    if (length(tme) > 1) {
+      pLAI <- array(NA, dim = c(m,length(pai$lai)))
+      for (i in 1:m) {
+        mxpLAI <- pai$lai / mxPAI
+        pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAIo[i]
+      }
+    } else {
+      pLAI <- (mxpLAI / max(pLAI)) * pLAIo
+    }
     iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
