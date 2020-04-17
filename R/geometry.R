@@ -549,6 +549,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
     } else if (length(PAIt) == m) {
       if (length(tme) == 1) {
         PAI <- PAIt
+        PAIu<-PAI*0
       } else {
         mtme<-mean(as.numeric(tme))
         tdif<-abs(as.numeric(pai$obs_time)-mtme)
