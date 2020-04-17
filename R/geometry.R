@@ -557,24 +557,28 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
         rlai<-pai$lai[sel]
         mult<-pai$lai/rlai
         PAI <- array(NA, dim = c(m,length(pai$lai)))
-        PAIu<-PAI*0
         for (i in 1:m) PAI[i,] <- PAIt[i]*mult
+        PAIu<-PAI*0
       }
     } else {
       tmeh<-.tme.sort(tme)
       x<-c(1:length(PAIt))
       PAIt<-spline(x,PAIt,n=length(tmeh))$y
       PAIo<-PAIgeometry(m, max(PAIt) * (1 - wgt), skew, spread)
+      rat<-0
       if (under) {
         PAIu <- c(PAIgeometry(m2, max(PAIt) * wgt, 1, 50), rep(0,m-m2))
         PAIo <- PAIo + PAIu
+        rat<-PAIu/PAIo
       }
       mn<-min(PAIo)
       PAIo<-PAIo-mn
       mu<-PAIt/max(PAIt)
       PAI <- array(NA, dim = c(m,length(pai$lai)))
+      PAIu<-PAI
       for (i in 1:m) {
         PAI[i,]<- PAIo[i]*mu+mn
+        PAIu[i,]<-PAI[i,]*rat[i]
       }
     }
   } else {
@@ -611,9 +615,9 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
     mult[mult>1]<-1
     for (i in 1:m) {
       if (under) {
-        pLAI2 <- pLAIo[i] * ((PAI[i,] - PAIu[i]) / PAI[i,]) + pLAIu[i] * (PAIu[i] / PAI[i,])
+        pLAI2 <- pLAIo[i] * ((PAI[i,] - PAIu[i,]) / PAI[i,]) + pLAIu[i] * (PAIu[i,] / PAI[i,])
         pLAI2[is.na(pLAI2)] <- pLAIo[is.na(pLAI2)]
-      } else pLAI2<-pLAIo
+      } else pLAI2<-pLAIo[i]
       pLAI[i,] <- mult * pLAI2
     }
   } else {
