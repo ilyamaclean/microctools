@@ -543,7 +543,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
     if (length(PAIt) == 1) {
       PAI<-PAIgeometry(m, PAIt * (1 - wgt), skew, spread)
       if (under) {
-        PAIu <- PAIgeometry(m2, PAIt * wgt, 1, 50)
+        PAIu <- c(PAIgeometry(m2, PAIt * wgt, 1, 50), rep(0,m-m2))
         PAI <- PAI + PAIu
       }
     } else if (length(PAIt) == m) {
@@ -561,7 +561,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
       PAIt<-spline(x,PAIt,n=length(tmeh))$y
       PAIo<-PAIgeometry(m, max(PAIt) * (1 - wgt), skew, spread)
       if (under) {
-        PAIu <- PAIgeometry(m2, max(PAIt) * wgt, 1, 50)
+        PAIu <- c(PAIgeometry(m2, max(PAIt) * wgt, 1, 50), rep(0,m-m2))
         PAIo <- PAIo + PAIu
       }
       mn<-min(PAIo)
