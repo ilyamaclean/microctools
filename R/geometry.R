@@ -547,14 +547,18 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
         PAI <- PAI + PAIu
       }
     } else if (length(PAIt) == m) {
-      mtme<-mean(as.numeric(tme))
-      tdif<-abs(as.numeric(pai$obs_time)-mtme)
-      sel<-which(tdif==min(tdif))
-      rlai<-pai$lai[sel]
-      mult<-pai$lai/rlai
-      PAI <- array(NA, dim = c(m,length(pai$lai)))
-      for (i in 1:m) PAI[i,] <- PAIt[i]*mult
-      PAIs<-apply(PAI)
+      if (length(tme) == 1) {
+        PAI <- PAIt
+      } else {
+        mtme<-mean(as.numeric(tme))
+        tdif<-abs(as.numeric(pai$obs_time)-mtme)
+        sel<-which(tdif==min(tdif))
+        rlai<-pai$lai[sel]
+        mult<-pai$lai/rlai
+        PAI <- array(NA, dim = c(m,length(pai$lai)))
+        PAIu<-PAI*0
+        for (i in 1:m) PAI[i,] <- PAIt[i]*mult
+      }
     } else {
       tmeh<-.tme.sort(tme)
       x<-c(1:length(PAIt))
@@ -576,18 +580,22 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
     xx<-PAIfromhabitat(habitat, lat, long, tme$year[length(tme)]+1900)$lai
     mxPAI <- max(xx,pai$lai)
     PAIo <- PAIgeometry(m, mxPAI * (1 - wgt), 7.5, 70)
+    rat<-0
     if (under) {
       PAIu <- PAIgeometry(m2, mxPAI * wgt, 1, 50)
       PAIu <- c(PAIu, rep(0, m - m2))
       PAIo <- PAIo + PAIu
+      rat<-PAIu/PAIo
     }
     if (length(tme) > 1) {
       mn<-min(PAIo)
       PAIo<-PAIo-mn
       mu<-pai$lai/mxPAI
       PAI <- array(NA, dim = c(m,length(pai$lai)))
+      PAIu<-PAI
       for (i in 1:m) {
         PAI[i,]<- PAIo[i]*mu+mn
+        PAIu[i,]<-PAI[i,]*rat[i]
       }
     } else PAI <- PAIo
   }
