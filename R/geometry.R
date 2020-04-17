@@ -538,7 +538,6 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 .habgen<-function(habitat,lat,long,tme,PAIt,m,m2,skew,spread,pLAIo1,under=TRUE) {
   # PAI
   pai <- .PAI.sort(habitat, lat, long, tme)
-  m2 <- round((1 / pai$height) * m, 0)
   wgt <- (m2 / m) * 0.25
   if (class(PAIt) != "logical") {
     if (length(PAIt) == 1) {
@@ -574,7 +573,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
       }
     }
   } else {
-    xx<-PAIfromhabitat(1, lat, long, tme$year[length(tme)]+1900)$lai
+    xx<-PAIfromhabitat(habitat, lat, long, tme$year[length(tme)]+1900)$lai
     mxPAI <- max(xx,pai$lai)
     PAIo <- PAIgeometry(m, mxPAI * (1 - wgt), 7.5, 70)
     if (under) {
@@ -769,7 +768,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Closed shrublands" | habitat == 6) {
-    pl<-.habgen(6,lat,long,tme,PAIt,m,1,6,80,0.85,under=F)
+    pl<-.habgen(6,lat,long,tme,PAIt,m,0,6,80,0.85,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.5,0.05)
@@ -784,7 +783,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Open shrublands" | habitat == 7) {
-    pl<-.habgen(7,lat,long,tme,PAIt,m,m*4,6,80,0.75,under=F)
+    pl<-.habgen(7,lat,long,tme,PAIt,m,0,6,80,0.75,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.5,0.05)
@@ -819,7 +818,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Savannas" | habitat == 9) {
-    pl<-.habgen(9,lat,long,tme,PAIt,m,m*4,1,50,0.7,under=F)
+    pl<-.habgen(9,lat,long,tme,PAIt,m,0,1,50,0.7,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
@@ -834,7 +833,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Short grasslands" | habitat == 10) {
-    pl<-.habgen(10,lat,long,tme,PAIt,m,1,1,50,0.85,under=F)
+    pl<-.habgen(10,lat,long,tme,PAIt,m,0,1,50,0.85,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
@@ -849,7 +848,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Tall grasslands" | habitat == 11) {
-    pl<-.habgen(11,lat,long,tme,PAIt,m,m*4,1,50,0.85,under=F)
+    pl<-.habgen(11,lat,long,tme,PAIt,m,0,1,50,0.85,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
@@ -864,7 +863,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Permanent wetlands" | habitat == 12) {
-    pl<-.habgen(12,lat,long,tme,PAIt,m,m*4,1,50,0.95,under=F)
+    pl<-.habgen(12,lat,long,tme,PAIt,m,0,1,50,0.95,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
@@ -879,7 +878,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.002
   }
   if (habitat == "Croplands" | habitat == 13) {
-    pl<-.habgen(13,lat,long,tme,PAIt,m,m*4,1,50,0.8,under=F)
+    pl<-.habgen(13,lat,long,tme,PAIt,m,0,1,50,0.8,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.25,0.3,0.02)
@@ -914,7 +913,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Cropland/Natural vegetation mosaic" | habitat == 15) {
-    pl<-.habgen(15,lat,long,tme,PAIt,m,m*4,1,50,0.75,under=F)
+    pl<-.habgen(15,lat,long,tme,PAIt,m,0,1,50,0.75,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.35,0.5,0.02)
@@ -929,7 +928,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Barren or sparsely vegetated" | habitat == 16) {
-    pl<-.habgen(16,lat,long,tme,PAIt,m,m*4,1,50,0.55,under=F)
+    pl<-.habgen(16,lat,long,tme,PAIt,m,0,1,50,0.55,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.25,0.3,0.02)
