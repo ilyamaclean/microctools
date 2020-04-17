@@ -442,7 +442,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
     maxlai <- ifelse(maxlai > 1.15, 1.15, maxlai)
     minlai <- 0.28
     x <- 1
-    hgt <- 0.8
+    hgt <- 1.5
   }
   if (habitat == "Cropland/Natural vegetation mosaic" | habitat == 15) {
     h2 <- 29.490 +  8.260 * clim[1]
@@ -894,7 +894,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Urban and built-up" | habitat == 14) {
-    m2 <- round((0.1/0.8) * m, 0)
+    m2 <- round((0.5/1.5) * m, 0)
     pl<-.habgen(habitat,lat,long,tme,PAIt,m,m2,6.5,70,0.75)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
