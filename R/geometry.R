@@ -582,7 +582,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
     if (under) {
       PAIu <- PAIgeometry(m2, mxPAI * wgt, 1, 50)
       PAIu <- c(PAIu, rep(0, m - m2))
-      PAIo <- PAI + PAIu
+      PAIo <- PAIo + PAIu
     }
     if (length(tme) > 1) {
       mn<-min(PAIo)
