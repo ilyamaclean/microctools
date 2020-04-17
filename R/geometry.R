@@ -582,7 +582,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
     if (under) {
       PAIu <- PAIgeometry(m2, mxPAI * wgt, 1, 50)
       PAIu <- c(PAIu, rep(0, m - m2))
-      PAIo <- PAI + PAIu
+      PAIo <- PAIo + PAIu
     }
     if (length(tme) > 1) {
       mn<-min(PAIo)
@@ -681,7 +681,11 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     gsmax <- 0.33
     phw <- 500
     uhgt <- 1
-    zm0 <- roughlength(uhgt, PAI = sum(PAIu))
+    wgt <- (m2 / m) * 0.25
+    if (class(PAI) == "matrix") {
+      sPAI<-apply(PAI,1,sum)*wgt
+    } else sPAI <- sum(PAI)*wgt
+    zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Evergreen Broadleaf forest" | habitat == 2) {
     m2 <- round((4/20)*m,0)
@@ -697,7 +701,11 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     gsmax <- 0.33
     phw <- 1100
     uhgt <- 4
-    zm0 <- roughlength(uhgt, PAI = sum(PAIu))
+    wgt <- (m2 / m) * 0.25
+    if (class(PAI) == "matrix") {
+      sPAI<-apply(PAI,1,sum)*wgt
+    } else sPAI <- sum(PAI)*wgt
+    zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Deciduous needleleaf forest" | habitat == 3) {
     m2 <- round((1/10)*m,0)
@@ -713,7 +721,11 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     gsmax <- 0.33
     phw <- 500
     uhgt <- 1
-    zm0 <- roughlength(uhgt, PAI = sum(PAIu))
+    wgt <- (m2 / m) * 0.25
+    if (class(PAI) == "matrix") {
+      sPAI<-apply(PAI,1,sum)*wgt
+    } else sPAI <- sum(PAI)*wgt
+    zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Deciduous broadleaf forest" | habitat == 4) {
     m2 <- round((2/15)*m,0)
@@ -729,7 +741,11 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     gsmax <- 0.23
     phw <- 700
     uhgt <- 2
-    zm0 <- roughlength(uhgt, PAI = sum(PAIu))
+    wgt <- (m2 / m) * 0.25
+    if (class(PAI) == "matrix") {
+      sPAI<-apply(PAI,1,sum)*wgt
+    } else sPAI <- sum(PAI)*wgt
+    zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Mixed forest" | habitat == 5) {
     m2 <- round((1.5/10)*m,0)
@@ -745,7 +761,11 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     gsmax <- 0.28
     phw <- 600
     uhgt <- 1.5
-    zm0 <- roughlength(uhgt, PAI = sum(PAIu))
+    wgt <- (m2 / m) * 0.25
+    if (class(PAI) == "matrix") {
+      sPAI<-apply(PAI,1,sum)*wgt
+    } else sPAI <- sum(PAI)*wgt
+    zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Closed shrublands" | habitat == 6) {
     pl<-.habgen(habitat,lat,long,tme,m,1,6,80,0.85,under=F)
@@ -791,7 +811,11 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     gsmax <- 0.33
     phw <- 300
     uhgt <- 0.75
-    zm0 <- roughlength(uhgt, PAI = sum(PAIu))
+    wgt <- (m2 / m) * 0.25
+    if (class(PAI) == "matrix") {
+      sPAI<-apply(PAI,1,sum)*wgt
+    } else sPAI <- sum(PAI)*wgt
+    zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Savannas" | habitat == 9) {
     pl<-.habgen(habitat,lat,long,tme,m,1,1,50,0.7,under=F)
@@ -882,7 +906,11 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     gsmax <- 0.33
     phw <- 600
     uhgt <- 0.1
-    zm0 <- roughlength(uhgt, PAI = sum(PAIu))
+    wgt <- (m2 / m) * 0.25
+    if (class(PAI) == "matrix") {
+      sPAI<-apply(PAI,1,sum)*wgt
+    } else sPAI <- sum(PAI)*wgt
+    zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Cropland/Natural vegetation mosaic" | habitat == 15) {
     pl<-.habgen(habitat,lat,long,tme,m,1,1,50,0.75,under=F)
