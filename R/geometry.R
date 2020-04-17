@@ -535,7 +535,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 }
 #' generates PAI and pLAI for a given habitat type
 #' @export
-.habgen<-function(habitat,lat,long,tme,m,m2,skew,spread,pLAIo1,under=TRUE) {
+.habgen<-function(habitat,lat,long,tme,PAIt,m,m2,skew,spread,pLAIo1,under=TRUE) {
   # PAI
   pai <- .PAI.sort(habitat, lat, long, tme)
   m2 <- round((1 / pai$height) * m, 0)
@@ -547,8 +547,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
         PAIu <- PAIgeometry(m2, PAIt * wgt, 1, 50)
         PAI <- PAI + PAIu
       }
-    }
-    if (length(PAIt) == m) {
+    } else if (length(PAIt) == m) {
       mtme<-mean(as.numeric(tme))
       tdif<-abs(as.numeric(pai$obs_time)-mtme)
       sel<-which(tdif==min(tdif))
@@ -557,8 +556,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
       PAI <- array(NA, dim = c(m,length(pai$lai)))
       for (i in 1:m) PAI[i,] <- PAIt[i]*mult
       PAIs<-apply(PAI)
-    }
-    if (length(PAIt) != 1 & length(PAIt) != m) {
+    } else {
       tmeh<-.tme.sort(tme)
       x<-c(1:length(PAIt))
       PAIt<-spline(x,PAIt,n=length(tmeh))$y
@@ -600,22 +598,24 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   if (class(PAI) == "matrix") {
     pLAI <- PAI*NA
     PAIs<-apply(PAI,2,sum)
-    mxPAI<-max(PAIs)
-    mxpLAI <- PAIs / mxPAI
+    mxPAI<-max(PAIs,pai$lai)
+    mult <- PAIs / mxPAI
+    mult[mult>1]<-1
     for (i in 1:m) {
       if (under) {
         pLAI2 <- pLAIo[i] * ((PAI[i,] - PAIu[i]) / PAI[i,]) + pLAIu[i] * (PAIu[i] / PAI[i,])
         pLAI2[is.na(pLAI2)] <- pLAIo[is.na(pLAI2)]
       } else pLAI2<-pLAIo
-      pLAI[i,] <- (mxpLAI / max(pLAI2)) * pLAI2
+      pLAI[i,] <- mult * pLAI2
     }
   } else {
-    mxpLAI <- max(pai$lai) / mxPAI
+    mult <- sum(PAI) / max(pai$lai)
+    mult[mult>1]<-1
     if (under) {
       pLAI2 <- pLAIo * ((PAI - PAIu) / PAI) + pLAIu * (PAIu / PAI)
       pLAI2[is.na(pLAI2)] <- pLAIo[is.na(pLAI2)]
     } else pLAI2<-pLAIo
-    pLAI <- (mxpLAI / max(pLAI2)) * pLAI2
+    pLAI <- mult * pLAI2
   }
   return(list(PAI=PAI,pLAI=pLAI))
 }
@@ -667,9 +667,10 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 #' @export
 habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   # By habitat type
+  pai<-PAIfromhabitat(habitat,lat,long,2010)
   if (habitat == "Evergreen needleleaf forest" | habitat == 1) {
     m2 <- round((1/15)*m,0)
-    pl<-.habgen(habitat,lat,long,tme,m,m2,7.5,70,0.75)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,m2,7.5,70,0.75)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.4,0.7,0.1)
@@ -689,7 +690,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Evergreen Broadleaf forest" | habitat == 2) {
     m2 <- round((4/20)*m,0)
-    pl<-.habgen(habitat,lat,long,tme,m,m2,6.5,70,0.8)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,m2,6.5,70,0.8)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.55, 1,0.2)
@@ -709,7 +710,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Deciduous needleleaf forest" | habitat == 3) {
     m2 <- round((1/10)*m,0)
-    pl<-.habgen(habitat,lat,long,tme,m,m2,7.5,70,0.75)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,m2,7.5,70,0.75)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.4,0.7,0.1)
@@ -729,7 +730,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Deciduous broadleaf forest" | habitat == 4) {
     m2 <- round((2/15)*m,0)
-    pl<-.habgen(habitat,lat,long,tme,m,m2,6.5,70,0.775)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,m2,6.5,70,0.775)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.5, 0.6,0.15)
@@ -749,7 +750,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Mixed forest" | habitat == 5) {
     m2 <- round((1.5/10)*m,0)
-    pl<-.habgen(habitat,lat,long,tme,m,m2,7,70,0.775)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,m2,7,70,0.775)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.45,0.65,0.12)
@@ -768,7 +769,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Closed shrublands" | habitat == 6) {
-    pl<-.habgen(habitat,lat,long,tme,m,1,6,80,0.85,under=F)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,1,6,80,0.85,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.5,0.05)
@@ -783,7 +784,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Open shrublands" | habitat == 7) {
-    pl<-.habgen(habitat,lat,long,tme,m,1,6,80,0.75,under=F)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,1,6,80,0.75,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.5,0.05)
@@ -799,7 +800,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Woody savannas" | habitat == 8) {
     m2<-round((0.75/3)*m,0)
-    pl<-.habgen(habitat,lat,long,tme,m,1,6.5,70,0.75)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,1,6.5,70,0.75)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.3,0.1)
@@ -818,7 +819,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Savannas" | habitat == 9) {
-    pl<-.habgen(habitat,lat,long,tme,m,1,1,50,0.7,under=F)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,1,1,50,0.7,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
@@ -833,7 +834,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Short grasslands" | habitat == 10) {
-    pl<-.habgen(habitat,lat,long,tme,m,1,1,50,0.85,under=F)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,1,1,50,0.85,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
@@ -848,7 +849,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Tall grasslands" | habitat == 11) {
-    pl<-.habgen(habitat,lat,long,tme,m,1,1,50,0.85,under=F)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,1,1,50,0.85,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
@@ -863,7 +864,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Permanent wetlands" | habitat == 12) {
-    pl<-.habgen(habitat,lat,long,tme,m,1,1,50,0.95,under=F)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,1,1,50,0.95,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.3,0.02)
@@ -878,7 +879,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.002
   }
   if (habitat == "Croplands" | habitat == 13) {
-    pl<-.habgen(habitat,lat,long,tme,m,1,1,50,0.8,under=F)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,1,1,50,0.8,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.25,0.3,0.02)
@@ -894,7 +895,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Urban and built-up" | habitat == 14) {
     m2 <- round((0.1/0.8) * m, 0)
-    pl<-.habgen(habitat,lat,long,tme,m,m2,6.5,70,0.75)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,m2,6.5,70,0.75)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.5, 0.6,0.15)
@@ -913,7 +914,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
   if (habitat == "Cropland/Natural vegetation mosaic" | habitat == 15) {
-    pl<-.habgen(habitat,lat,long,tme,m,1,1,50,0.75,under=F)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,1,1,50,0.75,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.35,0.5,0.02)
@@ -928,7 +929,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     zm0 <- 0.004
   }
   if (habitat == "Barren or sparsely vegetated" | habitat == 16) {
-    pl<-.habgen(habitat,lat,long,tme,m,1,1,50,0.55,under=F)
+    pl<-.habgen(habitat,lat,long,tme,PAIt,m,1,1,50,0.55,under=F)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.25,0.3,0.02)

@@ -4,7 +4,7 @@
 \alias{.habgen}
 \title{generates PAI and pLAI for a given habitat type}
 \usage{
-.habgen(habitat, lat, long, tme, m, m2, skew, spread, pLAIo1,
+.habgen(habitat, lat, long, tme, PAIt, m, m2, skew, spread, pLAIo1,
   under = TRUE)
 }
 \description{
