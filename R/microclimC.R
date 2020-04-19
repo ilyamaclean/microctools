@@ -673,13 +673,13 @@ runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, 
   if (length(unique(lmm$u))>1) {
     lav<-layeraverage(lmm,tc,vegp$hgt,gha,gt,zla,z,Vo,tln$ea,X,vden,ppk,vegp$PAI,TT)
     cda<-lav$cp*lav$ph*(1-lav$vden)*(lav$z[3:(lav$m+2)]-lav$z[1:(lav$m)])/2*timestep
-    ka<-lav$gt*c(lav$cp,cpair(previn$tcan))
+    ka<-lav$gt*c(lav$cp,cpair(previn$tabove))
     ka[1:lav$m]<-ifelse(ka[1:lav$m]>cda,cda,ka[1:lav$m])
     k<-c(rev(ka),cdk$k)
     cd<-c(rev(cda),cdk$cd)
     # Heat to add / loose
     X<-c(rev(lav$X),Xs,rep(0,(sm-1)))
-    tc2<-c(previn$tcan,rev(lav$tc),previn$soiltc, previn$tsoil)
+    tc2<-c(previn$tabove,rev(lav$tc),previn$soiltc, previn$tsoil)
     tn2<-Thomas(tc2, tsoil, tcan, k, cd, n, X)
     tnair<-rev(tn2[1:(lav$m+2)])
     tnsoil<-tn2[(lav$m+2):(length(tn2)-1)]
@@ -714,9 +714,9 @@ runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, 
   } else {
     X<-c(Xs,rep(0,(sm-1)))
     gt2<-1/cumsum(1/gt)[round(length(gha)/2,0)]
-    ka<-gt2*cpair(previn$tcan)
+    ka<-gt2*cpair(previn$tabove)
     k<-c(ka,cdk$k)
-    tc2<-c(previn$tcan,previn$soiltc,previn$tsoil)
+    tc2<-c(previn$tabove,previn$soiltc,previn$tsoil)
     tn2<-Thomas(tc2, tsoil, tcan, k, cdk$cd, n, X)
     tnsoil<-tn2[2:(length(tn2)-1)]
     TX<-TT[length(TT)]+(pha/gt[m+1])*2
@@ -742,7 +742,7 @@ runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, 
   mul<-1/sum(1/gt2)*cp[1]
   G<-mul*tdif
   H<-(1-alb)*Rsw-Rlw-G-Lt
-  dataout<-list(tc=tn,soiltc=tnsoil,tleaf=tln$tleaf,tabove=tcan,z=z,sz=sz,zabove=zabove,
+  dataout<-list(tc=tn,soiltc=tnsoil,tleaf=tln$tleaf,tabove=tcan,uz=uz,z=z,sz=sz,zabove=zabove,
                 rh=rh,relhum=relhum,tair=tair,tsoil=tsoil,pk=pk,Rabs=Rabs,
                 gt=gt,gv=gv,gha=gha,H=H,L=L)
   return(dataout)
