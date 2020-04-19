@@ -425,8 +425,9 @@ leaftemp <- function(tair, relhum, pk, timestep, gt, gha, gv, Rabs, previn, vegp
 #' @param m number of canopy layer nodes
 #' @param sm number of soil layers
 #' @param hgt height of canopy (m)
-#' @param tair air temperature at 2 m above canopy (deg C)
-#' @param relhum relative humidity at 2 m above canopy (percentage)
+#' @param tair air temperature at reference height (deg C)
+#' @param u wind speed at reference height (m/s)
+#' @param relhum relative humidity at reference height (percentage)
 #' @param tsoil temperature of deepest soil layer. Usually ~mean annual temperature
 #' (deg C). See details.
 #' @param Rsw total incoming shortwave radiation (W / m^2)
@@ -435,6 +436,7 @@ leaftemp <- function(tair, relhum, pk, timestep, gt, gha, gv, Rabs, previn, vegp
 #' @return `soiltc` a vector of airsoil temperatures for each soil layer (deg C)
 #' @return `tleaf` a vector of leaf temperatures for each canopy layer (deg C)
 #' @return `tabove` initially set temperature above canopy temperature, here set as `tair`
+#' @return `uz` a vector of wind speeds for each canopy layer (m/s)
 #' @return `rh` a vector of relative humidities
 #' @return `relhum` relative humidity at 2 m above canopy (percentage)
 #' @return `tair` air temperature at 2 m above canopy (deg C)
@@ -458,7 +460,7 @@ leaftemp <- function(tair, relhum, pk, timestep, gt, gha, gv, Rabs, previn, vegp
 #' value represents conductivity between the ground and the lowest canopy node. The last
 #' value represents conductivity between the air at 2 m above canopy and the highest
 #' canopy node.
-paraminit <- function(m, sm, hgt, tair, relhum, tsoil, Rsw) {
+paraminit <- function(m, sm, hgt, tair, u, relhum, tsoil, Rsw) {
   tcb <- spline(c(1,2), c(tsoil, tair), n = m + sm)
   tc <- tcb$y[(sm + 1): (m + sm)]
   soiltc <- rev(tcb$y[1:sm])
@@ -472,8 +474,9 @@ paraminit <- function(m, sm, hgt, tair, relhum, tsoil, Rsw) {
   gha <- spline(c(1, 2), c(0.13, 0.19), n = m)$y
   z<-c((1:m)-0.5)/m*hgt
   sz<-2/sm^2.42*c(1:sm)^2.42
-  return(list(tc = tc, soiltc = soiltc, tleaf = tleaf, tabove = tair, z = z, sz = sz,
-              zabove = vegp$hgt, rh = rh, relhum = relhum, tair = tair, tsoil = tsoil,
+  uz <- (c(1:m)/m)*u
+  return(list(tc = tc, soiltc = soiltc, tleaf = tleaf, tabove = tair, uz = uz, z = z, sz = sz,
+              zabove = hgt, rh = rh, relhum = relhum, tair = tair, tsoil = tsoil,
               pk = 101.3, Rabs = Rabs, gt = gt, gv = gv, gha = gha, H = 0, L = rep(0, m),
               G = 0))
 }
@@ -551,12 +554,11 @@ soilinit <- function(soiltype, m = 10, sdepth = 2, reqdepth = NA) {
 #' @examples
 #' # Create initail parameters
 #' tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
-#' previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
+#' previn <- paraminit(20, 10, 10, 15, 2, 80, 11, 500)
 #' vegp <- habitatvars(4, 50, -5, tme, m = 20)
 #' z<-c((1:20)-0.5)/20*vegp$hgt
 #' soilp<- soilinit("Loam")
-#' climvars <- list(tair=16,relhum=90,pk=101.3,u=2.1,tsoil=11,skyem=0.9,Rsw=500,dp=NA,
-#'                  psi_h=0,psi_m=0,phi_m=0)
+#' climvars <- list(tair=16,relhum=90,pk=101.3,u=2.1,tsoil=11,skyem=0.9,Rsw=500,dp=NA)
 #' # Run model 100 times for current time step
 #' for (i in 1:100) {
 #'   plot(z ~ previn$tc, type = "l", xlab = "Temperature", ylab = "Height", main = i)
@@ -569,17 +571,17 @@ runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, 
   m <- length(previn$tc)
   tair<-climvars$tair; relhum<-climvars$relhum; pk<-climvars$pk; u<-climvars$u
   tsoil<-climvars$tsoil; skyem<-climvars$skyem; Rsw<-climvars$Rsw; dp<-climvars$dp
-  psi_h<-climvars$psi_h; phi_m<-climvars$phi_m; psi_m<-climvars$psi_m; H <- previn$H
+  H <- previn$H
   # ========== Calculate baseline variables ============== #
   tc<-previn$tc; ppk<-previn$pk; hgt<-vegp$hgt
   ph<-phair(tc,ppk); pha<-phair(tair,pk) # molar density of air
   cp<-cpair(tc) # specific heat of air
   lambda <- -42.575*tc+44994 # Latent heat of vapourisation (J / mol)
   # Adjust wind to 2 m above canopy
-  u2<-u*log(67.8*hgt-5.42)/log(67.8*zu-5.42)
+  u2<-u*log(67.8*hgt-5.42)/log(67.8*(hgt+2)-5.42)
   u2[u2 < 0.5] <- 0.5
   # Generate heights of nodes
-  z<-c((1:m)-0.5)/m*vegp$hgt
+  z<-c((1:m)-0.5)/m*hgt
   if (is.na(reqhgt) == F) z[abs(z-reqhgt)==min(abs(z-reqhgt))][1]<-reqhgt
   zt<-z[2:(m)]-z[1:(m-1)] # difference in height between layers
   #  Set z above
@@ -587,6 +589,13 @@ runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, 
   if (is.na(reqhgt) == F) {
     if (reqhgt > hgt) zabove <- reqhgt
   }
+  # ========== Calculate diabatic correction factors ============== #
+  d<-zeroplanedis(hgt,sum(vegp$PAI))
+  zm<-roughlength(hgt, sum(vegp$PAI), vegp$zm0)
+  uf<-(0.4*u2)/log(((hgt+2)-d)/zm)
+  cand<-diabatic_cor_can(tc, previn$uz, z, vegp$PAI, vegp$x, vegp$lw)
+  abod<-diabatic_cor(tair, pk, H, uf, (hgt+2))
+  psi_m<-abod$psi_m; psi_h<-abod$psi_h; phi_m<-cand$phi_m; phi_h<-cand$phi_h
   # Calculate temperatures and relative humidities for top of canopy
   tcan <- abovecanopytemp(tair,u2,zu+hgt,zabove,H,hgt,sum(vegp$PAI),vegp$zm0,pk,psi_h)
   # Adjust relative humidity

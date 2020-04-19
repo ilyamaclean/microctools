@@ -4,7 +4,7 @@
 \alias{paraminit}
 \title{Initialise paramaters for first time step of model}
 \usage{
-paraminit(m, sm, hgt, tair, relhum, tsoil, Rsw)
+paraminit(m, sm, hgt, tair, u, relhum, tsoil, Rsw)
 }
 \arguments{
 \item{m}{number of canopy layer nodes}
@@ -13,9 +13,11 @@ paraminit(m, sm, hgt, tair, relhum, tsoil, Rsw)
 
 \item{hgt}{height of canopy (m)}
 
-\item{tair}{air temperature at 2 m above canopy (deg C)}
+\item{tair}{air temperature at reference height (deg C)}
 
-\item{relhum}{relative humidity at 2 m above canopy (percentage)}
+\item{u}{wind speed at reference height (m/s)}
+
+\item{relhum}{relative humidity at reference height (percentage)}
 
 \item{tsoil}{temperature of deepest soil layer. Usually ~mean annual temperature
 (deg C). See details.}
@@ -32,6 +34,8 @@ a list with the following elements:
 \code{tleaf} a vector of leaf temperatures for each canopy layer (deg C)
 
 \code{tabove} initially set temperature above canopy temperature, here set as \code{tair}
+
+\code{uz} a vector of wind speeds for each canopy layer (m/s)
 
 \code{rh} a vector of relative humidities
 

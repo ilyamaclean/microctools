@@ -198,10 +198,10 @@ gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
   g[is.na(g)] <- gmin
   g
 }
-#' Calculates diabatic correction factor
+#' Calculates diabatic correction factor above canopy
 #'
-#' @description Calculates hte diabatic correction factors used in adjustment of
-#' wind profiles and calculation of turbulent conductivity
+#' @description Calculates the diabatic correction factors used in adjustment of
+#' wind profiles and calculation of turbulent conductivity above canopy
 #'
 #' @param tc temperature
 #' @param pk atmospheric pressure (kPa)
@@ -218,7 +218,7 @@ diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2) {
   ph <- phair(tc, pk)
   cp <-  cpair(tc)
   mpr <- uf^3 / 0.4 * zi
-  cpr <- (4.16 * H) / (pk * cp * Tk)
+  cpr <- (9.81 * H) / (pk * cp * Tk)
   st <- -cpr / mpr
   st[st > 1] <- 1
   # Stable flow
@@ -234,6 +234,42 @@ diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2) {
   psi_h[sel] <-   -2 * log((1 + (1 - 16 * st[sel])^0.5) / 2)
   psi_m[sel] <- 0.6 * psi_h[sel]
   return(list(psi_m = psi_m, psi_h = psi_h))
+}
+#' Calculates diabatic correction factor in canopy
+#'
+#' @description Calculates the diabatic correction factors used in adjustment of
+#' wind profiles and calculation of turbulent conductivity within the canopy
+#'
+#' @param tc vector of air temperatures at canopy nodes (deg C)
+#' @param uz vector of wind speeds at canopy nodes (m/s)
+#' @param z vector of heights of canopy nodes (m)
+#' @param x leaf angle coefficient
+#' @param lw mean leaf width
+#' @param PAI vector of plant area index values at each canopy node
+#' @return a list with the following components:
+#' @return `phi_m` diabatic correction factor for momentum transfer
+#' @return `phi_h` diabatic correction factor for heat transfer
+#'
+#' @export
+diabatic_cor_can <- function(tc, uz, z, PAI, x = 1, lw = 0.05) {
+  dtc<-tc[2:length(tc)]-tc[1:(length(tc)-1)]
+  dz<-z[2:length(z)]-z[1:(length(z)-1)]
+  dtdz<-dtc/dz
+  tk <- (tc[2:length(tc)]+tc[1:(length(tc)-1)])/2+273.15
+  PAIl<-(PAI[2:length(PAI)]+PAI[1:(length(PAI)-1)])/2
+  l_m <- mixinglength(PAIl, dz, x, lw)
+  u<-(uz[2:length(uz)]+uz[1:(length(uz)-1)])/2
+  Ri <- (9.81 / tk) * dtdz * (l_m / u)^2
+  Ri[Ri > 0.15] <- 0.15
+  st <- (0.74 * (1 + 8.926 * Ri) ^ 0.5 + 2 * 4.7 * Ri - 0.74) / (2 * 4.7 * (1 - 4.7 * Ri))
+  sel <- which(dtdz <= 0) # unstable
+  # Stable
+  phi_m <- 1 + (6 * st) / (1 + st)
+  phi_h <- phi_m
+  # Unstable
+  phi_m[sel] <- 1 / (1 - 16 * st[sel])^0.25
+  phi_h[sel] <- phi_m[sel]^2
+  return(list(phi_m = mean(phi_m), phi_h = mean(phi_h)))
 }
 #' Calculates temperature at top of canopy
 #'

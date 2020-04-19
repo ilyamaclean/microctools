@@ -2,7 +2,7 @@
 % Please edit documentation in R/heat.R
 \name{diabatic_cor}
 \alias{diabatic_cor}
-\title{Calculates diabatic correction factor}
+\title{Calculates diabatic correction factor above canopy}
 \usage{
 diabatic_cor(tc, pk = 101.3, H = 0, uf, zi = 2)
 }
@@ -25,6 +25,6 @@ a list with the following components:
 \code{psi_h} diabatic correction factor for heat transfer
 }
 \description{
-Calculates hte diabatic correction factors used in adjustment of
-wind profiles and calculation of turbulent conductivity
+Calculates the diabatic correction factors used in adjustment of
+wind profiles and calculation of turbulent conductivity above canopy
 }
