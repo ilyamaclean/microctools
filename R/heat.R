@@ -220,7 +220,7 @@ diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2, d) {
   ph <- phair(tc, pk)
   cp <-  cpair(tc)
   st <- -(0.4 * 9.81 * (zi - d) * H) / (ph * cp * Tk * uf^3)
-  st[st > 1] <- 1
+  #st[st > 1] <- 1
   # Stable flow
   sel <- which(st < 0) # unstable
   # Stable
