@@ -3,6 +3,7 @@
 export(.PAI.sort)
 export(.habgen)
 export(.tme.sort)
+export(.vegpsort)
 export(LAIfrac)
 export(PAIfromhabitat)
 export(PAIgeometry)

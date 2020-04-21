@@ -696,7 +696,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     uhgt <- 1
     wgt <- (m2 / m) * 0.25
     if (class(PAI) == "matrix") {
-      sPAI<-apply(PAI,1,sum)*wgt
+      sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
@@ -716,7 +716,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     uhgt <- 4
     wgt <- (m2 / m) * 0.25
     if (class(PAI) == "matrix") {
-      sPAI<-apply(PAI,1,sum)*wgt
+      sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
@@ -736,7 +736,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     uhgt <- 1
     wgt <- (m2 / m) * 0.25
     if (class(PAI) == "matrix") {
-      sPAI<-apply(PAI,1,sum)*wgt
+      sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
@@ -756,7 +756,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     uhgt <- 2
     wgt <- (m2 / m) * 0.25
     if (class(PAI) == "matrix") {
-      sPAI<-apply(PAI,1,sum)*wgt
+      sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
@@ -776,7 +776,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     uhgt <- 1.5
     wgt <- (m2 / m) * 0.25
     if (class(PAI) == "matrix") {
-      sPAI<-apply(PAI,1,sum)*wgt
+      sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
@@ -826,7 +826,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     uhgt <- 0.75
     wgt <- (m2 / m) * 0.25
     if (class(PAI) == "matrix") {
-      sPAI<-apply(PAI,1,sum)*wgt
+      sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
@@ -921,7 +921,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     uhgt <- 0.1
     wgt <- (m2 / m) * 0.25
     if (class(PAI) == "matrix") {
-      sPAI<-apply(PAI,1,sum)*wgt
+      sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
