@@ -69,6 +69,6 @@ value represents conductivity between the air at 2 m above canopy and the highes
 canopy node.
 }
 \examples{
-paraminit(20, 10, 10, 15, 80, 11, 500)
+paraminit(20, 10, 10, 15, 2, 80, 11, 500)
 
 }

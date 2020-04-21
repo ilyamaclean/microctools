@@ -9,9 +9,9 @@ hourlyncep_convert(climdata, lat, long)
 \arguments{
 \item{climdata}{data.frame as returned by \code{\link[microclima:hourlyNCEP]{microclima::hourlyNCEP()}}}
 
-\item{latitude}{(declimal degrees)}
+\item{lat}{(declimal degrees)}
 
-\item{longitude}{(decimal degrees)}
+\item{long}{(decimal degrees)}
 }
 \value{
 a data.frame of hourly weather variables (see e.g. \code{weather}).

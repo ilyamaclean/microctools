@@ -166,6 +166,7 @@ soilk <- function(timestep, theta = 0.3, soilp) {
 #' @param vegp a list of vegetation parameters as returned by [habitatvars()]
 #' @param climvars a list of climate variables. See example for [runonestep()]
 #' @param i optional title for plot. Usually the model iteration.
+#' @import graphics
 #' @export
 plotresults <- function(modelout, vegp, climvars, i = "") {
   st<-rev(modelout$soiltc)
@@ -187,8 +188,8 @@ plotresults <- function(modelout, vegp, climvars, i = "") {
 #' @details The `hourlyncep_convert` function reformats the data.frame returned by
 #' [microclima::hourlyNCEP()]  for use with `microclimc`
 #' @param climdata data.frame as returned by [microclima::hourlyNCEP()]
-#' @param latitude (declimal degrees)
-#' @param longitude (decimal degrees)
+#' @param lat (declimal degrees)
+#' @param long (decimal degrees)
 #' @return a data.frame of hourly weather variables (see e.g. `weather`).
 #' @export
 #' @details The function [microclima::hourlyNCEP()] downloads the required climate and

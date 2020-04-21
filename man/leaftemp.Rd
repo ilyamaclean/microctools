@@ -62,7 +62,7 @@ capacity of the vegetation layer and the time step of the model.
 \examples{
 # Generate paramaters for function:
 tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
-previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
+previn <- paraminit(20, 10, 10, 15, 2, 80, 11, 500)
 vegp <- habitatvars(3, 50, -5, tme, m = 20)
 soilp <- soilinit("Loam")
 z<-c((1:20) - 0.5) / 20 * vegp$hgt

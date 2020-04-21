@@ -16,6 +16,8 @@ diabatic_cor(tc, pk = 101.3, H = 0, uf, zi = 2, d)
 \item{uf}{friction velocity (m/s)}
 
 \item{zi}{height to which correction factor is wanted (m)}
+
+\item{d}{zero plane displacement height as returned by \code{\link[=zeroplanedis]{zeroplanedis()}}}
 }
 \value{
 a list with the following components:

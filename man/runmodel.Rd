@@ -72,3 +72,10 @@ the mean leaf temperature. The parameter \code{tsoil} is the temperature of soil
 which is assumed constant. If \code{tsoil} is not provided, it is assigned a value equivelent
 to mean of \code{climdata$temp}.
 }
+\examples{
+tme<-as.POSIXlt(weather$obs_time, format = "\%Y-\%m-\%d \%H:\%M", tz = "UTC")
+vegp <- habitatvars(4, lat = 50, long = -5, tme, m = 20)
+soilp<- soilinit("Loam")
+dataout <- runmodel(weather, vegp, soilp, lat = 50, long = -5)
+plot(dataout$tleaf, type = "l")
+}

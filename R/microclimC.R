@@ -306,7 +306,7 @@ windcanopy <- function(uh, z, hgt, PAI = 3, x = 1, lw = 0.05, cd = 0.2,
 #' @examples
 #' # Generate paramaters for function:
 #' tme <- as.POSIXlt(0, origin = "2020-05-04 12:00", tz = "GMT")
-#' previn <- paraminit(20, 10, 10, 15, 80, 11, 500)
+#' previn <- paraminit(20, 10, 10, 15, 2, 80, 11, 500)
 #' vegp <- habitatvars(3, 50, -5, tme, m = 20)
 #' soilp <- soilinit("Loam")
 #' z<-c((1:20) - 0.5) / 20 * vegp$hgt
@@ -449,7 +449,7 @@ leaftemp <- function(tair, relhum, pk, timestep, gt, gha, gv, Rabs, previn, vegp
 #' @importFrom stats spline
 #' @export
 #' @examples
-#' paraminit(20, 10, 10, 15, 80, 11, 500)
+#' paraminit(20, 10, 10, 15, 2, 80, 11, 500)
 #'
 #' @details All values are approximate. Values for `tc` and `tsoil` are derived by
 #' linear intepolation between `tair` and `tsoil`. Values for `Rabs` are derived from
@@ -752,7 +752,6 @@ runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, 
   return(dataout)
 }
 #' internal function to sort out vegetation parameters
-#' @export
 .vegpsort <- function(vegp, i) {
   if (class(vegp$PAI) == "matrix") PAI <- as.vector(vegp$PAI[,i])
   if (class(vegp$pLAI) == "matrix") pLAI <- as.vector(vegp$pLAI[,i])
@@ -858,6 +857,7 @@ spinup <- function(climdata, vegp, soilp, lat, long, edgedist = 100, reqhgt = NA
 #' @return `reftemp` air temperature at reference height - i.e. `climdata$temp`
 #' @return `tout` air or soil temperature (see details)
 #' @return `tleaf` Leaf temperature (see details)
+#' @export
 #'
 #' @details If `reqhgt` is set, and below the height of the canopy, the canopy node nearest
 #' to that height is set at the value specified. The returned values `tout` and `tleaf` are
@@ -869,7 +869,7 @@ spinup <- function(climdata, vegp, soilp, lat, long, edgedist = 100, reqhgt = NA
 #' which is assumed constant. If `tsoil` is not provided, it is assigned a value equivelent
 #' to mean of `climdata$temp`.
 #'
-#' @example
+#' @examples
 #' tme<-as.POSIXlt(weather$obs_time, format = "%Y-%m-%d %H:%M", tz = "UTC")
 #' vegp <- habitatvars(4, lat = 50, long = -5, tme, m = 20)
 #' soilp<- soilinit("Loam")

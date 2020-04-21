@@ -495,7 +495,6 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   return(list(lai = lai, x = x, height = hgt, obs_time = tme))
 }
 #' Converts daily times to hourly
-#' @export
 .tme.sort <- function(tme) {
   tme<-as.numeric(tme)
   tme<-as.POSIXlt(tme, origin = "1970-01-01 00:00", tz = "UTC")
@@ -509,7 +508,6 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   as.POSIXlt(tmeh)
 }
 #' Returns PAI for multiple years
-#' @export
 .PAI.sort <- function(habitat, lat, long, tme) {
   tme<-.tme.sort(tme)
   lai<-0; ota<-as.POSIXlt(0,origin="1970-01-01 00:00",tz="UTC")
@@ -534,7 +532,6 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   pai
 }
 #' generates PAI and pLAI for a given habitat type
-#' @export
 .habgen<-function(habitat,lat,long,tme,PAIt,m,m2,skew,spread,pLAIo1,under=TRUE) {
   # PAI
   pai <- .PAI.sort(habitat, lat, long, tme)

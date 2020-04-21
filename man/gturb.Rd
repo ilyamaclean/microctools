@@ -30,8 +30,6 @@ exchange surface of canopy if NA)}
 \item{zm0}{minimum surface roughness}
 
 \item{pk}{atmospheric pressure (kPA) used for calculating molar density of air}
-
-\item{H}{Heat flux (used for calculating minimum conductance)}
 }
 \value{
 molar conductance under turbulent convection above canopy (mol/m^2/s)

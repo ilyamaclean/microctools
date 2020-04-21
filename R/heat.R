@@ -140,7 +140,6 @@ attencoef <- function(hgt, PAI = 3, x = 0.5, lw = 0.05, cd = 0.2, iw = 0.5, phi_
 #' @param hgt height of canopy (m)
 #' @param PAI plant area index for determining canopy roughness length
 #' @param tc temperature used for calculating molar density of air (deg C)
-#' @param H Heat flux (used for calculating minimum conductance)
 #' @param psi_m diabatic correction factor for momentum transfer
 #' @param psi_h diabataic correction factor for heat transfer
 #' @param zm0 minimum surface roughness
@@ -210,6 +209,7 @@ gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
 #' @param H Heat flux (W / m^2)
 #' @param uf friction velocity (m/s)
 #' @param zi height to which correction factor is wanted (m)
+#' @param d zero plane displacement height as returned by [zeroplanedis()]
 #' @return a list with the following components:
 #' @return `psi_m` diabatic correction factor for momentum transfer
 #' @return `psi_h` diabatic correction factor for heat transfer
@@ -291,8 +291,8 @@ diabatic_cor_can <- function(tc, uz, z, PAI, x = 1, lw = 0.05) {
 #' below canopy so `hgt` must be lower than `zi`.
 #' @export
 #' @examples
-#' canopytoptemp(11, 2, 2, 500, 10, 3, 0.004)
-#' canopytoptemp(11, 2, 2, 500, 0.25, 3, 0.004)
+#' abovecanopytemp(11, 2, 2, 1.5, 500, 1, 3, 0.004)
+#' abovecanopytemp(11, 2, 2, 0.5, 500, 0.25, 3, 0.004)
 abovecanopytemp <- function(tz, uz, zi, zo, H, hgt, PAI, zm0, pk = 101.3, psi_h = 0) {
   if (zi < hgt) stop("zi must be greater or equal to hgt")
   d <- zeroplanedis(hgt, PAI)

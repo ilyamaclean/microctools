@@ -41,6 +41,6 @@ exchange and \code{G} ground heat flux. This function is not valid for temperatu
 below canopy so \code{hgt} must be lower than \code{zi}.
 }
 \examples{
-canopytoptemp(11, 2, 2, 500, 10, 3, 0.004)
-canopytoptemp(11, 2, 2, 500, 0.25, 3, 0.004)
+abovecanopytemp(11, 2, 2, 1.5, 500, 1, 3, 0.004)
+abovecanopytemp(11, 2, 2, 0.5, 500, 0.25, 3, 0.004)
 }
