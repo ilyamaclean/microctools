@@ -4,27 +4,21 @@
 \alias{runmodel}
 \title{Runs the microclimate model over time}
 \usage{
-runmodel(climdata, soiltype, habitat, lat, long, m, sm = 10,
-  edgedist = 100, reqhgt = NA, sdepth = 2, zu = 2, theta = 0.3,
-  thetap = 0.3, merid = 0, dst = 0, n = 0.6, steps = 200,
-  plotout = TRUE, plotsteps = 100)
+runmodel(climdata, vegp, soilp, lat, long, edgedist = 100, reqhgt = NA,
+  sdepth = 2, zu = 2, theta = 0.3, thetap = 0.3, merid = 0,
+  dst = 0, n = 0.6, steps = 200, plotout = TRUE, plotsteps = 100,
+  tsoil = NA)
 }
 \arguments{
 \item{climdata}{a data.frame of climate variables (see e.g. \code{weather})}
 
-\item{soiltype}{one of \code{Sand}, \code{Loamy sand}, \code{Sandy loam}, \code{Loam}, \code{Silt},
-\code{Silt loam}, \code{Sandy clay loam}, \code{Clay loam}, \code{Silty clay loam}, \code{Sandy clay},
-\code{Silty clay} or \code{Clay}.}
+\item{vegp}{a list of vegetation parameters as returned by \code{\link[=habitatvars]{habitatvars()}}}
 
-\item{habitat}{a integer or character string specifying the habitat type (see \code{habitats})}
+\item{soilp}{a list of soil parameters as returned by \code{\link[=soilinit]{soilinit()}}}
 
 \item{lat}{Latitude (decimal degrees)}
 
 \item{long}{Longitude (decimal degrees, negative west of Greenwich meridion)}
-
-\item{m}{number of canopy nodes}
-
-\item{sm}{number of soil nodes}
 
 \item{edgedist}{distance to open ground (m)}
 
@@ -50,7 +44,31 @@ runmodel(climdata, soiltype, habitat, lat, long, m, sm = 10,
 upon completion.}
 
 \item{plotsteps}{number of iterations run before resuls plotted if \code{plotout} set to TRUE}
+
+\item{tsoil}{optional stable temperature of the deepest soil layer (see details)}
+}
+\value{
+a data.frame with the following elements:
+
+\code{obs_time} POSIXlt object of times associated wiht eahc output
+
+\code{reftemp} air temperature at reference height - i.e. \code{climdata$temp}
+
+\code{tout} air or soil temperature (see details)
+
+\code{tleaf} Leaf temperature (see details)
 }
 \description{
 \code{runmodel} is used to run the full model over time
+}
+\details{
+If \code{reqhgt} is set, and below the height of the canopy, the canopy node nearest
+to that height is set at the value specified. The returned values \code{tout} and \code{tleaf} are
+then the air and leaf temperatures at that height. If \code{reqhgt} is above canopy, nodes are
+calculated automatically, and \code{tout} is the temperature at height \code{reqhgt} and \code{tleaf} is
+the mean leaf temperature. If \code{reqhgt} is negative, the soil node nearest to that height
+is set at the value specified, \code{tout} is soil temperature at that node and \code{tleaf} is
+the mean leaf temperature. The parameter \code{tsoil} is the temperature of soil below \code{sdepth},
+which is assumed constant. If \code{tsoil} is not provided, it is assigned a value equivelent
+to mean of \code{climdata$temp}.
 }
