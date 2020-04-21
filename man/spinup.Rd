@@ -4,27 +4,20 @@
 \alias{spinup}
 \title{Model spin-up for first time-step}
 \usage{
-spinup(climdata, soiltype, habitat, lat, long, m, sm = 10,
-  edgedist = 100, reqhgt = NA, sdepth = 2, zu = 2, theta = 0.3,
-  thetap = 0.3, merid = 0, dst = 0, n = 0.6, plotout = TRUE,
-  steps = 200)
+spinup(climdata, vegp, soilp, lat, long, edgedist = 100, reqhgt = NA,
+  sdepth = 2, zu = 2, theta = 0.3, thetap = 0.3, merid = 0,
+  dst = 0, n = 0.6, plotout = TRUE, steps = 200)
 }
 \arguments{
-\item{climdata}{a data.frame of climate variables (see e.g. \code{weather})}
+\item{climdata}{a data.frame of climate variables needed to run the run the model (dataset should follow format of \code{\link[=climvars]{climvars()}})}
 
-\item{soiltype}{one of \code{Sand}, \code{Loamy sand}, \code{Sandy loam}, \code{Loam}, \code{Silt},
-\code{Silt loam}, \code{Sandy clay loam}, \code{Clay loam}, \code{Silty clay loam}, \code{Sandy clay},
-\code{Silty clay} or \code{Clay}.}
+\item{vegp}{a list of vegetation parameters as returned by \code{\link[=habitatvars]{habitatvars()}}}
 
-\item{habitat}{a integer or character string specifying the habitat type (see \code{habitats})}
+\item{soilp}{a list of soil parameters as returned by \code{\link[=soilinit]{soilinit()}}}
 
 \item{lat}{Latitude (decimal degrees)}
 
 \item{long}{Longitude (decimal degrees, negative west of Greenwich meridion)}
-
-\item{m}{number of canopy nodes}
-
-\item{sm}{number of soil nodes}
 
 \item{edgedist}{distance to open ground (m)}
 
@@ -46,6 +39,8 @@ spinup(climdata, soiltype, habitat, lat, long, m, sm = 10,
 
 \item{plotout}{optional logical indicating whether to a plot a profile of temperatures
 upon completion.}
+
+\item{steps}{number of iterations for which which to run spin-up}
 }
 \value{
 a list of model outputs as for \code{\link[=paraminit]{paraminit()}} or \code{\link[=runonestep]{runonestep()}}
