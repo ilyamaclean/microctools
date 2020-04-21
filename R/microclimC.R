@@ -747,6 +747,71 @@ runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, 
                 gt=gt,gv=gv,gha=gha,H=H,L=L)
   return(dataout)
 }
+#' Model spin-up for first time-step
+#'
+#' @description `spinup` runs the model repeatedly using data form the first time-step
+#' for a set number of steps to ensure initial conditions are stable and
+#' appropriate soil temperatures are set.
+#'
+#' @param climdata a data.frame of climate variables (see e.g. `weather`)
+#' @param soiltype one of `Sand`, `Loamy sand`, `Sandy loam`, `Loam`, `Silt`,
+#' `Silt loam`, `Sandy clay loam`, `Clay loam`, `Silty clay loam`, `Sandy clay`,
+#' `Silty clay` or `Clay`.
+#' @param habitat a integer or character string specifying the habitat type (see `habitats`)
+#' @param lat Latitude (decimal degrees)
+#' @param long Longitude (decimal degrees, negative west of Greenwich meridion)
+#' @param m number of canopy nodes
+#' @param sm number of soil nodes
+#' @param edgedist distance to open ground (m)
+#' @param reqhgt optional height for which temperature is required (see details)
+#' @param sdepth depth of deepest soil node (m)
+#' @param zu height above ground of reference climate measurements (m)
+#' @param theta volumetric water content of upper most soil layer in current time step (m^3 / m^3)
+#' @param thetap volumetric water content of upper most soil layer in previous time step (m^3 / m^3)
+#' @param merid an optional numeric value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT).
+#' @param dst an optional numeric value representing the time difference from the timezone meridian (hours, e.g. +1 for BST if `merid` = 0).
+#' @param n forward / backward weighting for Thomas algorithm (see [Thomas()])
+#' @param plotout optional logical indicating whether to a plot a profile of temperatures
+#' upon completion.
+#' @return a list of model outputs as for [paraminit()] or [runonestep()]
+#'
+#' @details If `reqhgt` is set, and below the height of the canopy, the canopy node nearest
+#' to that height is set at the value specified. The returned value `tabove` is then the
+#' temperature at the top of the canopy. If `reqhgt` is above canopy, nodes are calculated
+#' automatically, but `tabove` is the temperature at height `reqhgt`. If `reqhgt` is
+#' negative, the soil node nearest to that height is set at the value specified.
+#' @export
+#'
+spinup <- function(climdata, soiltype, habitat, lat, long, m, sm = 10,
+                   edgedist = 100, reqhgt = NA, sdepth = 2, zu = 2, theta = 0.3,
+                   thetap = 0.3, merid = 0, dst = 0, n = 0.6, plotout = TRUE, steps = 200) {
+  tme<-as.POSIXlt(climdata$obs_time, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+  timestep<-round(as.numeric(tme[2])-as.numeric(tme[1]),0)
+  reqdepth <- NA
+  if (is.na(reqhgt) == F) {
+    if (reqhgt < 0) reqdepth <- reqhgt
+  }
+  soilp <- soilinit(soiltype, sm, sdepth, reqdepth)
+  vegp <- habitatvars(habitat, lat, long, tme[1], m)
+  tsoil<-mean(climdata$temp)
+  previn <- paraminit(m, sm, vegp$hgt, climdata$temp[1], climdata$relhum[1],
+                      tsoil, climdata$swrad[1])
+  dp <- climdata$difrad[1] / climdata$swrad[1]
+  dp[is.na(dp)] <- 0.5
+  climvars <- list(tair = climdata$temp[1], relhum = climdata$relhum[1], pk = climdata$pres[1],
+                   u2 = climdata$windspeed[1], tsoil = tsoil, skyem = climdata$skyem[1],
+                   Rsw = climdata$swrad[1], dp = dp, psi_h=0,psi_m=0,phi_m=1)
+  H<-0
+  for (i in 1:steps) {
+    previn  <- runonestep(climvars, previn, vegp, soilp, timestep, tme[1], lat,
+                          long, edgedist, sdepth, reqhgt, zu, theta, thetap,
+                          merid, dst, n)
+    H[i]<-previn$H
+    previn$H<-mean(H)
+  }
+  if (plotout) plotresults(previn, vegp, climvars)
+  previn
+}
 #' Runs the microclimate model over time
 #'
 #' @description `runmodel` is used to run the full model over time

@@ -4,7 +4,7 @@
 \alias{diabatic_cor}
 \title{Calculates diabatic correction factor above canopy}
 \usage{
-diabatic_cor(tc, pk = 101.3, H = 0, uf, zi = 2)
+diabatic_cor(tc, pk = 101.3, H = 0, uf, zi = 2, d)
 }
 \arguments{
 \item{tc}{temperature}

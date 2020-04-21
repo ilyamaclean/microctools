@@ -140,6 +140,7 @@ attencoef <- function(hgt, PAI = 3, x = 0.5, lw = 0.05, cd = 0.2, iw = 0.5, phi_
 #' @param hgt height of canopy (m)
 #' @param PAI plant area index for determining canopy roughness length
 #' @param tc temperature used for calculating molar density of air (deg C)
+#' @param H Heat flux (used for calculating minimum conductance)
 #' @param psi_m diabatic correction factor for momentum transfer
 #' @param psi_h diabataic correction factor for heat transfer
 #' @param zm0 minimum surface roughness
@@ -153,6 +154,7 @@ gturb <- function(u, zu = 2, z1, z0 = NA, hgt, PAI= 3, tc = 15,
   zh <- 0.2 * zm
   if (is.na(z0)) z0 <- d + zh
   ph <- phair(tc, pk)
+  cp <- cpair(tc)
   ustr <- (0.4 * u) / (log((zu - d) / zm) + psi_m)
   g <- (0.4 * ph * ustr) / (log((z1 - d) / (z0 - d)) + psi_h)
   Dh <- (0.1285 * (tc + 273.15) - 16.247) / 1000000
@@ -213,13 +215,11 @@ gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
 #' @return `psi_h` diabatic correction factor for heat transfer
 #'
 #' @export
-diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2) {
+diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2, d) {
   Tk <- tc + 273.15
   ph <- phair(tc, pk)
   cp <-  cpair(tc)
-  mpr <- uf^3 / 0.4 * zi
-  cpr <- (9.81 * H) / (pk * cp * Tk)
-  st <- -cpr / mpr
+  st <- -(0.4 * 9.81 * (zi - d) * H) / (ph * cp * Tk * uf^3)
   st[st > 1] <- 1
   # Stable flow
   sel <- which(st < 0) # unstable
