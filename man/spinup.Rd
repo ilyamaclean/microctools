@@ -57,3 +57,10 @@ temperature at the top of the canopy. If \code{reqhgt} is above canopy, nodes ar
 automatically, but \code{tabove} is the temperature at height \code{reqhgt}. If \code{reqhgt} is
 negative, the soil node nearest to that height is set at the value specified.
 }
+\examples{
+tme<-as.POSIXlt(weather$obs_time, format = "\%Y-\%m-\%d \%H:\%M", tz = "UTC")
+vegp <- habitatvars(4, 50, -5, tme, m = 20)
+soilp<- soilinit("Loam")
+# run spinup and produce profile plot
+modelout<-spinup(weather, vegp, soilp, lat = 50, long = -5)
+}

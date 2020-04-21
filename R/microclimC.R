@@ -792,7 +792,12 @@ runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, 
 #' automatically, but `tabove` is the temperature at height `reqhgt`. If `reqhgt` is
 #' negative, the soil node nearest to that height is set at the value specified.
 #' @export
-#'
+#' @examples
+#' tme<-as.POSIXlt(weather$obs_time, format = "%Y-%m-%d %H:%M", tz = "UTC")
+#' vegp <- habitatvars(4, 50, -5, tme, m = 20)
+#' soilp<- soilinit("Loam")
+#' # run spinup and produce profile plot
+#' modelout<-spinup(weather, vegp, soilp, lat = 50, long = -5)
 spinup <- function(climdata, vegp, soilp, lat, long, edgedist = 100, reqhgt = NA,
                    sdepth = 2, zu = 2, theta = 0.3, thetap = 0.3, merid = 0,
                    dst = 0, n = 0.6, plotout = TRUE, steps = 200) {
