@@ -220,19 +220,16 @@ diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2, d) {
   ph <- phair(tc, pk)
   cp <-  cpair(tc)
   st <- -(0.4 * 9.81 * (zi - d) * H) / (ph * cp * Tk * uf^3)
-  #st[st > 1] <- 1
   # Stable flow
   sel <- which(st < 0) # unstable
   # Stable
-  phi_m <- 1 + (6 * st) / (1 + st)
-  phi_h <- phi_m
   psi_h <- suppressWarnings(6 * log(1 + st))
   psi_m <- psi_h
   # Unstable
-  phi_m[sel] <- 1 / (1 - 16 * st[sel])^0.25
-  phi_h[sel] <- phi_m[sel]^2
   psi_h[sel] <-   -2 * log((1 + (1 - 16 * st[sel])^0.5) / 2)
   psi_m[sel] <- 0.6 * psi_h[sel]
+  psi_m <-ifelse(psi_m > 5, 5, psi_m)
+  psi_h <-ifelse(psi_h > 5, 5, psi_h)
   return(list(psi_m = psi_m, psi_h = psi_h))
 }
 #' Calculates diabatic correction factor in canopy

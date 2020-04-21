@@ -579,7 +579,7 @@ runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, 
   lambda <- -42.575*tc+44994 # Latent heat of vapourisation (J / mol)
   # Adjust wind to 2 m above canopy
   u2<-u*log(67.8*hgt-5.42)/log(67.8*(hgt+2)-5.42)
-  u2[u2 < 0.5] <- 0.5
+  u2[u2 < 0.1] <- 0.1
   # Generate heights of nodes
   z<-c((1:m)-0.5)/m*hgt
   if (is.na(reqhgt) == F) z[abs(z-reqhgt)==min(abs(z-reqhgt))][1]<-reqhgt
@@ -598,6 +598,9 @@ runonestep <- function(climvars, previn, vegp, soilp, timestep, tme, lat, long, 
   psi_m<-abod$psi_m; psi_h<-abod$psi_h; phi_m<-cand$phi_m; phi_h<-cand$phi_h
   # Calculate temperatures and relative humidities for top of canopy
   tcan <- abovecanopytemp(tair,u2,zu+hgt,zabove,H,hgt,sum(vegp$PAI),vegp$zm0,pk,psi_h)
+  # Set limits to tcan
+  tcan<-ifelse(tcan>(tair+20),(tair+20),tcan)
+  tcan<-ifelse(tcan<(tair-15),(tair-15),tcan)
   # Adjust relative humidity
   ea<-0.6108*exp(17.27*tair/(tair+237.3))*(relhum/100)
   eas<-0.6108*exp(17.27*tcan/(tcan+237.3))
