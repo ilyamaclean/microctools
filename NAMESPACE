@@ -3,7 +3,6 @@
 export(LAIfrac)
 export(PAIfromhabitat)
 export(PAIgeometry)
-export(abovecanopytemp)
 export(attencoef)
 export(canlw)
 export(cansw)
