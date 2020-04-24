@@ -27,5 +27,6 @@ dimensionless attenuation coefficient for calculating the wind height profile
 in vegetation canopies.
 }
 \description{
-Calculate mixing length for canopy air transport
+Calculates mixing length for canopy air transport - equivelent to mean
+leaf spacing.
 }

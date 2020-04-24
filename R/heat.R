@@ -114,6 +114,9 @@ mixinglength <- function(hgt, PAI, x, lw) {
 }
 #' Calculate mixing length for canopy air transport
 #'
+#' @description Calculates mixing length for canopy air transport - equivelent to mean
+#' leaf spacing.
+#'
 #' @param hgt canopy height (m)
 #' @param PAI plant area index
 #' @param x leaf distribution angle coefficient
