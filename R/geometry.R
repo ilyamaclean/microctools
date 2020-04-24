@@ -198,7 +198,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   clim <- c(meantemp, cvtemp, rainfall, cvrain, wetmonth)
   for (i in 1:5) {
     if (is.na(clim[i])) {
-      r <- raster(globalclimate[,,i])
+      r <- raster(microctools::globalclimate[,,i])
       extent(r) <- e
       clim[i] <- extract(r, ll)
     }
