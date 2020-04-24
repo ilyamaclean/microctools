@@ -676,7 +676,6 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 #' @export
 habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   # By habitat type
-  data(habitats)
   pai<-PAIfromhabitat(habitat,lat,long,2010)
   if (habitat == "Evergreen needleleaf forest" | habitat == 1) {
     m2 <- round((1/15)*m,0)
