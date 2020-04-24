@@ -7,16 +7,16 @@
 plotresults(modelout, vegp, climvars, i = "")
 }
 \arguments{
-\item{modelout}{a list of model outputs as returned by [runonestep() or \code{\link[=runmodel]{runmodel()}}]}
+\item{modelout}{a list of model outputs as returned by [microclimc::runonestep() or \code{\link[microclimc:runmodel]{microclimc::runmodel()}}]}
 
 \item{vegp}{a list of vegetation parameters as returned by \code{\link[=habitatvars]{habitatvars()}}}
 
-\item{climvars}{a list of climate variables. See example for \code{\link[=runonestep]{runonestep()}}}
+\item{climvars}{a list of climate variables. See example for \code{\link[microclimc:runonestep]{microclimc::runonestep()}}}
 
 \item{i}{optional title for plot. Usually the model iteration.}
 }
 \description{
 \code{plotresults} optionally plots the temperature profile after running
-\code{\link[=spinup]{spinup()}} or while running the model to keep track of progress. It can also be used
+\code{\link[microclimc:spinup]{microclimc::spinup()}} or while running the model to keep track of progress. It can also be used
 to plot the results after running the model
 }

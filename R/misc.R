@@ -136,7 +136,7 @@ layerinterp <- function(y1, y2, x1) {
 #' @description Calculates soil heat conductivity and capacity from soil properites
 #' @param timestep model time step (s)
 #' @param theta volumetric soil water fraction (m^3 / m^3)
-#' @param soilp a list of soil parameters as returned by [soilinit()]
+#' @param soilp a list of soil parameters as returned by [microclimc::soilinit()]
 #' @return a list with the following components:
 #' @return `cd` specific heat capacity of soil x height / time (W / m^2 / K)
 #' @return `k` thermal conductance of soil (W / m^2 / K)
@@ -159,12 +159,12 @@ soilk <- function(timestep, theta = 0.3, soilp) {
 #' Function to plot temperature profile
 #'
 #' @description `plotresults` optionally plots the temperature profile after running
-#' [spinup()] or while running the model to keep track of progress. It can also be used
+#' [microclimc::spinup()] or while running the model to keep track of progress. It can also be used
 #' to plot the results after running the model
 #'
-#' @param modelout a list of model outputs as returned by [runonestep() or [runmodel()]]
+#' @param modelout a list of model outputs as returned by [microclimc::runonestep() or [microclimc::runmodel()]]
 #' @param vegp a list of vegetation parameters as returned by [habitatvars()]
-#' @param climvars a list of climate variables. See example for [runonestep()]
+#' @param climvars a list of climate variables. See example for [microclimc::runonestep()]
 #' @param i optional title for plot. Usually the model iteration.
 #' @import graphics
 #' @export

@@ -11,7 +11,7 @@ soilk(timestep, theta = 0.3, soilp)
 
 \item{theta}{volumetric soil water fraction (m^3 / m^3)}
 
-\item{soilp}{a list of soil parameters as returned by \code{\link[=soilinit]{soilinit()}}}
+\item{soilp}{a list of soil parameters as returned by \code{\link[microclimc:soilinit]{microclimc::soilinit()}}}
 }
 \value{
 a list with the following components:

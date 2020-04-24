@@ -165,7 +165,7 @@ gturb <- function(u, zu = 2, z1, z0 = NA, hgt, PAI= 3, tc = 15,
 }
 #' Calculates conductance under turbulent convection within the canopy
 #'
-#' @param uh wind speed at height of canopy top (m/s) as returned by [windprofile()]
+#' @param uh wind speed at height of canopy top (m/s) as returned by [microclimc::windprofile()]
 #' @param z1 upper height to which conductance is wanted (m)
 #' @param z0 lower height from which conductance is wanted (m)
 #' @param tc1 temperature of upper layer (dec C) usually in previous timestep
