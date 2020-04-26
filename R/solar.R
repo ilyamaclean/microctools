@@ -183,7 +183,8 @@ solarcoef <- function(slope, aspect, localtime, lat, long, jd,
 #'
 #' @seealso [cansw()] to calculate total shortwave radiation underneath canopies
 cantransdir <- function(l, x, sa, ref = 0.2) {
-  k <- ((x^2 + 1/(tan(sa * (pi/180))^2))^0.5)/(x + 1.774 * (x + 1.182)^(-0.733))
+  zen <- 90 - sa
+  k <- ((x^2 + 1/(tan(zen * (pi/180))^2))^0.5)/(x + 1.774 * (x + 1.182)^(-0.733))
   s <- sqrt(1 - ref)
   ks <- k * s
   tr <- exp(-ks * l)
