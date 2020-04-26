@@ -103,13 +103,13 @@ gforcedfree <- function(d, u, tc, dtc, pk = 101.3) {
 #' leaves are more like grasses or squares (assumed to be like squares if less than
 #' 1 and grasses if more than one).
 mixinglength <- function(hgt, PAI, x, lw) {
-  sr <- 1 / x
-  sr <- ifelse(sr > 1, 1, sr)
   Ld <- PAI / hgt
   lmg <- (4 * lw / (pi * Ld))^0.5
   lms <- (6 * lw^2 * hgt / (pi * PAI))^(1 / 3)
-  l_m <- sr * lms + (1 - sr) * lmg
-  l_m <- sr * lms + (1 - sr) * lmg
+  wgt<-x/2
+  sel <- which(x > 1)
+  wgt[sel] <- 1-(0.5/x[sel])
+  l_m <- wgt * lms + (1 - wgt) * lmg
   l_m
 }
 #' Calculate mixing length for canopy air transport
