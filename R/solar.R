@@ -335,7 +335,7 @@ cansw <- function(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
     dst <- 0
     merid <- 0
   }
-  if (class(dp) != "logical") {
+  if (class(dp) == "logical") {
     dp <- difprop(globrad, jd, localtime, lat, long, hourly, watts, merid, corr)
   }
   sa <- solalt(localtime, lat, long, jd, merid, dst)
