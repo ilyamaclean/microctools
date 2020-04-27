@@ -329,7 +329,7 @@ difprop <- function(rad, jd, localtime, lat, long, hourly = FALSE,
 cansw <- function(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
                   hourly = FALSE, watts = TRUE, merid = round(long / 15, 0) * 15,
                   dst = 0, corr = 1, tme = NA) {
-  if (class(tme) != "logical") {
+  if (class(tme)[1] != "logical") {
     jd <- julday(tme = tme)
     localtime <- tme$hour + tme$min / 60 + tme$sec / 3600
     dst <- 0
