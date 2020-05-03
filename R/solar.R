@@ -178,29 +178,41 @@ solarcoef <- function(slope, aspect, localtime, lat, long, jd,
 #' @param x leaf distribution angle coefficient
 #' @param sa solar altitude in decimal degrees as returned by [solalt()].
 #' @param ref average reflectivity of leaves, usually in shortwave spectrum.
+#' @param clump clumpiness factor (0-1, see details)
 #' @return the proportion of direct beam radiation transmitted through the canopy
 #' @export
-#'
+#' @details if `clump` = 0 the canopy is assumed entirely uniform and radiation
+#' transmission is as for a turbid medium. As `clump` approaches 1, the canopy
+#' is assumed to be increasingly patchy, such that a greater proportion of reaches
+#' the ground without being obscured by leaves.
 #' @seealso [cansw()] to calculate total shortwave radiation underneath canopies
-cantransdir <- function(l, x, sa, ref = 0.2) {
+cantransdir <- function(l, x, sa, ref = 0.5, clump = 0) {
+  f <- 1 / (1 - clump)
   zen <- 90 - sa
   k <- sqrt((x^2 + (tan(zen * (pi/180))^2)))/(x + 1.774 * (x + 1.182)^(-0.733))
   s <- sqrt(1 - ref)
   ks <- k * s
-  tr <- exp(-ks * l)
+  tr <- exp(-ks * l * f)
+  tr <- (1 - clump) * tr + clump * 1
   tr
 }
 #' Calculates diffuse radiation transmission through vegetated canopies
 #'
 #' @param l leaf area index (total one-sided leaf area per unit ground area)
 #' @param ref average reflectivity of leaves, usually in shortwave spectrum.
+#' @param clump clumpiness factor (0-1, see details)
 #' @return the proportion of diffuse beam radiation transmitted through the canopy
 #' @export
-#'
+#' @details if `clump` = 0 the canopy is assumed entirely uniform and radiation
+#' transmission is as for a turbid medium. As `clump` approaches 1, the canopy
+#' is assumed to be increasingly patchy, such that a greater proportion of reaches
+#' the ground without being obscured by leaves.
 #' @seealso [cansw()] to calculate total shortwave radiation underneath canopies
-cantransdif <- function(l, ref = 0.25) {
+cantransdif <- function(l, ref = 0.25, clump = 0) {
+  f <- 1 / (1 - clump)
   s <- sqrt(1 - ref)
-  tr <- exp(-s * l)
+  tr <- exp(-s * l * f)
+  tr <- (1 - clump) * tr + clump * 1
   tr
 }
 #' Calculates the diffuse fraction from incoming shortwave radiation
@@ -315,10 +327,14 @@ difprop <- function(rad, jd, localtime, lat, long, hourly = FALSE,
 #' @param corr Used if dp = NA. An optional numeric value representing a correction to account for over- or under-estimated diffuse proportions. Values > 1 will apportion a greater ammount of total radiation as diffuse than originally calculated by the formula.
 #' @param tme object of POSIXlt indicating times in UTC. Can be used in place of specifying
 #' `jd`, `localtime`, `dst` and `merid`
+#' @param clump clumpiness factor for canopy (0-1, see details)
 #' @return shortwave radiation received underneath vegetated canopies. Units as for globrad.
 #' @export
 #' @details Calculated the flux density of radiation received below leaf area l, not absorbed.
-#' I.e. ground albedo not accounted for.
+#' I.e. ground albedo not accounted for. if `clump` = 0 the canopy is assumed entirely
+#' uniform and radiation transmission is as for a turbid medium. As `clump` approaches 1,
+#' the canopy is assumed to be increasingly patchy, such that a greater proportion of reaches
+#' the ground without being obscured by leaves.
 #'
 #' @examples
 #' l <- c(0:1000)/100
@@ -328,7 +344,7 @@ difprop <- function(rad, jd, localtime, lat, long, hourly = FALSE,
 #'
 cansw <- function(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
                   hourly = FALSE, watts = TRUE, merid = round(long / 15, 0) * 15,
-                  dst = 0, corr = 1, tme = NA) {
+                  dst = 0, corr = 1, tme = NA, clump = 0) {
   if (class(tme)[1] != "logical") {
     jd <- julday(tme = tme)
     localtime <- tme$hour + tme$min / 60 + tme$sec / 3600
@@ -339,12 +355,11 @@ cansw <- function(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
     dp <- difprop(globrad, jd, localtime, lat, long, hourly, watts, merid, corr)
   }
   sa <- solalt(localtime, lat, long, jd, merid, dst)
-  drtr <- cantransdir(l, x, sa, ref)
-  ditr <- cantransdif(l, ref)
+  drtr <- cantransdir(l, x, sa, ref, clump)
+  ditr <- cantransdif(l, ref, clump)
   rad <- dp * globrad * ditr + (1 - dp) * globrad * drtr
   rad
 }
-
 #' Calculates longwave radiation underneath vegetated canopies
 #'
 #' @description `canlw` calculates the flux density (W / m^2) of incoming and
@@ -354,6 +369,7 @@ cansw <- function(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
 #' @param l leaf area index
 #' @param ref average leaf reflectivity in longwave spectrum (1 - thermal emissivity)
 #' @param skyem sky emissivity
+#' @param clump clumpiness factor for canopy (0-1, see details)
 #' @return A list wiht the following elements:
 #' @return `lwout` Flux density of total outgoing longwave radiation emitted under leaf area `l` (W / m2)
 #' @return `lwin` Flux density of incoming longwave radiation received under leaf area `l` (W / m2)
@@ -370,10 +386,12 @@ cansw <- function(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
 #' plot(lw2$lwnet ~ l, type = "l", col = "blue", lwd = 2, ylim = c(0,200), ylab = "")
 #' par(new = TRUE)
 #' plot(lw3$lwnet ~ l, type = "l", col = "red", lwd = 2, ylim = c(0,200), ylab = "")
-canlw <- function(tc, l, ref = 0.03, skyem = 0.9) {
+canlw <- function(tc, l, ref = 0.03, skyem = 0.9, clump = 0) {
+  f <- 1 / (1 - clump)
   lwout <- (1 - ref) * 5.67 * 10^-8 * (tc + 273.15) ^ 4
   s <- sqrt(1 - ref)
-  tr <- exp(-s * l)
+  tr <- exp(-s * l * f)
+  tr <- (1 - clump) * tr + clump * 1
   lwcan <- (1 - tr) * lwout
   lwsky <- skyem * tr^2 * lwout
   lwin <- lwcan + lwsky
@@ -387,20 +405,17 @@ canlw <- function(tc, l, ref = 0.03, skyem = 0.9) {
 #' leaves.
 #' @param x leaf angle distribution coefficient (ratio nof horizontal to vertical projection of foliage)
 #' @param sa solar altitude (decimal degrees)
-#' @param samin minimum solar altitude to which `sa` is set of `sa` < `samin` (see details)
 #' @return multiplication factor representing ratio of radiation intercepted by leaves relative
 #' to a horizontal surface
 #' @details An inclined leaf facing in the direction of the sun will tend to intercept more direct
 #' beam radiation than a horizontal surface. This function uses an approximation of the
 #' x-dependent leaf-angle density function as detailed in Campbell (1990) Agricultural and Forest Meteorology, 49: 173-176
 #' to calculate multiplication factor representing ratio of radiation intercepted by leaves relative
-#' to a horizontal surface. The solution is approximate and values are high for low solar angles, meaning
-#' that iof there are small areas in estimated incoming beam radiation at low solar angles, errors
-#' can be large. To avoid this, a minimum solar angle can be specified.
+#' to a horizontal surface.
 #' @export
 #' @seealso [psunlit()]
-radmult <- function(x, sa, samin = 1) {
-  sa<-ifelse(sa<samin,samin,sa)
+radmult <- function(x, sa) {
+  sa<-ifelse(sa<0,0,sa)
   coef1 <- 1.20619*x^0.40711-4.88761
   coef2 <- -0.41215*x^ 0.31701+1.32412
   lrat<-coef1+coef2*log(sa)
@@ -416,7 +431,7 @@ radmult <- function(x, sa, samin = 1) {
 #' @export
 #' @seealso [radmult()]
 psunlit <- function(l, x, sa) {
-  sa<ifelse(sa<0,0,sa)
+  sa<-ifelse(sa<0,0,sa)
   ze<-90-sa
   K <- sqrt(x^2+tan(ze*(pi/180))^2)/(x+1.1774*(x+1.1182)^-(0.733))
   Ls<-(1-exp(-K*l))/K
