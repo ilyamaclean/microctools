@@ -661,7 +661,8 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 #'          x PAI = volume of vegetation (m^3 / m^3)
 #' @return `cpw` Specific heat capacity of woody vegetation (J / kg / K)
 #' @return `phw` Density of woody vegetation (no air) (kg / m^3)
-#' @return `kwood` # thermal conductivity of wood (W / m / K)
+#' @return `kwood` Thermal conductivity of wood (W / m / K)
+#' @return `clump` Clumpiness factor for canopy (0-1)
 #' @details if `tme` is a single value `PAI` and `pLAI` are vectors of length `m` giving
 #' Plant Area Index values and proportions of green vegetation for each canopy node `m`.
 #' If `tme` is a vector of times, `PAI` and `pLAI` are arrays of dimension m x number of
@@ -955,5 +956,5 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   return(list(hgt = pai$height, PAI = PAI, x = pai$x, lw = lw, cd = 0.2, iw = iw,
               hgtg = uhgt, zm0 = zm0, pLAI = pLAI, refls = refls,
               refg = 0.15, refw = refw, reflp = reflp, vegem = 0.97, gsmax = gsmax,
-              q50 = 100, thickw = thickw, cpw = 1200, phw = phw, kwood = 0.14))
+              q50 = 100, thickw = thickw, cpw = 1200, phw = phw, kwood = 0.14, clump=0))
 }

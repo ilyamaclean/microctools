@@ -62,7 +62,9 @@ x PAI = volume of vegetation (m^3 / m^3)
 
 \code{phw} Density of woody vegetation (no air) (kg / m^3)
 
-\code{kwood} # thermal conductivity of wood (W / m / K)
+\code{kwood} Thermal conductivity of wood (W / m / K)
+
+\code{clump} Clumpiness factor for canopy (0-1)
 }
 \description{
 \code{habitatvars} generates vegetation parameters required to run the model
