@@ -4,7 +4,7 @@
 \alias{cantransdir}
 \title{Calculates direct beam radiation transmission through vegetated canopies}
 \usage{
-cantransdir(l, x, sa, ref = 0.2)
+cantransdir(l, x, sa, ref = 0.5, clump = 0)
 }
 \arguments{
 \item{l}{leaf area index (total one-sided leaf area per unit ground area)}
@@ -14,12 +14,20 @@ cantransdir(l, x, sa, ref = 0.2)
 \item{sa}{solar altitude in decimal degrees as returned by \code{\link[=solalt]{solalt()}}.}
 
 \item{ref}{average reflectivity of leaves, usually in shortwave spectrum.}
+
+\item{clump}{clumpiness factor (0-1, see details)}
 }
 \value{
 the proportion of direct beam radiation transmitted through the canopy
 }
 \description{
 Calculates direct beam radiation transmission through vegetated canopies
+}
+\details{
+if \code{clump} = 0 the canopy is assumed entirely uniform and radiation
+transmission is as for a turbid medium. As \code{clump} approaches 1, the canopy
+is assumed to be increasingly patchy, such that a greater proportion of reaches
+the ground without being obscured by leaves.
 }
 \seealso{
 \code{\link[=cansw]{cansw()}} to calculate total shortwave radiation underneath canopies

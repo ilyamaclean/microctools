@@ -4,7 +4,7 @@
 \alias{canlw}
 \title{Calculates longwave radiation underneath vegetated canopies}
 \usage{
-canlw(tc, l, ref = 0.03, skyem = 0.9)
+canlw(tc, l, ref = 0.03, skyem = 0.9, clump = 0)
 }
 \arguments{
 \item{tc}{temperature (deg C)}
@@ -14,6 +14,8 @@ canlw(tc, l, ref = 0.03, skyem = 0.9)
 \item{ref}{average leaf reflectivity in longwave spectrum (1 - thermal emissivity)}
 
 \item{skyem}{sky emissivity}
+
+\item{clump}{clumpiness factor for canopy (0-1, see details)}
 }
 \value{
 A list wiht the following elements:

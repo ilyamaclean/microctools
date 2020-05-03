@@ -6,7 +6,7 @@
 \usage{
 cansw(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
   hourly = FALSE, watts = TRUE, merid = round(long/15, 0) * 15,
-  dst = 0, corr = 1, tme = NA)
+  dst = 0, corr = 1, tme = NA, clump = 0)
 }
 \arguments{
 \item{globrad}{a vector of incoming shortwave radiation values (either \ifelse{html}{\out{MJ m<sup>-2</sup> hr<sup>-1</sup>}}{\eqn{MJ m^{-2} hr^{-1}}} or \ifelse{html}{\out{W m<sup>-2</sup>}}{\eqn{W m^{-2}}})}
@@ -40,6 +40,8 @@ If no value is provided, calculated using \code{\link[=difprop]{difprop()}}}
 
 \item{tme}{object of POSIXlt indicating times in UTC. Can be used in place of specifying
 \code{jd}, \code{localtime}, \code{dst} and \code{merid}}
+
+\item{clump}{clumpiness factor for canopy (0-1, see details)}
 }
 \value{
 shortwave radiation received underneath vegetated canopies. Units as for globrad.
@@ -49,7 +51,10 @@ shortwave radiation received underneath vegetated canopies. Units as for globrad
 }
 \details{
 Calculated the flux density of radiation received below leaf area l, not absorbed.
-I.e. ground albedo not accounted for.
+I.e. ground albedo not accounted for. if \code{clump} = 0 the canopy is assumed entirely
+uniform and radiation transmission is as for a turbid medium. As \code{clump} approaches 1,
+the canopy is assumed to be increasingly patchy, such that a greater proportion of reaches
+the ground without being obscured by leaves.
 }
 \examples{
 l <- c(0:1000)/100

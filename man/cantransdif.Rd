@@ -4,18 +4,26 @@
 \alias{cantransdif}
 \title{Calculates diffuse radiation transmission through vegetated canopies}
 \usage{
-cantransdif(l, ref = 0.25)
+cantransdif(l, ref = 0.25, clump = 0)
 }
 \arguments{
 \item{l}{leaf area index (total one-sided leaf area per unit ground area)}
 
 \item{ref}{average reflectivity of leaves, usually in shortwave spectrum.}
+
+\item{clump}{clumpiness factor (0-1, see details)}
 }
 \value{
 the proportion of diffuse beam radiation transmitted through the canopy
 }
 \description{
 Calculates diffuse radiation transmission through vegetated canopies
+}
+\details{
+if \code{clump} = 0 the canopy is assumed entirely uniform and radiation
+transmission is as for a turbid medium. As \code{clump} approaches 1, the canopy
+is assumed to be increasingly patchy, such that a greater proportion of reaches
+the ground without being obscured by leaves.
 }
 \seealso{
 \code{\link[=cansw]{cansw()}} to calculate total shortwave radiation underneath canopies
