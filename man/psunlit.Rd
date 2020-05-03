@@ -4,7 +4,7 @@
 \alias{psunlit}
 \title{Calculates the fraction of sunlit leaves}
 \usage{
-psunlit(l, x, sa)
+psunlit(l, x, sa, clump = 0)
 }
 \arguments{
 \item{l}{leaf area index}
@@ -12,9 +12,16 @@ psunlit(l, x, sa)
 \item{x}{leaf angle distribution coefficient (ratio nof horizontal to vertical projection of foliage)}
 
 \item{sa}{solar altitude (decimal degrees)}
+
+\item{clump}{clumpiness factor for canopy (0-1, see details)}
 }
 \description{
 \code{psunlit} calculates the fraction of sunlit leaves for application of \code{radmult}
+}
+\details{
+if \code{clump} = 0 the canopy is assumed entirely uniform and the sunlit proportion
+is as for a turbid medium. As \code{clump} approaches 1, the canopy is assumed to be
+increasingly patchy, such that a greater proportion of the canopy is sunlit.
 }
 \seealso{
 \code{\link[=radmult]{radmult()}}

@@ -428,13 +428,19 @@ radmult <- function(x, sa) {
 #' @param l leaf area index
 #' @param x leaf angle distribution coefficient (ratio nof horizontal to vertical projection of foliage)
 #' @param sa solar altitude (decimal degrees)
+#' @param clump clumpiness factor for canopy (0-1, see details)
 #' @export
 #' @seealso [radmult()]
-psunlit <- function(l, x, sa) {
+#' @details if `clump` = 0 the canopy is assumed entirely uniform and the sunlit proportion
+#' is as for a turbid medium. As `clump` approaches 1, the canopy is assumed to be
+#' increasingly patchy, such that a greater proportion of the canopy is sunlit.
+psunlit <- function(l, x, sa, clump = 0) {
+  f <- 1 / (1 - clump)
   sa<-ifelse(sa<0,0,sa)
   ze<-90-sa
   K <- sqrt(x^2+tan(ze*(pi/180))^2)/(x+1.1774*(x+1.1182)^-(0.733))
-  Ls<-(1-exp(-K*l))/K
+  Ls<-(1-exp(-K*l*f))/K
   Lp <- Ls/l
+  Lp <- (1 - clump) * Lp + clump * 1
   Lp
 }
