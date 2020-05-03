@@ -381,3 +381,45 @@ canlw <- function(tc, l, ref = 0.03, skyem = 0.9) {
               lwabs = (1 - ref) * lwin,
               lwnet = lwout - (1 - ref) * lwin))
 }
+#' Calculates a multiplication factor for radiation absorbtion by sunlit leaves
+#'
+#' @description `radmult` calaculates a leaf angle-dependent multiplication factor for sunlit
+#' leaves.
+#' @param x leaf angle distribution coefficient (ratio nof horizontal to vertical projection of foliage)
+#' @param sa solar altitude (decimal degrees)
+#' @param samin minimum solar altitude to which `sa` is set of `sa` < `samin` (see details)
+#' @return multiplication factor representing ratio of radiation intercepted by leaves relative
+#' to a horizontal surface
+#' @details An inclined leaf facing in the direction of the sun will tend to intercept more direct
+#' beam radiation than a horizontal surface. This function uses an approximation of the
+#' x-dependent leaf-angle density function as detailed in Campbell (1990) Agricultural and Forest Meteorology, 49: 173-176
+#' to calculate multiplication factor representing ratio of radiation intercepted by leaves relative
+#' to a horizontal surface. The solution is approximate and values are high for low solar angles, meaning
+#' that iof there are small areas in estimated incoming beam radiation at low solar angles, errors
+#' can be large. To avoid this, a minimum solar angle can be specified.
+#' @export
+#' @seealso [psunlit()]
+radmult <- function(x, sa, samin = 1) {
+  sa<-ifelse(sa<samin,samin,sa)
+  coef1 <- 1.20619*x^0.40711-4.88761
+  coef2 <- -0.41215*x^ 0.31701+1.32412
+  lrat<-coef1+coef2*log(sa)
+  mult <- 1/exp(lrat)
+  mult
+}
+#' Calculates the fraction of sunlit leaves
+#'
+#' @description `psunlit` calculates the fraction of sunlit leaves for application of `radmult`
+#' @param l leaf area index
+#' @param x leaf angle distribution coefficient (ratio nof horizontal to vertical projection of foliage)
+#' @param sa solar altitude (decimal degrees)
+#' @export
+#' @seealso [radmult()]
+psunlit <- function(l, x, sa) {
+  sa<ifelse(sa<0,0,sa)
+  ze<-90-sa
+  K <- sqrt(x^2+tan(ze*(pi/180))^2)/(x+1.1774*(x+1.1182)^-(0.733))
+  Ls<-(1-exp(-K*l))/K
+  Lp <- Ls/l
+  Lp
+}
