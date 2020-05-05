@@ -228,7 +228,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
     x <- 0.4
     hgt <- 15
   }
-  if (habitat == "Evergreen Broadleaf forest" | habitat == 2) {
+  if (habitat == "Evergreen broadleaf forest" | habitat == 2) {
     hperiod <-  154.505 + 2.040 * clim[1]
     hperiod <- ifelse(hperiod < 50, 50, hperiod)
     peakdoy <- peakdoy <- mmonth[round(clim[5], 0)]
@@ -698,7 +698,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
   }
-  if (habitat == "Evergreen Broadleaf forest" | habitat == 2) {
+  if (habitat == "Evergreen broadleaf forest" | habitat == 2) {
     m2 <- round((4/20)*m,0)
     pl<-.habgen(2,lat,long,tme,PAIt,m,m2,6.5,70,0.8)
     PAI<-pl$PAI
