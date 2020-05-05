@@ -257,7 +257,7 @@ diabatic_cor_can <- function(tc, uz, z, PAI, x = 1, lw = 0.05) {
   dtdz<-dtc/dz
   tk <- (tc[2:length(tc)]+tc[1:(length(tc)-1)])/2+273.15
   PAIl<-(PAI[2:length(PAI)]+PAI[1:(length(PAI)-1)])/2
-  l_m <- mixinglength(PAIl, dz, x, lw)
+  l_m <- mixinglength(dz, PAIl, x, lw)
   u<-(uz[2:length(uz)]+uz[1:(length(uz)-1)])/2
   Ri <- (9.81 / tk) * dtdz * (l_m / u)^2
   Ri[Ri > 0.15] <- 0.15
