@@ -1,6 +1,6 @@
 #' Calculates the astronomical Julian day
 #'
-#' @description `julday` is used to calculate the astronomical Julian day (days since since January 1, 4713 BCE at noon UTC) from a given year, month and day.
+#' @description `jday` is used to calculate the astronomical Julian day (days since since January 1, 4713 BCE at noon UTC) from a given year, month and day.
 #'
 #' @param year year (AD).
 #' @param month month in numeric form (1-12).
@@ -16,11 +16,11 @@
 #'
 #' @examples
 #' tme <- as.POSIXlt(0, origin = "2020-03-21 12:43", tz = "UTC")
-#' julday(tme = tme)
-#' jd1 <- julday(2010, 1, 31)
-#' jd2 <- julday(2010, 1, 31, 11, 0, 0)
+#' jday(tme = tme)
+#' jd1 <- jday(2010, 1, 31)
+#' jd2 <- jday(2010, 1, 31, 11, 0, 0)
 #' jd1 - jd2
-julday <- function(year, month, day, hour = 12, min = 0, sec = 0, dst = 0, tme = NA) {
+jday <- function(year, month, day, hour = 12, min = 0, sec = 0, dst = 0, tme = NA) {
   if (class(tme)[1] != "logical") {
     year<- tme$year + 1900
     month <- tme$mon + 1
@@ -45,7 +45,7 @@ julday <- function(year, month, day, hour = 12, min = 0, sec = 0, dst = 0, tme =
 #'
 #' @param localtime local time (decimal hour, 24 hour clock).
 #' @param long longitude of the location for which the solar time is required (decimal degrees, -ve west of Greenwich meridian).
-#' @param jd Julian day expressed as an integer as returned by [julday()].
+#' @param jd Julian day expressed as an integer as returned by [jday()].
 #' @param merid an optional numeric value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT).
 #' @param dst an optional numeric value representing the time difference from the timezone meridian (hours, e.g. +1 for BST if `merid` = 0).
 #'
@@ -62,7 +62,7 @@ julday <- function(year, month, day, hour = 12, min = 0, sec = 0, dst = 0, tme =
 #'
 #'
 #' @examples
-#' jd <- julday (2010, 6, 21) # Julian day
+#' jd <- jday (2010, 6, 21) # Julian day
 #' solartime(12, -5, jd) # solartime at noon on 21 June 2010, 5ºW
 solartime <- function(localtime, long, jd, merid = round(long / 15, 0) * 15, dst = 0) {
   m <- 6.24004077 + 0.01720197 * (jd - 2451545)
@@ -77,7 +77,7 @@ solartime <- function(localtime, long, jd, merid = round(long / 15, 0) * 15, dst
 #' @param localtime local time (decimal hour, 24 hour clock).
 #' @param lat latitude of the location for which the solar azimuth is required (decimal degrees, -ve south of the equator).
 #' @param long longitude of the location for which the solar azimuth is required (decimal degrees, -ve west of Greenwich meridian).
-#' @param jd Julian day expressed as an integer as returned by [julday()].
+#' @param jd Julian day expressed as an integer as returned by [jday()].
 #' @param merid optional  value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT). Default is `round(long / 15, 0) * 15`
 #' @param dst optional value representing the time difference from the timezone meridian (hours, e.g. +1 for BST if `merid` = 0).
 #' @return a numeric value or vector of values representing the solar azimuth (decimal degrees).
@@ -85,7 +85,7 @@ solartime <- function(localtime, long, jd, merid = round(long / 15, 0) * 15, dst
 #'
 #' @examples
 #' # solar azimuth at noon on 21 June 2010, Porthleven, Cornwall, UK
-#' jd <- julday (2010, 6, 21) # Julian day
+#' jd <- jday (2010, 6, 21) # Julian day
 #' solazi(12, 50.08, -5.31, jd)
 solazi <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, dst = 0) {
   stime <- solartime(localtime, long, jd, merid, dst)
@@ -111,7 +111,7 @@ solazi <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, d
 #' @param localtime local time (decimal hour, 24 hour clock).
 #' @param lat latitude of the location for which the solar altitude is required (decimal degrees, -ve south of the equator).
 #' @param long longitude of the location for which the solar altitude is required (decimal degrees, -ve west of Greenwich meridian).
-#' @param jd Julian day expressed as an integer as returned by [julday()].
+#' @param jd Julian day expressed as an integer as returned by [jday()].
 #' @param merid optional value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT). Default is `round(long / 15, 0) * 15`
 #' @param dst optional value representing the time difference from the timezone meridian (hours, e.g. +1 for BST if `merid` = 0).
 #'
@@ -120,7 +120,7 @@ solazi <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, d
 #'
 #' @examples
 #' # solar altitude at noon on 21 June 2010, Porthleven, Cornwall
-#' jd <- julday (2010, 6, 21) # Julian day
+#' jd <- jday (2010, 6, 21) # Julian day
 #' solalt(12, 50.08, -5.31, jd)
 solalt <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, dst = 0) {
   stime <- solartime(localtime, long, jd, merid, dst)
@@ -141,7 +141,7 @@ solalt <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, d
 #' @param localtime local time (decimal hour, 24 hour clock).
 #' @param lat latitude of the location for which the coefficientis required (decimal degrees, -ve south of the equator).
 #' @param long longitude of the location for which the solar index is required (decimal degrees, -ve west of Greenwich meridian).
-#' @param jd integer representing the Julian day as returned by [julday()].
+#' @param jd integer representing the Julian day as returned by [jday()].
 #' @param merid optional value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT). Default is `round(long / 15, 0) * 15`
 #' @param dst optional numeric value representing the time difference from the timezone meridian (hours, e.g. +1 for BST if `merid` = 0).
 #' @param horizon optinal logical indicating whether to set coefficient to zero if solar altitude < 0.
@@ -153,7 +153,7 @@ solalt <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, d
 #'
 #' @examples
 #' library(raster)
-#' jd <- julday (2010, 6, 21) # Julian day
+#' jd <- jday (2010, 6, 21) # Julian day
 #' lt <- c(0:2400) / 100
 #' si <- solarcoef(0, 0, lt, 50, -5, jd)
 #' plot(si ~ lt, type = "l")
@@ -220,7 +220,7 @@ cantransdif <- function(l, ref = 0.25, clump = 0) {
 #' @description `difprop` calculates proportion of incoming shortwave radiation that is diffuse radiation using the method of Skartveit et al. (1998) Solar Energy, 63: 173-183.
 #'
 #' @param rad a vector of incoming shortwave radiation values (either \ifelse{html}{\out{MJ m<sup>-2</sup> hr<sup>-1</sup>}}{\eqn{MJ m^{-2} hr^{-1}}} or \ifelse{html}{\out{W m<sup>-2</sup>}}{\eqn{W m^{-2}}})
-#' @param jd the Julian day as returned by [julday()]
+#' @param jd the Julian day as returned by [jday()]
 #' @param localtime a single numeric value representing local time (decimal hour, 24 hour clock)
 #' @param lat a single numeric value representing the latitude of the location for which partitioned radiation is required (decimal degrees, -ve south of equator).
 #' @param long a single numeric value representing the longitude of the location for which partitioned radiation is required (decimal degrees, -ve west of Greenwich meridian).
@@ -244,7 +244,7 @@ cantransdif <- function(l, ref = 0.25, clump = 0) {
 #'
 #' @examples
 #' rad <- c(5:42) / 0.036 # typical values of radiation in W/m^2
-#' jd <- julday(2017, 6, 21) # julian day
+#' jd <- jday(2017, 6, 21) # julian day
 #' dfr <- difprop(rad, jd, 12, 50, -5)
 #' plot(dfr ~ rad, type = "l", lwd = 2, xlab = "Incoming shortwave radiation",
 #'      ylab = "Diffuse fraction")
@@ -313,7 +313,7 @@ difprop <- function(rad, jd, localtime, lat, long, hourly = FALSE,
 #' @param globrad a vector of incoming shortwave radiation values (either \ifelse{html}{\out{MJ m<sup>-2</sup> hr<sup>-1</sup>}}{\eqn{MJ m^{-2} hr^{-1}}} or \ifelse{html}{\out{W m<sup>-2</sup>}}{\eqn{W m^{-2}}})
 #' @param dp optional numeric value or vector of values indicating the proportion of `globarad` that is diffuse.
 #' If no value is provided, calculated using [difprop()]
-#' @param jd the Julian day as returned by [julday()]
+#' @param jd the Julian day as returned by [jday()]
 #' @param localtime a single numeric value representing local time (decimal hour, 24 hour clock)
 #' @param lat latitude of location (decimal degrees, -ve south of equator).
 #' @param long longitude of location (decimal degrees, -ve west of Greenwich meridian).
@@ -338,7 +338,7 @@ difprop <- function(rad, jd, localtime, lat, long, hourly = FALSE,
 #'
 #' @examples
 #' l <- c(0:1000)/100
-#' sw <- cansw(500, dp = 0.5, julday(2020, 6, 21), 12, 50, -5, l, 1)
+#' sw <- cansw(500, dp = 0.5, jday(2020, 6, 21), 12, 50, -5, l, 1)
 #' plot(sw ~ l, type = "l")
 #' @seealso [cantransdir()], [cantransdif()] and [canlw()]
 #'
@@ -346,7 +346,7 @@ cansw <- function(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
                   hourly = FALSE, watts = TRUE, merid = round(long / 15, 0) * 15,
                   dst = 0, corr = 1, tme = NA, clump = 0) {
   if (class(tme)[1] != "logical") {
-    jd <- julday(tme = tme)
+    jd <- jday(tme = tme)
     localtime <- tme$hour + tme$min / 60 + tme$sec / 3600
     dst <- 0
     merid <- 0

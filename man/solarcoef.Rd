@@ -18,7 +18,7 @@ solarcoef(slope, aspect, localtime, lat, long, jd, merid = round(long/15,
 
 \item{long}{longitude of the location for which the solar index is required (decimal degrees, -ve west of Greenwich meridian).}
 
-\item{jd}{integer representing the Julian day as returned by \code{\link[=julday]{julday()}}.}
+\item{jd}{integer representing the Julian day as returned by \code{\link[=jday]{jday()}}.}
 
 \item{merid}{optional value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT). Default is \code{round(long / 15, 0) * 15}}
 
@@ -35,7 +35,7 @@ incident on an inclined surface at a specified time and location.
 }
 \examples{
 library(raster)
-jd <- julday (2010, 6, 21) # Julian day
+jd <- jday (2010, 6, 21) # Julian day
 lt <- c(0:2400) / 100
 si <- solarcoef(0, 0, lt, 50, -5, jd)
 plot(si ~ lt, type = "l")

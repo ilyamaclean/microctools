@@ -14,7 +14,7 @@ cansw(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
 \item{dp}{optional numeric value or vector of values indicating the proportion of \code{globarad} that is diffuse.
 If no value is provided, calculated using \code{\link[=difprop]{difprop()}}}
 
-\item{jd}{the Julian day as returned by \code{\link[=julday]{julday()}}}
+\item{jd}{the Julian day as returned by \code{\link[=jday]{jday()}}}
 
 \item{localtime}{a single numeric value representing local time (decimal hour, 24 hour clock)}
 
@@ -58,7 +58,7 @@ the ground without being obscured by leaves.
 }
 \examples{
 l <- c(0:1000)/100
-sw <- cansw(500, dp = 0.5, julday(2020, 6, 21), 12, 50, -5, l, 1)
+sw <- cansw(500, dp = 0.5, jday(2020, 6, 21), 12, 50, -5, l, 1)
 plot(sw ~ l, type = "l")
 }
 \seealso{

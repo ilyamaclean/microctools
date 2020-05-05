@@ -11,7 +11,7 @@ solartime(localtime, long, jd, merid = round(long/15, 0) * 15, dst = 0)
 
 \item{long}{longitude of the location for which the solar time is required (decimal degrees, -ve west of Greenwich meridian).}
 
-\item{jd}{Julian day expressed as an integer as returned by \code{\link[=julday]{julday()}}.}
+\item{jd}{Julian day expressed as an integer as returned by \code{\link[=jday]{jday()}}.}
 
 \item{merid}{an optional numeric value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT).}
 
@@ -32,6 +32,6 @@ that vary over geological timescales. The equations used here are those derived 
 local are used, with the meridian set to round(long / 15, 0) * 15.
 }
 \examples{
-jd <- julday (2010, 6, 21) # Julian day
+jd <- jday (2010, 6, 21) # Julian day
 solartime(12, -5, jd) # solartime at noon on 21 June 2010, 5ºW
 }

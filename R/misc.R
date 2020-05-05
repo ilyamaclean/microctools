@@ -203,7 +203,7 @@ hourlyncep_convert <- function(climdata, lat, long) {
                                            tc = climdata$temperature,
                                            pk = pres)$relative)
   relhum[relhum > 100] <- 100
-  jd<-julday(tme = tme)
+  jd<-jday(tme = tme)
   lt <- tme$hour + tme$min/60 + tme$sec/3600
   si<-solarcoef(0, 0, lt, lat, long, jd, merid = 0)
   raddr<-(climdata$rad_dni * si) / 0.0036

@@ -10,7 +10,7 @@ difprop(rad, jd, localtime, lat, long, hourly = FALSE, watts = TRUE,
 \arguments{
 \item{rad}{a vector of incoming shortwave radiation values (either \ifelse{html}{\out{MJ m<sup>-2</sup> hr<sup>-1</sup>}}{\eqn{MJ m^{-2} hr^{-1}}} or \ifelse{html}{\out{W m<sup>-2</sup>}}{\eqn{W m^{-2}}})}
 
-\item{jd}{the Julian day as returned by \code{\link[=julday]{julday()}}}
+\item{jd}{the Julian day as returned by \code{\link[=jday]{jday()}}}
 
 \item{localtime}{a single numeric value representing local time (decimal hour, 24 hour clock)}
 
@@ -45,7 +45,7 @@ hourly data are unavailable, an average variability is determined from radiation
 }
 \examples{
 rad <- c(5:42) / 0.036 # typical values of radiation in W/m^2
-jd <- julday(2017, 6, 21) # julian day
+jd <- jday(2017, 6, 21) # julian day
 dfr <- difprop(rad, jd, 12, 50, -5)
 plot(dfr ~ rad, type = "l", lwd = 2, xlab = "Incoming shortwave radiation",
      ylab = "Diffuse fraction")

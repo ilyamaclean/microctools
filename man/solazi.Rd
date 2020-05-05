@@ -14,7 +14,7 @@ solazi(localtime, lat, long, jd, merid = round(long/15, 0) * 15,
 
 \item{long}{longitude of the location for which the solar azimuth is required (decimal degrees, -ve west of Greenwich meridian).}
 
-\item{jd}{Julian day expressed as an integer as returned by \code{\link[=julday]{julday()}}.}
+\item{jd}{Julian day expressed as an integer as returned by \code{\link[=jday]{jday()}}.}
 
 \item{merid}{optional  value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT). Default is \code{round(long / 15, 0) * 15}}
 
@@ -28,6 +28,6 @@ a numeric value or vector of values representing the solar azimuth (decimal degr
 }
 \examples{
 # solar azimuth at noon on 21 June 2010, Porthleven, Cornwall, UK
-jd <- julday (2010, 6, 21) # Julian day
+jd <- jday (2010, 6, 21) # Julian day
 solazi(12, 50.08, -5.31, jd)
 }
