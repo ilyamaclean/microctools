@@ -509,13 +509,13 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 }
 #' Returns PAI for multiple years
 .PAI.sort <- function(habitat, lat, long, tme) {
-  tme<-.tme.sort(tme)
+  tme2<-.tme.sort(tme)
   lai<-0; ota<-as.POSIXlt(0,origin="1970-01-01 00:00",tz="UTC")
-  yrs<-unique(tme$year) +1900
+  yrs<-unique(tme2$year) +1900
   for (i in 1:length(yrs)) {
     pai <- PAIfromhabitat(habitat, lat, long, yrs[i])
-    sel<-which(tme$year+1900 == yrs[i])
-    tme1<-tme[sel]
+    sel<-which(tme2$year+1900 == yrs[i])
+    tme1<-tme2[sel]
     tmemn<-as.numeric(min(tme1))
     tmemx<-as.numeric(max(tme1))
     ot<-as.numeric(pai$obs_time)
@@ -527,8 +527,16 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   }
   lai<-lai[-1]; ota<-ota[-1]
   ota<-as.POSIXlt(as.numeric(ota),origin="1970-01-01 00:00",tz="UTC")
-  pai$lai<-lai
-  pai$obs_time<-ota
+  # spline to correct time interval
+  int <- as.numeric(tme[2])-as.numeric(tme[1])
+  n <- (length(ota)-1)*(3600/(int))+1
+  ota2<-stats::spline(ota~ota,n=n)$y
+  lai2<-stats::spline(lai~ota,n=n)$y
+  tz <- attr(tme,"tzone")
+  ota2<-as.POSIXlt(ota2,origin="1970-01-01 00:00",tz=tz)
+  sel <- which(ota2 >= tme[1])[1:length(tme)]
+  pai$lai<-lai2[sel]
+  pai$obs_time<-tme
   pai
 }
 #' generates PAI and pLAI for a given habitat type
@@ -558,9 +566,8 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
         PAIu<-PAI*0
       }
     } else {
-      tmeh<-.tme.sort(tme)
       x<-c(1:length(PAIt))
-      PAIt<-spline(x,PAIt,n=length(tmeh))$y
+      PAIt<-spline(x,PAIt,n=length(tme))$y
       PAIo<-PAIgeometry(m, max(PAIt) * (1 - wgt), skew, spread)
       rat<-0
       if (under) {
@@ -665,15 +672,14 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 #' @return `clump` Clumpiness factor for canopy (0-1)
 #' @details if `tme` is a single value `PAI` and `pLAI` are vectors of length `m` giving
 #' Plant Area Index values and proportions of green vegetation for each canopy node `m`.
-#' If `tme` is a vector of times, `PAI` and `pLAI` are arrays of dimension m x number of
-#' hours. I.e. seperate `PAI` and `pLAI` values are derived for each hour and node. If `tme`
-#' is not in hourly time increments, it is conveted to hourly time increments, from 00:00 hrs
-#' on the first day toup to and including 23:00 hrs on the final day. If `PAIt` is provided,
-#' and a single value, then the length of `tme` is ignored and returned `PAI` is a vector of values for
-#' each node. If `PAIt` is a vector of values of length `m` then seasonally adjusted values for
-#' each node and hour of `tme` are returned. If `PAIt` is a vector of values of any length
-#' other than `m` spline interpolated values for each node and hour of `tme` are returned.
-#' If `PAIt` is NA (the default) PAI is estimated from habitat and location using [PAIfromhabitat()].
+#' If `tme` is a vector of times, `PAI` and `pLAI` are arrays of dimension m x length(tme).
+#' I.e. seperate `PAI` and `pLAI` values are derived for each time interval and node. If
+#' `PAIt` is provided, and a single value, then the length of `tme` is ignored and returned
+#' `PAI` is a vector of values for each node. If `PAIt` is a vector of values of length `m`
+#' then seasonally adjusted values for each node and time inteval of `tme` are returned. If
+#' `PAIt` is a vector of values of any length other than `m` spline interpolated values for
+#' each node and time interval of `tme` are returned. If `PAIt` is NA (the default) PAI is
+#' estimated from habitat and location using [PAIfromhabitat()].
 #' @export
 habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   # By habitat type

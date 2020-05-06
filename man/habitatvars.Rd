@@ -73,13 +73,12 @@ from habitat type.
 \details{
 if \code{tme} is a single value \code{PAI} and \code{pLAI} are vectors of length \code{m} giving
 Plant Area Index values and proportions of green vegetation for each canopy node \code{m}.
-If \code{tme} is a vector of times, \code{PAI} and \code{pLAI} are arrays of dimension m x number of
-hours. I.e. seperate \code{PAI} and \code{pLAI} values are derived for each hour and node. If \code{tme}
-is not in hourly time increments, it is conveted to hourly time increments, from 00:00 hrs
-on the first day toup to and including 23:00 hrs on the final day. If \code{PAIt} is provided,
-and a single value, then the length of \code{tme} is ignored and returned \code{PAI} is a vector of values for
-each node. If \code{PAIt} is a vector of values of length \code{m} then seasonally adjusted values for
-each node and hour of \code{tme} are returned. If \code{PAIt} is a vector of values of any length
-other than \code{m} spline interpolated values for each node and hour of \code{tme} are returned.
-If \code{PAIt} is NA (the default) PAI is estimated from habitat and location using \code{\link[=PAIfromhabitat]{PAIfromhabitat()}}.
+If \code{tme} is a vector of times, \code{PAI} and \code{pLAI} are arrays of dimension m x length(tme).
+I.e. seperate \code{PAI} and \code{pLAI} values are derived for each time interval and node. If
+\code{PAIt} is provided, and a single value, then the length of \code{tme} is ignored and returned
+\code{PAI} is a vector of values for each node. If \code{PAIt} is a vector of values of length \code{m}
+then seasonally adjusted values for each node and time inteval of \code{tme} are returned. If
+\code{PAIt} is a vector of values of any length other than \code{m} spline interpolated values for
+each node and time interval of \code{tme} are returned. If \code{PAIt} is NA (the default) PAI is
+estimated from habitat and location using \code{\link[=PAIfromhabitat]{PAIfromhabitat()}}.
 }
