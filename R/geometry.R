@@ -529,10 +529,10 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   ota<-as.POSIXlt(as.numeric(ota),origin="1970-01-01 00:00",tz="UTC")
   # spline to correct time interval
   int <- as.numeric(tme[2])-as.numeric(tme[1])
-  n <- (length(ota)-1)*(3600/(int))+1
+  n <- (length(ota)-1)*(3600/(int))+1; n<-round(m,0)
   ota2<-stats::spline(ota~ota,n=n)$y
   lai2<-stats::spline(lai~ota,n=n)$y
-  tz <- attr(tme,"tzone")
+  tz <- attr(tme,"tzone")[1]
   ota2<-as.POSIXlt(ota2,origin="1970-01-01 00:00",tz=tz)
   sel <- which(ota2 >= tme[1])[1:length(tme)]
   pai$lai<-lai2[sel]
