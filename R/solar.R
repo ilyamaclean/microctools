@@ -443,4 +443,6 @@ psunlit <- function(l, x, sa, clump = 0) {
   Lp <- Ls/l
   Lp <- (1 - clump) * Lp + clump * 1
   Lp
+  Lp[is.na(Lp)]<-1
+  Lp
 }
