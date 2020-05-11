@@ -193,7 +193,7 @@ cantransdir <- function(l, x, sa, ref = 0.5, clump = 0) {
   s <- sqrt(1 - ref)
   ks <- k * s
   tr <- exp(-ks * l * f)
-  tr <- (1 - clump) * tr + clump * 1
+  tr <- (1 - clump) * tr + clump
   tr
 }
 #' Calculates diffuse radiation transmission through vegetated canopies
@@ -212,7 +212,7 @@ cantransdif <- function(l, ref = 0.25, clump = 0) {
   f <- 1 / (1 - clump)
   s <- sqrt(1 - ref)
   tr <- exp(-s * l * f)
-  tr <- (1 - clump) * tr + clump * 1
+  tr <- (1 - clump) * tr + clump
   tr
 }
 #' Calculates the diffuse fraction from incoming shortwave radiation
@@ -391,7 +391,7 @@ canlw <- function(tc, l, ref = 0.03, skyem = 0.9, clump = 0) {
   lwout <- (1 - ref) * 5.67 * 10^-8 * (tc + 273.15) ^ 4
   s <- sqrt(1 - ref)
   tr <- exp(-s * l * f)
-  tr <- (1 - clump) * tr + clump * 1
+  tr <- (1 - clump) * tr + clump
   lwcan <- (1 - tr) * lwout
   lwsky <- skyem * tr^2 * lwout
   lwin <- lwcan + lwsky
@@ -441,7 +441,7 @@ psunlit <- function(l, x, sa, clump = 0) {
   K <- sqrt(x^2+tan(ze*(pi/180))^2)/(x+1.1774*(x+1.1182)^-(0.733))
   Ls<-(1-exp(-K*l*f))/K
   Lp <- Ls/l
-  Lp <- (1 - clump) * Lp + clump * 1
+  Lp <- (1 - clump) * Lp + clump
   Lp
   Lp[is.na(Lp)]<-1
   Lp
