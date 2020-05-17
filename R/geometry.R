@@ -528,7 +528,9 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   lai<-lai[-1]; ota<-ota[-1]
   ota<-as.POSIXlt(as.numeric(ota),origin="1970-01-01 00:00",tz="UTC")
   # spline to correct time interval
-  int <- as.numeric(tme[2])-as.numeric(tme[1])
+  if (length(tme) > 1) {
+    int <- as.numeric(tme[2])-as.numeric(tme[1])
+  } else int <- 3600
   n <- (length(ota)-1)*(3600/(int))+1
   n<-round(n,0)
   ota2<-stats::spline(ota~ota,n=n)$y
