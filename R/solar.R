@@ -258,7 +258,7 @@ difprop <- function(rad, jd, localtime, lat, long, hourly = FALSE,
   si <- cos(pi / 2 - alt)
   si[si < 0] <- 0
   k <- rad / (4.87 * si)
-  k[is.na(k)] <- 0
+  k[!is.finite(k)] <- 0
   k <- ifelse(k > k1, k1, k)
   k[k < 0] <- 0
   rho <- k / k1
@@ -303,7 +303,7 @@ difprop <- function(rad, jd, localtime, lat, long, hourly = FALSE,
   d <- dif_val_adj /rad
   d[d > 1] <- 1
   d[d < 0] <- 1
-  d[is.na(d)] <- 0.5
+  d[!is.finite(d)] <- 0.5
   d
 }
 #' Calculates radiation received under vegetated canopies
