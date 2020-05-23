@@ -51,15 +51,19 @@ roughlength <- function(hgt, PAI = 3, zm0 = 0.004) {
 #' @param tc temperature (deg C)
 #' @param dtc estimate of temperature differences of surface and air, e.g.
 #' from previous time step (see details)
-#' @param pk atompsheric pressure (KPa). used for calculating molar density
-#' of air.
+#' @param pk atmospheric pressure (KPa). used for calculating molar density
+#' of air
+#' @param dtmin minimum tmeperature difference for calculating minimum conductance (see differenc)
 #' @return conductance (mol / m^2 / sec)
 #' @export
 #'
 #' @details Calculates conductance under forced and free convection and selects
 #' whichever is greater. For conductance under free convection an estimate of
 #' the temperature difference between the air and  surface is needed (usually
-#' from the previous timestep)
+#' from the previous timestep). Because the temperature difference in the previous
+#' timestep is used when conductance is under free convection, the model can de-stabalise
+#' as dtc approaches 0, leading to very low conductance and very high temperature differences in the current timestep. The parameter
+#' dtmin sets a minimum temperature difference, and prevents conductance being too low.
 #'
 #' @examples
 #' # As function of `d`
@@ -70,7 +74,9 @@ roughlength <- function(hgt, PAI = 3, zm0 = 0.004) {
 #' u <- c(1:200)/100
 #' g<-gforcedfree(0.1,u,11,4)
 #' plot(g~u, type = "l")
-gforcedfree <- function(d, u, tc, dtc, pk = 101.3) {
+gforcedfree <- function(d, u, tc, dtc, pk = 101.3, dtmin = 1) {
+  # sets temperature difference for minimum conductance
+  dtc <-ifelse(dtc < dtmin, dtmin, dtc)
   # Reynolds etc
   tk <- tc + 273.15
   v <- (0.0908 * tk - 11.531) / 1000000
@@ -85,7 +91,7 @@ gforcedfree <- function(d, u, tc, dtc, pk = 101.3) {
   # Free
   m <- ifelse(dtc > 0, 0.54, 0.26)
   ghfr <- (m * ph * Dh * (Gr * Pr) ^ (1/4)) / d
-  # Set to wichever is higher
+  # Set to whichever is higher
   gh <- ifelse(gh > ghfr, gh, ghfr)
   gh
 }
