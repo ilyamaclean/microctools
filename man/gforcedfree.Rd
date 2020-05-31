@@ -4,7 +4,7 @@
 \alias{gforcedfree}
 \title{Calculates forced or free laminer conductance}
 \usage{
-gforcedfree(d, u, tc, dtc, pk = 101.3)
+gforcedfree(d, u, tc, dtc, pk = 101.3, dtmin = 1)
 }
 \arguments{
 \item{d}{chacteristic dimension of surface (m)}
@@ -16,8 +16,10 @@ gforcedfree(d, u, tc, dtc, pk = 101.3)
 \item{dtc}{estimate of temperature differences of surface and air, e.g.
 from previous time step (see details)}
 
-\item{pk}{atompsheric pressure (KPa). used for calculating molar density
-of air.}
+\item{pk}{atmospheric pressure (KPa). used for calculating molar density
+of air}
+
+\item{dtmin}{minimum tmeperature difference for calculating minimum conductance (see differenc)}
 }
 \value{
 conductance (mol / m^2 / sec)
@@ -29,7 +31,10 @@ Calculates forced or free laminer conductance
 Calculates conductance under forced and free convection and selects
 whichever is greater. For conductance under free convection an estimate of
 the temperature difference between the air and  surface is needed (usually
-from the previous timestep)
+from the previous timestep). Because the temperature difference in the previous
+timestep is used when conductance is under free convection, the model can de-stabalise
+as dtc approaches 0, leading to very low conductance and very high temperature differences in the current timestep. The parameter
+dtmin sets a minimum temperature difference, and prevents conductance being too low.
 }
 \examples{
 # As function of `d`

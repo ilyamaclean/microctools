@@ -693,7 +693,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.4,0.7,0.1)
-    iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
+    iw <- iwgeometry(m, iwmin = 0.8, iwmax = 1.2)
     refls = 0.25 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.3 #  Reflectivity of leaves to PAR
@@ -713,7 +713,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.55, 1,0.2)
-    iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
+    iw <- iwgeometry(m, iwmin = 0.8, iwmax = 1.2)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
@@ -733,7 +733,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.4,0.7,0.1)
-    iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
+    iw <- iwgeometry(m, iwmin = 0.8, iwmax = 1.2)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.25 #  Reflectivity of leaves to PAR
@@ -753,7 +753,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.5, 0.6,0.15)
-    iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
+    iw <- iwgeometry(m, iwmin = 0.8, iwmax = 1.2)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
@@ -773,7 +773,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.45,0.65,0.12)
-    iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
+    iw <- iwgeometry(m, iwmin = 0.8, iwmax = 1.2)
     refls = 0.28 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.25 #  Reflectivity of leaves to PAR
@@ -792,7 +792,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.5,0.05)
-    iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
+    iw <- iwgeometry(m, iwmin = 0.4, iwmax = 0.9)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
@@ -823,7 +823,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.2,0.3,0.1)
-    iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
+    iw <- iwgeometry(m, iwmin = 0.5, iwmax = 0.98)
     refls = 0.35 # reflectivity (shortwave radiation) of leaves
     refw = 0.2 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
@@ -918,7 +918,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.5, 0.6,0.15)
-    iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
+    iw <- iwgeometry(m, iwmin = 0.6, iwmax = 1.4)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
@@ -937,7 +937,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     PAI<-pl$PAI
     pLAI<-pl$pLAI
     thickw <- thickgeometry(m, 0.35,0.5,0.02)
-    iw <- iwgeometry(m, iwmin = 0.36, iwmax = 0.9)
+    iw <- iwgeometry(m, iwmin = 0.5, iwmax = 0.98)
     refls = 0.3 # reflectivity (shortwave radiation) of leaves
     refw = 0.1 # reflectivity (shortwave radiation) of woody vegetation
     reflp = 0.2 #  Reflectivity of leaves to PAR
