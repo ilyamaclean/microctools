@@ -87,3 +87,70 @@ layercond <- function(Rsw, gsmax, q50 = 100) {
   gs <- (gsmax * rpar) / (rpar + q50)
   gs
 }
+#' Calculate saturated vapour pressure
+#'
+#' @description Calculates saturated vapour pressure
+#' @param tc temperature (degrees C)
+#' @param ice optional logical indicating whether to calculate saturated vapour pressure
+#' over ice (TRUE = Yes)
+#' @return saturated vapour pressure (kPa)
+#' @export
+#' @examples
+#' # Plot saturated vapour pressure curve
+#' tc <- c(-20:30)
+#' es <- satvap(tc)
+#' plot(es~tc, type = "l")
+#' # Difference between saturated vapour pressure of water and ice
+#' tc <- c(-50:0)
+#' es1 <- satvap(tc)
+#' es2 <- satvap(tc, ice = TRUE)
+#' plot(es1 ~ tc, type = "l", lwd = 2, ylim = c(0,0.7), col = "red")
+#' par(new = T)
+#' plot(es2 ~ tc, type = "l", lwd = 2, ylim = c(0,0.7), col = "blue")
+satvap <- function(tc, ice = FALSE) {
+  if (ice) {
+    e0 <- 610.78/1000
+    L <- 2.834*10^6
+    T0 <- 273.16
+  } else {
+    e0 <- 611.2/1000
+    L <- (2.501*10^6) - (2340 * tc)
+    T0 <- 273.15
+  }
+  Rv <- 461.5
+  estl <- e0 * exp((L / Rv) * (1/T0 - 1/(tc + 273.15)))
+  estl
+}
+#' Calculates dew point temperature
+#'
+#' @description Calculates  dew or frost point temperature
+#' @param ea vapour pressure (kPa)
+#' @param air temperature (degrees C)
+#' @param ice optional logical indicating whether to return frost point temperature if output
+#' is less than zero degrees C (TRUE = yes)
+#' @return dew or frost point temperature (degrees C)
+#' @examples
+#' # Comparison of forst and dew point
+#' ea <- c(10:100) / 50
+#' tdew <- dewpoint(ea, ice = F)
+#' tfrost <- dewpoint(ea)
+#' plot(tfrost~ea, type = "l", col = "blue", ylim = c(-20,20))
+#' par(new = T)
+#' plot(tdew~ea, type = "l", col = "red", ylim = c(-20,20))
+dewpoint <- function(ea, tc = 11, ice = TRUE) {
+  e0 <- 611.2/1000
+  L <- (2.501*10^6) - (2340 * tc)
+  T0 <- 273.15
+  Rv <- 461.5
+  it <- 1/T0 - (Rv/L) * log(ea/e0)
+  Tdew <- 1/it - 273.15
+  if (ice) {
+    e0 <- 610.78/1000
+    L <- 2.834*10^6
+    T0 <- 273.16
+    it <- 1/T0 - (Rv/L) * log(ea/e0)
+    Tfrost <- 1/it - 273.15
+    Tdew[Tdew < 0] <- Tfrost[Tdew < 0]
+  }
+  Tdew
+}
