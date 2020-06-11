@@ -216,3 +216,45 @@ hourlyncep_convert <- function(climdata, lat, long) {
                         winddir = climdata$winddir)
   weather
 }
+#' Simulates wind gusts
+#'
+#' @description `winsim` simulates a hih temporal resoltuion time series of wind speeds
+#' that it includes wind gust
+#' @param u a vector of wind speeds (m/s)
+#' @param timestepin duration of time interval between sucessive values of u (s)
+#' @param timestepout duration of time interval between sucessive values of simulated wind speed (s)
+#' @param gustduration mean duration of wind gusts
+#' @param stability a stability value indicating how variable wind speeds are (1 = very gusty, 3 = fairly stable)
+#' @return a vector os simulated wind speeds, incoporating gustiness.
+#'
+#' @examples
+#' u <- c(3.6, 6.2, 8.2, 9.3)
+#' ws <- windsim(u)
+#' par(mfrow = c(2, 1))
+#' plot(u, type = "l", ylim = c(0,30))
+#' plot(ws, type = "l", ylim = c(0,30))
+#'
+#' @export
+#' @importFrom stats spline
+windsim <- function(u, timestepin = 3600, timestepout = 1, gustduration = 30, stability = 2) {
+  wo<-0
+  ws<-rweibull(10000, stability, scale = u[1])
+  m <- u[1]/mean(ws)
+  n <- timestepin / gustduration
+  if (n%%1 != 0) {
+    warning("timestep is not a multiple of gustduration in\n")
+    n<-round(n, 0)
+    gdr <- timestepin/n
+    warning(paste("gustduration changed to",gdr,"\n"))
+  }
+  wsm <- 0
+  for (i in 1:length(u)) {
+    ws <- rweibull(n, stability, scale = u[i]) * m
+    wsm <- c(wsm, ws)
+  }
+  wsm <- wsm[-1]
+  no <- timestepin * length(u) * n
+  wso<-spline(wsm~c(1:length(wsm)), n = no)$y
+  wso[wso<0] <- 0
+  wso
+}
