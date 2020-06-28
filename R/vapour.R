@@ -129,6 +129,7 @@ satvap <- function(tc, ice = FALSE) {
 #' @param ice optional logical indicating whether to return frost point temperature if output
 #' is less than zero degrees C (TRUE = yes)
 #' @return dew or frost point temperature (degrees C)
+#' @export
 #' @examples
 #' # Comparison of forst and dew point
 #' ea <- c(10:100) / 50
