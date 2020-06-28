@@ -137,7 +137,7 @@ Radabs <- function(dni, dif, si, tair, tground, l, d, theta, refsw = 0.5, em = 0
 #' @param tair temperature of air surrounding organism (deg C)
 #' @param ea Vapour pressur eof air surrounding organism (kPa)
 #' @param pk Atmospheric pressure (kPa)
-#' @param surfwet Proportion of surface area acting like a free‐water surface
+#' @param surfwet Fraction of surface area acting like a free‐water surface
 #' @param em thermal emissivity
 #' @param fluxother Fluxe sother than radiation, sensible and latent heat operating on
 #' organism (W / m^2). Positive if warming organism (e.g. metabolism), negative if leaving
