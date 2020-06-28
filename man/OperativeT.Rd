@@ -20,7 +20,7 @@ OperativeT(Rabs, gH, gV, tair, ea, pk = 101.3, surfwet = 1,
 
 \item{pk}{Atmospheric pressure (kPa)}
 
-\item{surfwet}{Proportion of surface area acting like a free‐water surface}
+\item{surfwet}{Fraction of surface area acting like a free‐water surface}
 
 \item{em}{thermal emissivity}
 
