@@ -168,7 +168,7 @@ Radabs <- function(dni, dif, si, tair, tground, l, d, theta, refsw = 0.5, em = 0
 #' plot(OT3 ~ Rabs, type = "l", ylim = c(0,40), col = "red", lwd = 2)
 OperativeT <- function(Rabs, gH, gV, tair, ea, pk = 101.3, surfwet = 1, em = 0.97,
                        fluxother = 0, method = "iter") {
-  Balance <- function(Tb, sb, em, cp, gH, gV, lambda, surfwet, ea, pk, fluxother) {
+  Balance <- function(Rabs, Tb, sb, em, cp, gH, gV, lambda, surfwet, ea, pk, fluxother) {
     estb <- 0.6108*exp(17.27*Tb/(Tb+237.3))
     Rem <- sb*em*(Tb+273.15)^4
     HH <- cp*gH*(Tb-tair)
@@ -208,7 +208,7 @@ OperativeT <- function(Rabs, gH, gV, tair, ea, pk = 101.3, surfwet = 1, em = 0.9
     x<-c(1:20)
     for (i in x) {
       Tb<-i*10-50
-      B[i] <- Balance(Tb,sb,em,cp,gH,gV,lambda,surfwet,ea,pk,fluxother)
+      B[i] <- Balance(Rabs,Tb,sb,em,cp,gH,gV,lambda,surfwet,ea,pk,fluxother)
     }
     sel<-max(which(B>0))
     Tb10<-x[sel]*10-50
@@ -216,28 +216,28 @@ OperativeT <- function(Rabs, gH, gV, tair, ea, pk = 101.3, surfwet = 1, em = 0.9
     x<-c(-2:9)
     for (i in x) {
       Tb <- Tb10+i
-      B[i+3] <- Balance(Tb,sb,em,cp,gH,gV,lambda,surfwet,ea,pk,fluxother)
+      B[i+3] <- Balance(Rabs,Tb,sb,em,cp,gH,gV,lambda,surfwet,ea,pk,fluxother)
     }
     sel<-max(which(B>0))
     Tb1<-Tb10+x[sel]
     B<-0
     for (i in x) {
       Tb <- Tb1+i/10
-      B[i+3] <- Balance(Tb,sb,em,cp,gH,gV,lambda,surfwet,ea,pk,fluxother)
+      B[i+3] <- Balance(Rabs,Tb,sb,em,cp,gH,gV,lambda,surfwet,ea,pk,fluxother)
     }
     sel<-max(which(B>0))
     Tb2<-Tb1+x[sel]/10
     B<-0
     for (i in x) {
       Tb <- Tb2+i/100
-      B[i+3] <- Balance(Tb,sb,em,cp,gH,gV,lambda,surfwet,ea,pk,fluxother)
+      B[i+3] <- Balance(Rabs,Tb,sb,em,cp,gH,gV,lambda,surfwet,ea,pk,fluxother)
     }
     sel<-max(which(B>0))
     Tb3<-Tb2+x[sel]/100
     B<-0
     for (i in x) {
       Tb <- Tb3+i/1000
-      B[i+3] <- Balance(Tb,sb,em,cp,gH,gV,lambda,surfwet,ea,pk,fluxother)
+      B[i+3] <- Balance(Rabs,Tb,sb,em,cp,gH,gV,lambda,surfwet,ea,pk,fluxother)
     }
     sel<-which(abs(B)==min(abs(B)))
     OT<-Tb3+x[sel]/1000
