@@ -689,6 +689,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   pai<-PAIfromhabitat(habitat,lat,long,2010)
   if (habitat == "Evergreen needleleaf forest" | habitat == 1) {
     m2 <- round((1/15)*m,0)
+    m2<-ifelse(m2<1,1,m2)
     pl<-.habgen(1,lat,long,tme,PAIt,m,m2,7.5,70,0.75)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
@@ -709,6 +710,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Evergreen broadleaf forest" | habitat == 2) {
     m2 <- round((4/20)*m,0)
+    m2<-ifelse(m2<1,1,m2)
     pl<-.habgen(2,lat,long,tme,PAIt,m,m2,6.5,70,0.8)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
@@ -729,6 +731,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Deciduous needleleaf forest" | habitat == 3) {
     m2 <- round((1/10)*m,0)
+    m2<-ifelse(m2<1,1,m2)
     pl<-.habgen(3,lat,long,tme,PAIt,m,m2,7.5,70,0.75)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
@@ -749,6 +752,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Deciduous broadleaf forest" | habitat == 4) {
     m2 <- round((2/15)*m,0)
+    m2<-ifelse(m2<1,1,m2)
     pl<-.habgen(4,lat,long,tme,PAIt,m,m2,6.5,70,0.775)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
@@ -769,6 +773,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Mixed forest" | habitat == 5) {
     m2 <- round((1.5/10)*m,0)
+    m2<-ifelse(m2<1,1,m2)
     pl<-.habgen(5,lat,long,tme,PAIt,m,m2,7,70,0.775)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
@@ -819,6 +824,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Woody savannas" | habitat == 8) {
     m2<-round((0.75/3)*m,0)
+    m2<-ifelse(m2<1,1,m2)
     pl<-.habgen(8,lat,long,tme,PAIt,m,m2,6.5,70,0.75)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
@@ -914,6 +920,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
   }
   if (habitat == "Urban and built-up" | habitat == 14) {
     m2 <- round((0.5/1.5) * m, 0)
+    m2<-ifelse(m2<1,1,m2)
     pl<-.habgen(14,lat,long,tme,PAIt,m,m2,6.5,70,0.75)
     PAI<-pl$PAI
     pLAI<-pl$pLAI
