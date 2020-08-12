@@ -180,7 +180,7 @@ gturb <- function(u, zu = 2, z1, z0 = NA, hgt, PAI= 3, tc = 15,
 #' @param tc1 temperature of upper layer (dec C) usually in previous timestep
 #' @param tc0 temperature of lower layer (dec C) usually in previous timestep
 #' @param hgt height of canopy (m)
-#' @param PAI plant area index formixing and attenuation coefficients
+#' @param PAI plant area index for mixing and attenuation coefficients
 #' @param x the ratio of vertical to horizontal projections of leaf foliage
 #' @param lw mean leaf width (m)
 #' @param cd drag coefficient
