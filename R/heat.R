@@ -205,7 +205,7 @@ gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
   Kmin <- (iw * l_m^2 * 3 / 0.74)^ (2/3) *  ((4.6 * dTdz) / (tcm + 273.15))^0.5
   gmin <- (Kmin * ph) / (z1 - z0)
   g <- ifelse(g < gmin, gmin, g)
-  g[is.na(g)] <- gmin
+  g[is.na(g)] <- mean(gmin,na.rm=T)
   g
 }
 #' Calculates diabatic correction factor above canopy
