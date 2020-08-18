@@ -30,3 +30,6 @@ a list with the following components:
 Calculates the diabatic correction factors used in adjustment of
 wind profiles and calculation of turbulent conductivity above canopy
 }
+\seealso{
+\code{\link[=diabatic.approx]{diabatic.approx()}}
+}
