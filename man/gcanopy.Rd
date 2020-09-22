@@ -20,7 +20,7 @@ gcanopy(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
 
 \item{hgt}{height of canopy (m)}
 
-\item{PAI}{plant area index formixing and attenuation coefficients}
+\item{PAI}{plant area index for mixing and attenuation coefficients}
 
 \item{x}{the ratio of vertical to horizontal projections of leaf foliage}
 

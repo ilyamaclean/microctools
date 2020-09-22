@@ -180,7 +180,7 @@ gturb <- function(u, zu = 2, z1, z0 = NA, hgt, PAI= 3, tc = 15,
 #' @param tc1 temperature of upper layer (dec C) usually in previous timestep
 #' @param tc0 temperature of lower layer (dec C) usually in previous timestep
 #' @param hgt height of canopy (m)
-#' @param PAI plant area index formixing and attenuation coefficients
+#' @param PAI plant area index for mixing and attenuation coefficients
 #' @param x the ratio of vertical to horizontal projections of leaf foliage
 #' @param lw mean leaf width (m)
 #' @param cd drag coefficient
@@ -205,7 +205,7 @@ gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
   Kmin <- (iw * l_m^2 * 3 / 0.74)^ (2/3) *  ((4.6 * dTdz) / (tcm + 273.15))^0.5
   gmin <- (Kmin * ph) / (z1 - z0)
   g <- ifelse(g < gmin, gmin, g)
-  g[is.na(g)] <- gmin
+  g[is.na(g)] <- mean(gmin,na.rm=T)
   g
 }
 #' Calculates diabatic correction factor above canopy
@@ -222,7 +222,7 @@ gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
 #' @return a list with the following components:
 #' @return `psi_m` diabatic correction factor for momentum transfer
 #' @return `psi_h` diabatic correction factor for heat transfer
-#'
+#' @seealso [diabatic.approx()]
 #' @export
 diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2, d) {
   Tk <- tc + 273.15
@@ -240,6 +240,84 @@ diabatic_cor <- function(tc, pk = 101.3, H = 0, uf, zi = 2, d) {
   psi_m <-ifelse(psi_m > 5, 5, psi_m)
   psi_h <-ifelse(psi_h > 5, 5, psi_h)
   return(list(psi_m = psi_m, psi_h = psi_h))
+}
+#' Calculates approximation of diabatic correction factor above canopy
+#'
+#' @description Calculates approximation of diabatic correction factor above canopy without
+#' using values in current time-step only.
+#' @param tc temperature (deg C)
+#' @param u wind speed at 2 m height
+#' @param H Heat flux (W / m^2)
+#' @param hgt hgt of canopy (m)
+#' @param zi height to which correction factor is wanted (m)
+#' @return a list with the following components:
+#' @return `psi_m` diabatic correction factor for momentum transfer
+#' @return `psi_h` diabatic correction factor for heat transfer
+#' @details The function `diabatic.approx` bi-passes the need to run microclimate
+#' models in hourly time-steps
+#' @seealso [diabatic_cor()] [diabatic_cor_can()]
+#' @export
+diabatic.approx <- function(tc, u, H, hgt, PAI, zi) {
+  diabfu<-function(tc,u,H,hgt,PAI,zi) {
+    wfa<-(0.0527*u^2-1.6741*u-5.4916)/(-7.113)
+    wfa[wfa<1]<-1
+    lwfb<-(0.1292*u+0.3979)/0.5271
+    a<-(1.9932*log(hgt)-8.046)*wfa
+    lb<- (-0.056*log(hgt)+0.2614)*lwfb
+    b<-1/(1+exp(-lb))
+    d<-zeroplanedis(hgt, PAI)
+    zm<-roughlength(hgt, PAI)
+    uf<-(u/0.4)/log(2/zm)
+    Hf<-H/(uf^3*(tc+273.15))
+    pshu<- -2*log((1+(1-a*Hf^b)^0.5)/2)
+    psmu<- 0.6*pshu
+    return(list(psi_m=psmu,psi_h=pshu))
+  }
+  diabfs<-function(tc,u,H,hgt,PAI,zi) {
+    p1<-6*log(1+3.733903*Hf^1.247703)
+    p2<-6*log(1+25.61992*Hf^1.88255)
+    p3<-6*log(1+7195*Hf^4.04)
+    wgt1<-1/abs(p1-0.25)
+    wgt2<-1/abs(p1-0.75)
+    wgt3<-1/abs(p1-1.5)
+    ws1<-wgt1+wgt2
+    wgt1<-wgt1/ws1
+    wgt2<-wgt2/ws1
+    pred1<-ifelse(p1<0.25,p1,wgt1*p1+wgt2*p2)
+    ws2<-wgt2+wgt3
+    wgt2<-wgt2/ws2
+    wgt3<-wgt3/ws2
+    pred2<-ifelse(p1<=1,wgt2*p2+wgt3*p3,p3)
+    pred<-ifelse(p1<=0.75,pred1,pred2)
+    pred<-pred*0.927
+    Pmult<- -0.043*log(PAI)+1.0018
+    Hmult<- -0.6168*hgt+1.2995
+    pshs<-pred*Pmult*Hmult
+    pshs<-ifelse(pshs>3,3,pshs)
+    psms<-pshs
+    return(list(psi_m=psms,psi_h=pshs))
+  }
+  diabf2<-function(tc,u,H,hgt,PAI,zi) {
+    db1<-diabfu(tc,u,H,hgt,PAI,zi)
+    db2<-diabfs(tc,u,H,hgt,PAI,zi)
+    psi_m<-db1$psi_m
+    psi_h<-db1$psi_h
+    sel<-which(H<0)
+    psi_m[sel]<-db2$psi_m[sel]
+    psi_h[sel]<-db2$psi_h[sel]
+    rath<-log((zi-d)/(0.2*zm))/log((2-d)/(0.2*zm))
+    ratm<-log((zi-d)/zm)/log((2-d)/zm)
+    psi_m<-psim*ratm
+    psi_h<-psih*rath
+    return(list(psi_m=psi_m,psi_h=psi_h))
+  }
+  db<-suppressWarnings(diabf2(tc,u,H,hgt,PAI,zi))
+  psi_m<-db$psi_m
+  psi_h<-db$psi_h
+  sel<-which(hgt>2)
+  psi_m[sel]<-0
+  psi_h[sel]<-0
+  return(list(psi_m=psi_m,psi_h=psi_h))
 }
 #' Calculates diabatic correction factor in canopy
 #'
