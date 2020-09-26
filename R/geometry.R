@@ -188,6 +188,8 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   }
   long <- ifelse(long > 180.9375, long - 360, long)
   long <- ifelse(long < -179.0625, long + 360, long)
+  lat <- ifelse(lat< -89.49406, -89.49406, lat)
+  lat <- ifelse(lat> 89.49406, 89.49406, lat)
   ll <- SpatialPoints(data.frame(x = long, y = lat))
   diy <- 366
   if (year%%4 == 0) diy <- 366
