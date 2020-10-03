@@ -345,6 +345,7 @@ diabatic_cor_can <- function(tc, uz, z, PAI, x = 1, lw = 0.05) {
   u<-(uz[2:length(uz)]+uz[1:(length(uz)-1)])/2
   Ri <- (9.81 / tk) * dtdz * (l_m / u)^2
   Ri[Ri > 0.15] <- 0.15
+  Ri[Ri <= -0.1120323] <- -0.112032
   st <- (0.74 * (1 + 8.926 * Ri) ^ 0.5 + 2 * 4.7 * Ri - 0.74) / (2 * 4.7 * (1 - 4.7 * Ri))
   sel <- which(dtdz <= 0) # unstable
   st[sel]<-Ri[sel]
