@@ -69,8 +69,9 @@ converthumidity <- function (h, intype = "relative", tc = 11, pk = 101.3) {
 #' @description Default values are for Clay-loam
 #' @export
 soilrh <- function(theta, b = 5.2, Psie = -2.6, Smax = 0.419, tc = 11) {
-  matric <- Psie*(theta/Smax)^-b
+  matric <- -Psie*(theta/Smax)^-b
   hr<-exp((0.018*matric)/(8.31*(tc+273.15)))
+  hr[hr>1]<-1
   hr
 }
 #' Calculate canopy layer vapour conductivity
