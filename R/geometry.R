@@ -687,6 +687,13 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 #' estimated from habitat and location using [PAIfromhabitat()].
 #' @export
 habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
+  # Check class of tme to prevent future failure
+  if (any(class(tme) != "POSIXlt")) {
+    try_convert <- try(tme<-as.POSIXlt(tme))
+    if (any(class(try_convert) == "try-error")) {
+      stop("tme must be provided as a single value or vector of POSIXlt objects")
+    }
+  }
   # By habitat type
   pai<-PAIfromhabitat(habitat,lat,long,2010)
   if (habitat == "Evergreen needleleaf forest" | habitat == 1) {
