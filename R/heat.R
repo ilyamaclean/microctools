@@ -163,8 +163,9 @@ gturb <- function(u, zu = 2, z1, z0 = NA, hgt, PAI= 3, tc = 15,
   if (is.na(z0)) z0 <- d + zh
   ph <- phair(tc, pk)
   cp <- cpair(tc)
+  lnr<-log((z1-d)/zh)/log((zu-d)/zh)-log((z0-d)/zh)/log((zu-d)/zh)
   ustr <- (0.4 * u) / (log((zu - d) / zm) + psi_m)
-  g <- (0.4 * ph * ustr) / (log((z1 - d) / (z0 - d)) + psi_h)
+  g <- (0.4 * ph * ustr) / (log((z1 - d) / (z0 - d)) + psi_h*lnr)
   Dh <- (0.1285 * (tc + 273.15) - 16.247) / 1000000
   zref <- d + zh
   gmin <- (ph * Dh) / (z1 - z0)

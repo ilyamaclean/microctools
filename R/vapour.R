@@ -69,8 +69,9 @@ converthumidity <- function (h, intype = "relative", tc = 11, pk = 101.3) {
 #' @description Default values are for Clay-loam
 #' @export
 soilrh <- function(theta, b = 5.2, Psie = -2.6, Smax = 0.419, tc = 11) {
-  matric <- Psie*(theta/Smax)^-b
+  matric <- -Psie*(theta/Smax)^-b
   hr<-exp((0.018*matric)/(8.31*(tc+273.15)))
+  hr[hr>1]<-1
   hr
 }
 #' Calculate canopy layer vapour conductivity
@@ -100,26 +101,9 @@ layercond <- function(Rsw, gsmax, q50 = 100) {
 #' tc <- c(-20:30)
 #' es <- satvap(tc)
 #' plot(es~tc, type = "l")
-#' # Difference between saturated vapour pressure of water and ice
-#' tc <- c(-50:0)
-#' es1 <- satvap(tc)
-#' es2 <- satvap(tc, ice = TRUE)
-#' plot(es1 ~ tc, type = "l", lwd = 2, ylim = c(0,0.7), col = "red")
-#' par(new = T)
-#' plot(es2 ~ tc, type = "l", lwd = 2, ylim = c(0,0.7), col = "blue")
-satvap <- function(tc, ice = FALSE) {
-  if (ice) {
-    e0 <- 610.78/1000
-    L <- 2.834*10^6
-    T0 <- 273.16
-  } else {
-    e0 <- 611.2/1000
-    L <- (2.501*10^6) - (2340 * tc)
-    T0 <- 273.15
-  }
-  Rv <- 461.5
-  estl <- e0 * exp((L / Rv) * (1/T0 - 1/(tc + 273.15)))
-  estl
+satvap <- function(tc) {
+  es<-0.6108*exp((17.27*tc)/(tc+237.3))
+  es
 }
 #' Calculates dew point temperature
 #'

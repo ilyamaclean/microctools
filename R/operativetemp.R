@@ -183,7 +183,7 @@ OperativeT <- function(Rabs, gH, gV, tair, ea, pk = 101.3, surfwet = 1, em = 0.9
     gr <- (4 * em * sb * (tair + 273.15)^3) / cp
     gHr <- gH + gr
     Rem <- em * sb * (tair + 273.15)^4
-    es <- satvap(tair, ice = T)
+    es <- satvap(tair)
     delta<-4098*(0.6108*exp(17.27*tair/(tair+237.3)))/(tair+237.3)^2
     DD <- es-ea
     s <- delta / pk

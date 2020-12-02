@@ -4,7 +4,7 @@
 \alias{satvap}
 \title{Calculate saturated vapour pressure}
 \usage{
-satvap(tc, ice = FALSE)
+satvap(tc)
 }
 \arguments{
 \item{tc}{temperature (degrees C)}
@@ -23,11 +23,4 @@ Calculates saturated vapour pressure
 tc <- c(-20:30)
 es <- satvap(tc)
 plot(es~tc, type = "l")
-# Difference between saturated vapour pressure of water and ice
-tc <- c(-50:0)
-es1 <- satvap(tc)
-es2 <- satvap(tc, ice = TRUE)
-plot(es1 ~ tc, type = "l", lwd = 2, ylim = c(0,0.7), col = "red")
-par(new = T)
-plot(es2 ~ tc, type = "l", lwd = 2, ylim = c(0,0.7), col = "blue")
 }

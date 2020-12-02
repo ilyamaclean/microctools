@@ -438,11 +438,19 @@ psunlit <- function(l, x, sa, clump = 0) {
   f <- 1 / (1 - clump)
   sa<-ifelse(sa<0,0,sa)
   ze<-90-sa
-  K <- sqrt(x^2+tan(ze*(pi/180))^2)/(x+1.1774*(x+1.1182)^-(0.733))
+  K <- sqrt((x^2 + (tan(ze * (pi/180))^2)))/(x + 1.774 * (x + 1.182)^(-0.733))
   Ls<-(1-exp(-K*l*f))/K
   Lp <- Ls/l
   Lp <- (1 - clump) * Lp + clump
+  Lp[is.na(Lp)]<-1
   Lp
+}
+#' Calculates the effective fraction of sunlit leaves for diffuse radiation
+.psunlitd <- function(l, x, clump = 0) {
+  f <- 1 / (1 - clump)
+  Ls<-(1-exp(-l*f))
+  Lp <- Ls/l
+  Lp <- (1 - clump) * Lp + clump
   Lp[is.na(Lp)]<-1
   Lp
 }
