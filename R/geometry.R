@@ -733,7 +733,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 1100
     uhgt <- 4
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -754,7 +754,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 500
     uhgt <- 1
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -775,7 +775,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 700
     uhgt <- 2
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -796,7 +796,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 600
     uhgt <- 1.5
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -847,7 +847,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 300
     uhgt <- 0.75
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -943,7 +943,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 600
     uhgt <- 0.1
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
