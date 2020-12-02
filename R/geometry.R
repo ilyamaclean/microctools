@@ -978,6 +978,9 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     uhgt <- 0.01
     zm0 <- 0.001
   }
+  if (any(is.na(PAI))) {
+    warning("NA values returned in PAI. Possible reasons:\n  - tme time series covers multiple years (only one year allowed)\n  - tme time series is sub-daily but not at hourly resoultion")
+  }
   return(list(hgt = pai$height, PAI = PAI, x = pai$x, lw = lw, cd = 0.2, iw = iw,
               hgtg = uhgt, zm0 = zm0, pLAI = pLAI, refls = refls,
               refg = 0.15, refw = refw, reflp = reflp, vegem = 0.97, gsmax = gsmax,
