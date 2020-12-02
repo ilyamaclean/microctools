@@ -592,7 +592,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
     }
   } else {
     xx<-PAIfromhabitat(habitat, lat, long, tme$year[length(tme)]+1900)$lai
-    mxPAI <- max(xx,pai$lai)
+    mxPAI <- max(xx,pai$lai, na.rm = TRUE)
     PAIo <- PAIgeometry(m, mxPAI * (1 - wgt), 7.5, 70)
     rat<-0
     if (under) {
@@ -602,7 +602,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
       rat<-PAIu/PAIo
     }
     if (length(tme) > 1) {
-      mn<-min(PAIo)
+      mn<-min(PAIo, na.rm = TRUE)
       PAIo<-PAIo-mn
       mu<-pai$lai/mxPAI
       PAI <- array(NA, dim = c(m,length(pai$lai)))
@@ -616,7 +616,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   # pLAI
   pLAIo <- LAIfrac(m, pLAIo1, 6)
   if (under) pLAIu <- c(LAIfrac(m2, 0.9, 6), rep(0, m - m2))
-  if (class(PAI) == "matrix") {
+  if (any(class(PAI) == "matrix")) {
     pLAI <- PAI*NA
     PAIs<-apply(PAI,2,sum)
     mxPAI<-max(PAIs,pai$lai)
@@ -705,7 +705,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 500
     uhgt <- 1
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
