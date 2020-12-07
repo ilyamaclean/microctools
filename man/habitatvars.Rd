@@ -52,7 +52,7 @@ a list with the following components:
 
 \code{gsmax} maximum stomatal conductance (mol / m^2 / s)
 
-\code{q50} Value of PAR when photosynthetically active radiation is at 50% of
+\code{q50} Value of PAR when photosynthetically active radiation is at 50\% of
 maximum (micromoles / m^2 / s^1)
 
 \code{thickw} a vector of length \code{m} of mean thickness (m) of vegetation such that \code{thickw}

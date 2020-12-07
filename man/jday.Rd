@@ -4,8 +4,7 @@
 \alias{jday}
 \title{Calculates the astronomical Julian day}
 \usage{
-jday(year, month, day, hour = 12, min = 0, sec = 0, dst = 0,
-  tme = NA)
+jday(year, month, day, hour = 12, min = 0, sec = 0, dst = 0, tme = NA)
 }
 \arguments{
 \item{year}{year (AD).}

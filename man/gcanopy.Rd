@@ -4,8 +4,21 @@
 \alias{gcanopy}
 \title{Calculates conductance under turbulent convection within the canopy}
 \usage{
-gcanopy(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
-  cd = 0.2, iw = 0.5, phi_m = 1, pk = 101.3)
+gcanopy(
+  uh,
+  z1,
+  z0,
+  tc1,
+  tc0,
+  hgt,
+  PAI = 3,
+  x = 0.5,
+  lw = 0.05,
+  cd = 0.2,
+  iw = 0.5,
+  phi_m = 1,
+  pk = 101.3
+)
 }
 \arguments{
 \item{uh}{wind speed at height of canopy top (m/s) as returned by \code{\link[microclimc:windprofile]{microclimc::windprofile()}}}

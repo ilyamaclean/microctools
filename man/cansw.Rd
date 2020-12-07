@@ -4,9 +4,24 @@
 \alias{cansw}
 \title{Calculates radiation received under vegetated canopies}
 \usage{
-cansw(globrad, dp = NA, jd, localtime, lat, long, l, x, ref = 0.2,
-  hourly = FALSE, watts = TRUE, merid = round(long/15, 0) * 15,
-  dst = 0, corr = 1, tme = NA, clump = 0)
+cansw(
+  globrad,
+  dp = NA,
+  jd,
+  localtime,
+  lat,
+  long,
+  l,
+  x,
+  ref = 0.2,
+  hourly = FALSE,
+  watts = TRUE,
+  merid = round(long/15, 0) * 15,
+  dst = 0,
+  corr = 1,
+  tme = NA,
+  clump = 0
+)
 }
 \arguments{
 \item{globrad}{a vector of incoming shortwave radiation values (either \ifelse{html}{\out{MJ m<sup>-2</sup> hr<sup>-1</sup>}}{\eqn{MJ m^{-2} hr^{-1}}} or \ifelse{html}{\out{W m<sup>-2</sup>}}{\eqn{W m^{-2}}})}

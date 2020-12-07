@@ -4,8 +4,17 @@
 \alias{solarcoef}
 \title{Calculates the solar coefficient}
 \usage{
-solarcoef(slope, aspect, localtime, lat, long, jd, merid = round(long/15,
-  0) * 15, dst = 0, horizon = TRUE)
+solarcoef(
+  slope,
+  aspect,
+  localtime,
+  lat,
+  long,
+  jd,
+  merid = round(long/15, 0) * 15,
+  dst = 0,
+  horizon = TRUE
+)
 }
 \arguments{
 \item{slope}{slopes angle (decimal º)}

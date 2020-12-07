@@ -4,8 +4,13 @@
 \alias{windsim}
 \title{Simulates wind gusts}
 \usage{
-windsim(u, timestepin = 3600, timestepout = 1, gustduration = 30,
-  stability = 2)
+windsim(
+  u,
+  timestepin = 3600,
+  timestepout = 1,
+  gustduration = 30,
+  stability = 2
+)
 }
 \arguments{
 \item{u}{a vector of wind speeds (m/s)}
