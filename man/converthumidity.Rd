@@ -9,7 +9,7 @@ converthumidity(h, intype = "relative", tc = 11, pk = 101.3)
 \arguments{
 \item{h}{humidity value(s). Units as follows: specific humidity (\ifelse{html}{\out{kg kg<sup>-1</sup>}}{\eqn{kg kg^{-1}}}),
 absolute humidity (\ifelse{html}{\out{kg m<sup>-3</sup> }}{\eqn{kg m^{-3}}}),
-relative humidity (\%), vapour pressure (kPa).}
+relative humidity (\\%), vapour pressure (kPa).}
 
 \item{intype}{a character string description of the humidity type of \code{h}. One of "relative", "absolute" or "specific".}
 
@@ -20,7 +20,7 @@ relative humidity (\%), vapour pressure (kPa).}
 \value{
 a list of numeric humidity values with the following components:
 
-\code{relative} relative humidity (\%).
+\code{relative} relative humidity (\\%).
 
 \code{absolute}  absolute humidity (\ifelse{html}{\out{kg m<sup>-3</sup> }}{\eqn{kg m^{-3}}}).
 
@@ -37,7 +37,7 @@ This function converts between vapour pressure and specific,
 relative and absolute humidity, based on sea-level pressure and
 temperature. It returns a list of relative, absolute and specific
 humidity and vapour pressure. If one or more of the
-relative humidity values exceeds 100\% a warning is given.
+relative humidity values exceeds 100\\% a warning is given.
 }
 \examples{
 converthumidity(90, 'relative', 20)

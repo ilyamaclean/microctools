@@ -4,8 +4,18 @@
 \alias{OperativeT}
 \title{Calculates Operative Temperature}
 \usage{
-OperativeT(Rabs, gH, gV, tair, ea, pk = 101.3, surfwet = 1,
-  em = 0.97, fluxother = 0, method = "iter")
+OperativeT(
+  Rabs,
+  gH,
+  gV,
+  tair,
+  ea,
+  pk = 101.3,
+  surfwet = 1,
+  em = 0.97,
+  fluxother = 0,
+  method = "iter"
+)
 }
 \arguments{
 \item{Rabs}{Absorbed long- and shortwave radiation as returned by \code{\link[=Radbs]{Radbs()}} (W / m^2)}

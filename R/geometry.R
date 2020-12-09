@@ -616,7 +616,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
   # pLAI
   pLAIo <- LAIfrac(m, pLAIo1, 6)
   if (under) pLAIu <- c(LAIfrac(m2, 0.9, 6), rep(0, m - m2))
-  if (any(class(PAI) == "matrix")) {
+  if (class(PAI)[1] == "matrix") {
     pLAI <- PAI*NA
     PAIs<-apply(PAI,2,sum)
     mxPAI<-max(PAIs,pai$lai)

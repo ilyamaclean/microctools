@@ -4,9 +4,23 @@
 \alias{Radabs}
 \title{Calculates radiation absorbed by an organism}
 \usage{
-Radabs(dni, dif, si, tair, tground, l, d, theta, refsw = 0.5,
-  em = 0.97, lwta = 0.5, lwtg = 1, galb = 0.15,
-  shape = "spheroid", suspended = FALSE)
+Radabs(
+  dni,
+  dif,
+  si,
+  tair,
+  tground,
+  l,
+  d,
+  theta,
+  refsw = 0.5,
+  em = 0.97,
+  lwta = 0.5,
+  lwtg = 1,
+  galb = 0.15,
+  shape = "spheroid",
+  suspended = FALSE
+)
 }
 \arguments{
 \item{dni}{Flux density of beam radiation perpendicular to the solar beam (W / m2)}

@@ -4,8 +4,19 @@
 \alias{gturb}
 \title{Calculate conductance under turbulent convection above canopy}
 \usage{
-gturb(u, zu = 2, z1, z0 = NA, hgt, PAI = 3, tc = 15, psi_m = 0,
-  psi_h = 0, zm0 = 0.004, pk = 101.3)
+gturb(
+  u,
+  zu = 2,
+  z1,
+  z0 = NA,
+  hgt,
+  PAI = 3,
+  tc = 15,
+  psi_m = 0,
+  psi_h = 0,
+  zm0 = 0.004,
+  pk = 101.3
+)
 }
 \arguments{
 \item{u}{wind speed at height \code{zu} (m/s)}
