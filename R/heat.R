@@ -20,22 +20,37 @@ cpair <- function(tc) {
 #'
 #' @param hgt canopy height (m)
 #' @param PAI Plant area index
+#' @param cdl Control parameter scaling d/h (from Raupach 1994)
 #' @return zero plane displacement (m)
+#' @references Raupach, M.R. (1994) Simplified expressions for vegetation roughness length and zero-plane
+#' displacement as functions of canopy height and area index. Boundary-Layer Meteorology 71: 211-216.
 #' @export
-zeroplanedis <- function(hgt, PAI = 3) {
-  PAI[PAI < 0.1] <- 0.1
-  PAI[PAI > 20] <- 20
-  m <- 0.0609 * log(PAI) + 0.5894
-  d <- m * hgt
+zeroplanedis<-function(hgt, PAI, cdl=7.5) {
+  d<-(1-(1-exp(-sqrt(cdl*PAI)))/sqrt(cdl*PAI))*hgt
   d
 }
 #' Calculate roughness length governing momentum transfer
 #'
 #' @param hgt canopy height (m)
 #' @param PAI Plant area index
-#' @param zm0 minimum roughness length (relfecting ground surface roughness below canopy)
+#' @param zm0 substrate-surface drag coefficient
+#' @param cdl Control parameter scaling d/h (from Raupach 1994)
+#' @param CR roughness-element drag coefficient
+#' @param psih parameter characterizes the roughness sublayer depth
+#' @param umx Maximum ratio of wind velocity to friction velocity
 #' @return momentum roughness length (m)
+#' @references Raupach, M.R. (1994) Simplified expressions for vegetation roughness length and zero-plane
+#' displacement as functions of canopy height and area index. Boundary-Layer Meteorology 71: 211-216.
 #' @export
+roughlength<-function(hgt, PAI, zm0 = 0.003, cdl = 7.5, CR = 0.3,
+                      psih = 0.193, umx = 0.3) {
+  d<-zeroplanedis(hgt,PAI,cdl)
+  ur<-sqrt(zm0+(CR*PAI)/2)
+  ur[ur>umx]<-umx
+  zm<-(hgt-d)*exp(-0.4*ur-psih)
+  zm <- ifelse(zm < zm0, zm0, zm)
+  zm
+}
 roughlength <- function(hgt, PAI = 3, zm0 = 0.004) {
   m <- 0.1 * PAI + 0.08
   sel <- which(PAI > 0.6)

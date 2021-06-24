@@ -21,7 +21,7 @@ dew or frost point temperature (degrees C)
 Calculates  dew or frost point temperature
 }
 \examples{
-# Comparison of forst and dew point
+# Comparison of frost and dew point
 ea <- c(10:100) / 50
 tdew <- dewpoint(ea, ice = F)
 tfrost <- dewpoint(ea)

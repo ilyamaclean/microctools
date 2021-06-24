@@ -11,11 +11,23 @@ roughlength(hgt, PAI = 3, zm0 = 0.004)
 
 \item{PAI}{Plant area index}
 
-\item{zm0}{minimum roughness length (relfecting ground surface roughness below canopy)}
+\item{zm0}{substrate-surface drag coefficient}
+
+\item{cdl}{Control parameter scaling d/h (from Raupach 1994)}
+
+\item{CR}{roughness-element drag coefficient}
+
+\item{psih}{parameter characterizes the roughness sublayer depth}
+
+\item{umx}{Maximum ratio of wind velocity to friction velocity}
 }
 \value{
 momentum roughness length (m)
 }
 \description{
 Calculate roughness length governing momentum transfer
+}
+\references{
+Raupach, M.R. (1994) Simplified expressions for vegetation roughness length and zero-plane
+displacement as functions of canopy height and area index. Boundary-Layer Meteorology 71: 211-216.
 }
