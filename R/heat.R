@@ -51,14 +51,6 @@ roughlength<-function(hgt, PAI, zm0 = 0.003, cdl = 7.5, CR = 0.3,
   zm <- ifelse(zm < zm0, zm0, zm)
   zm
 }
-roughlength <- function(hgt, PAI = 3, zm0 = 0.004) {
-  m <- 0.1 * PAI + 0.08
-  sel <- which(PAI > 0.6)
-  m[sel] <- -0.0239 * log(PAI[sel]) + 0.1275
-  zm <- m * hgt
-  zm <- ifelse(zm < zm0, zm0, zm)
-  zm
-}
 #' Calculates forced or free laminer conductance
 #'
 #' @param d chacteristic dimension of surface (m)
