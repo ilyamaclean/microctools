@@ -592,7 +592,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
     }
   } else {
     xx<-PAIfromhabitat(habitat, lat, long, tme$year[length(tme)]+1900)$lai
-    mxPAI <- max(xx,pai$lai)
+    mxPAI <- max(xx,pai$lai, na.rm = TRUE)
     PAIo <- PAIgeometry(m, mxPAI * (1 - wgt), 7.5, 70)
     rat<-0
     if (under) {
@@ -602,7 +602,7 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
       rat<-PAIu/PAIo
     }
     if (length(tme) > 1) {
-      mn<-min(PAIo)
+      mn<-min(PAIo, na.rm = TRUE)
       PAIo<-PAIo-mn
       mu<-pai$lai/mxPAI
       PAI <- array(NA, dim = c(m,length(pai$lai)))
@@ -687,6 +687,13 @@ PAIfromhabitat <- function(habitat, lat, long, year, meantemp = NA, cvtemp = NA,
 #' estimated from habitat and location using [PAIfromhabitat()].
 #' @export
 habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
+  # Check class of tme to prevent future failure
+  if (any(class(tme) != "POSIXlt")) {
+    try_convert <- try(tme<-as.POSIXlt(tme))
+    if (any(class(try_convert) == "try-error")) {
+      stop("tme must be provided as a single value or vector of POSIXlt objects")
+    }
+  }
   # By habitat type
   pai<-PAIfromhabitat(habitat,lat,long,2010)
   if (habitat == "Evergreen needleleaf forest" | habitat == 1) {
@@ -705,7 +712,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 500
     uhgt <- 1
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -726,7 +733,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 1100
     uhgt <- 4
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -747,7 +754,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 500
     uhgt <- 1
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -768,7 +775,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 700
     uhgt <- 2
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -789,7 +796,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 600
     uhgt <- 1.5
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -840,7 +847,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 300
     uhgt <- 0.75
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -936,7 +943,7 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 600
     uhgt <- 0.1
     wgt <- (m2 / m) * 0.25
-    if (class(PAI) == "matrix") {
+    if (any(class(PAI) == "matrix")) {
       sPAI<-apply(PAI,2,sum)*wgt
     } else sPAI <- sum(PAI)*wgt
     zm0 <- roughlength(uhgt, PAI = sPAI)
@@ -970,6 +977,9 @@ habitatvars <- function(habitat, lat, long, tme, m = 20, PAIt = NA) {
     phw <- 600
     uhgt <- 0.01
     zm0 <- 0.001
+  }
+  if (any(is.na(PAI))) {
+    warning("NA values returned in PAI. Possible reasons:\n  - tme time series covers multiple years (only one year allowed)\n  - tme time series is sub-daily but not at hourly resoultion")
   }
   return(list(hgt = pai$height, PAI = PAI, x = pai$x, lw = lw, cd = 0.2, iw = iw,
               hgtg = uhgt, zm0 = zm0, pLAI = pLAI, refls = refls,
