@@ -106,23 +106,15 @@ gforcedfree <- function(d, u, tc, dtc, pk = 101.3, dtmin = 1) {
 #'
 #' @param hgt canopy height (m)
 #' @param PAI plant area index
-#' @param x the ratio of vertical to horizontal projections of leaf foliage
-#' @param lw mean leaf width (m)
 #' @return mixing length (m). See details
 #' @export
-#' @details The mixing length is us used to calculate tubulent air transport
-#' inside vegetated canopies. It is the mean free pathway, equivelent to the
-#' mean leaf-air distance. The leaf distribution angle is used to asses whether
-#' leaves are more like grasses or squares (assumed to be like squares if less than
-#' 1 and grasses if more than one).
-mixinglength <- function(hgt, PAI, x, lw) {
-  Ld <- PAI / hgt
-  lmg <- (4 * lw / (pi * Ld))^0.5
-  lms <- (6 * lw^2 * hgt / (pi * PAI))^(1 / 3)
-  wgt<-x/2
-  sel <- which(x > 1)
-  wgt[sel] <- 1-(0.5/x[sel])
-  l_m <- wgt * lms + (1 - wgt) * lmg
+#' @details The mixing length is us used to calculate turbulent air transport
+#' inside vegetated canopies. It is made equivalent to the above canopy value
+#' at the canopy surface.
+mixinglength <- function(hgt, PAI) {
+  d<-.zeroplanedis(hgt,PAI)
+  zm<-.roughlength(hgt,PAI)
+  l_m<-(0.32*(hgt-d))/log((hgt-d)/zm)
   l_m
 }
 #' Calculate mixing length for canopy air transport
@@ -132,16 +124,14 @@ mixinglength <- function(hgt, PAI, x, lw) {
 #'
 #' @param hgt canopy height (m)
 #' @param PAI plant area index
-#' @param x leaf distribution angle coefficient
-#' @param lw mean leaf width (m)
 #' @param cd drag coefficient
 #' @param iw relative turbulence intensity
 #' @param phi_m diabatic correction factor
 #' @return dimensionless attenuation coefficient for calculating the wind height profile
 #' in vegetation canopies.
 #' @export
-attencoef <- function(hgt, PAI = 3, x = 0.5, lw = 0.05, cd = 0.2, iw = 0.5, phi_m  = 1) {
-  l_m <- mixinglength(hgt, PAI, x, lw)
+attencoef <- function(hgt, PAI = 3, cd = 0.2, iw = 0.5, phi_m  = 1) {
+  l_m <- mixinglength(hgt, PAI)
   a <- ((cd * PAI * hgt) / (2 * l_m * iw))^0.5
   a <- a * phi_m^0.5
   a
@@ -189,18 +179,16 @@ gturb <- function(u, zu = 2, z1, z0 = NA, hgt, PAI= 3, tc = 15,
 #' @param tc0 temperature of lower layer (dec C) usually in previous timestep
 #' @param hgt height of canopy (m)
 #' @param PAI plant area index for mixing and attenuation coefficients
-#' @param x the ratio of vertical to horizontal projections of leaf foliage
-#' @param lw mean leaf width (m)
 #' @param cd drag coefficient
 #' @param iw relative turbulence intensity
 #' @param phi_m diabatic correction factor
 #' @param pk atmospheric pressure used for calculating moar density of air (kPA)
 #' @return conductance under tubulent convection within the canopy (mol/m^2/sec)
 #' @export
-gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, x = 0.5, lw = 0.05,
-                    cd = 0.2, iw = 0.5, phi_m = 1, pk = 101.3) {
-  a <- attencoef(hgt, PAI, x, lw, cd, iw, phi_m)
-  l_m <- mixinglength(hgt, PAI, x, lw)
+gcanopy <- function(uh, z1, z0, tc1, tc0, hgt, PAI = 3, cd = 0.2,
+                    iw = 0.5, phi_m = 1, pk = 101.3) {
+  a <- attencoef(hgt, PAI, cd, iw, phi_m)
+  l_m <- mixinglength(hgt, PAI)
   tcm <- (tc1 + tc0) / 2
   ph <- phair(tcm, pk)
   tp <- (l_m * iw * ph * uh * a) / phi_m
@@ -335,21 +323,19 @@ diabatic.approx <- function(tc, u, H, hgt, PAI, zi) {
 #' @param tc vector of air temperatures at canopy nodes (deg C)
 #' @param uz vector of wind speeds at canopy nodes (m/s)
 #' @param z vector of heights of canopy nodes (m)
-#' @param x leaf angle coefficient
-#' @param lw mean leaf width
 #' @param PAI vector of plant area index values at each canopy node
 #' @return a list with the following components:
 #' @return `phi_m` diabatic correction factor for momentum transfer
 #' @return `phi_h` diabatic correction factor for heat transfer
 #'
 #' @export
-diabatic_cor_can <- function(tc, uz, z, PAI, x = 1, lw = 0.05) {
+diabatic_cor_can <- function(tc, uz, z, PAI) {
   dtc<-tc[2:length(tc)]-tc[1:(length(tc)-1)]
   dz<-z[2:length(z)]-z[1:(length(z)-1)]
   dtdz<-dtc/dz
   tk <- (tc[2:length(tc)]+tc[1:(length(tc)-1)])/2+273.15
   PAIl<-(PAI[2:length(PAI)]+PAI[1:(length(PAI)-1)])/2
-  l_m <- mixinglength(dz, PAIl, x, lw)
+  l_m <- mixinglength(dz, PAIl)
   u<-(uz[2:length(uz)]+uz[1:(length(uz)-1)])/2
   Ri <- (9.81 / tk) * dtdz * (l_m / u)^2
   Ri[Ri > 0.15] <- 0.15
