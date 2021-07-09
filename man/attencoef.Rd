@@ -4,16 +4,12 @@
 \alias{attencoef}
 \title{Calculate mixing length for canopy air transport}
 \usage{
-attencoef(hgt, PAI = 3, x = 0.5, lw = 0.05, cd = 0.2, iw = 0.5, phi_m = 1)
+attencoef(hgt, PAI = 3, cd = 0.2, iw = 0.5, phi_m = 1)
 }
 \arguments{
 \item{hgt}{canopy height (m)}
 
 \item{PAI}{plant area index}
-
-\item{x}{leaf distribution angle coefficient}
-
-\item{lw}{mean leaf width (m)}
 
 \item{cd}{drag coefficient}
 

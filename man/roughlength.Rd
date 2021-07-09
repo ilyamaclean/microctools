@@ -4,7 +4,15 @@
 \alias{roughlength}
 \title{Calculate roughness length governing momentum transfer}
 \usage{
-roughlength(hgt, PAI = 3, zm0 = 0.004)
+roughlength(
+  hgt,
+  PAI,
+  zm0 = 0.003,
+  cdl = 7.5,
+  CR = 0.3,
+  psih = 0.193,
+  umx = 0.3
+)
 }
 \arguments{
 \item{hgt}{canopy height (m)}

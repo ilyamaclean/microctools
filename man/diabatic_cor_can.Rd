@@ -4,7 +4,7 @@
 \alias{diabatic_cor_can}
 \title{Calculates diabatic correction factor in canopy}
 \usage{
-diabatic_cor_can(tc, uz, z, PAI, x = 1, lw = 0.05)
+diabatic_cor_can(tc, uz, z, PAI)
 }
 \arguments{
 \item{tc}{vector of air temperatures at canopy nodes (deg C)}
@@ -14,10 +14,6 @@ diabatic_cor_can(tc, uz, z, PAI, x = 1, lw = 0.05)
 \item{z}{vector of heights of canopy nodes (m)}
 
 \item{PAI}{vector of plant area index values at each canopy node}
-
-\item{x}{leaf angle coefficient}
-
-\item{lw}{mean leaf width}
 }
 \value{
 a list with the following components:

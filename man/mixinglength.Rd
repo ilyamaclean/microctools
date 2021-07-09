@@ -4,16 +4,12 @@
 \alias{mixinglength}
 \title{Calculate mixing length for canopy air transport}
 \usage{
-mixinglength(hgt, PAI, x, lw)
+mixinglength(hgt, PAI)
 }
 \arguments{
 \item{hgt}{canopy height (m)}
 
 \item{PAI}{plant area index}
-
-\item{x}{the ratio of vertical to horizontal projections of leaf foliage}
-
-\item{lw}{mean leaf width (m)}
 }
 \value{
 mixing length (m). See details
@@ -22,9 +18,7 @@ mixing length (m). See details
 Calculate mixing length for canopy air transport
 }
 \details{
-The mixing length is us used to calculate tubulent air transport
-inside vegetated canopies. It is the mean free pathway, equivelent to the
-mean leaf-air distance. The leaf distribution angle is used to asses whether
-leaves are more like grasses or squares (assumed to be like squares if less than
-1 and grasses if more than one).
+The mixing length is us used to calculate turbulent air transport
+inside vegetated canopies. It is made equivalent to the above canopy value
+at the canopy surface.
 }

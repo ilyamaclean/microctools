@@ -12,8 +12,6 @@ gcanopy(
   tc0,
   hgt,
   PAI = 3,
-  x = 0.5,
-  lw = 0.05,
   cd = 0.2,
   iw = 0.5,
   phi_m = 1,
@@ -21,7 +19,7 @@ gcanopy(
 )
 }
 \arguments{
-\item{uh}{wind speed at height of canopy top (m/s) as returned by \code{\link[microclimc:windprofile]{microclimc::windprofile()}}}
+\item{uh}{wind speed at height of top of canopy (m/s) as returned by \code{\link[microclimc:windprofile]{microclimc::windprofile()}}}
 
 \item{z1}{upper height to which conductance is wanted (m)}
 
@@ -34,10 +32,6 @@ gcanopy(
 \item{hgt}{height of canopy (m)}
 
 \item{PAI}{plant area index for mixing and attenuation coefficients}
-
-\item{x}{the ratio of vertical to horizontal projections of leaf foliage}
-
-\item{lw}{mean leaf width (m)}
 
 \item{cd}{drag coefficient}
 
