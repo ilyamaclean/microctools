@@ -112,8 +112,8 @@ gforcedfree <- function(d, u, tc, dtc, pk = 101.3, dtmin = 1) {
 #' inside vegetated canopies. It is made equivalent to the above canopy value
 #' at the canopy surface.
 mixinglength <- function(hgt, PAI) {
-  d<-.zeroplanedis(hgt,PAI)
-  zm<-.roughlength(hgt,PAI)
+  d<-zeroplanedis(hgt,PAI)
+  zm<-roughlength(hgt,PAI)
   l_m<-(0.32*(hgt-d))/log((hgt-d)/zm)
   l_m
 }

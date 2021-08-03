@@ -3,11 +3,11 @@
 #' @description converts between different humidity measures, namely
 #' vapour pressure or relative, absolute or specific humidity.
 #'
-#' @param h humidity value(s). Units as follows: specific humidity (\ifelse{html}{\out{kg kg<sup>-1</sup>}}{\eqn{kg kg^{-1}}}),
-#' absolute humidity (\ifelse{html}{\out{kg m<sup>-3</sup> }}{\eqn{kg m^{-3}}}),
-#' relative humidity (\%), vapour pressure (kPa).
+#' @param h humidity value(s). Units as follows: specific humidity (kg/kg),
+#' absolute humidity (kg/m^3),
+#' relative humidity (Percentage), vapour pressure (kPa).
 #' @param intype a character string description of the humidity type of `h`. One of "relative", "absolute" or "specific".
-#' @param tc A numeric value specifying the temperature (ºC).
+#' @param tc A numeric value specifying the temperature (deg C).
 #' @param pk An optional numeric value specifying the atmospheric pressure (kPa).
 #'
 #' @details This function converts between vapour pressure and specific,
@@ -17,9 +17,9 @@
 #' relative humidity values exceeds 100\% a warning is given.
 #'
 #' @return a list of numeric humidity values with the following components:
-#' @return `relative` relative humidity (\%).
-#' @return `absolute`  absolute humidity (\ifelse{html}{\out{kg m<sup>-3</sup> }}{\eqn{kg m^{-3}}}).
-#' @return `specific` specific humidity (\ifelse{html}{\out{kg kg<sup>-1</sup> }}{\eqn{kg kg^{-1}}}).
+#' @return `relative` relative humidity (Percentage).
+#' @return `absolute`  absolute humidity (kg/m^3).
+#' @return `specific` specific humidity (kg/kg).
 #' @return `vapour_pressure` vapour pressure (kPa).
 #' @export
 #'
