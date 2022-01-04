@@ -47,7 +47,7 @@ roughlength<-function(hgt, PAI, zm0 = 0.003, cdl = 7.5, CR = 0.3,
   d<-zeroplanedis(hgt,PAI,cdl)
   ur<-sqrt(zm0+(CR*PAI)/2)
   ur[ur>umx]<-umx
-  zm<-(hgt-d)*exp(-0.4*ur-psih)
+  zm<-(hgt-d)*exp(-0.4*(1/ur)-psih)
   zm <- ifelse(zm < zm0, zm0, zm)
   zm
 }
