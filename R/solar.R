@@ -90,7 +90,7 @@ solartime <- function(localtime, long, jd, merid = round(long / 15, 0) * 15, dst
 solazi <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, dst = 0) {
   stime <- solartime(localtime, long, jd, merid, dst)
   tt <- 0.261799 * (stime - 12)
-  declin <- (pi * 23.5 / 180) * cos(2 * pi * ((jd - 171) / 365.25))
+  declin <- (pi * 23.5 / 180) * cos(2 * pi * ((julian - 171) / 365.25))
   Sinh <- sin(declin) * sin(lat * pi / 180) + cos(declin) *
     cos(lat * pi / 180) * cos(tt)
   hh <- (atan(Sinh / sqrt(1 - Sinh * Sinh)))
@@ -125,7 +125,7 @@ solazi <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, d
 solalt <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, dst = 0) {
   stime <- solartime(localtime, long, jd, merid, dst)
   tt <- 0.261799 * (stime - 12)
-  declin <- (pi * 23.5 / 180) * cos(2 * pi * ((jd - 171) / 365.25))
+  declin <- (pi * 23.5 / 180) * cos(2 * pi * ((julian - 171) / 365.25))
   sinh <- sin(declin) * sin(lat * pi / 180) + cos(declin) *
     cos(lat * pi / 180) * cos(tt)
   sa <- (180 * atan(sinh / sqrt(1 - sinh * sinh))) / pi
@@ -171,6 +171,48 @@ solarcoef <- function(slope, aspect, localtime, lat, long, jd,
   index[index < 0] <- 0
   index[alt < 0] <- 0
   index
+}
+#' Calculates clear sky radiation
+#'
+#' @param tme POSIXlt object of times in UTC.
+#' @param lat latitude of the location for which the solar azimuth is required (decimal degrees, -ve south of the equator).
+#' @param long longitude of the location for which the solar azimuth is required (decimal degrees, -ve west of Greenwich meridian).
+#' @param h optional specific humidities (\ifelse{html}{\out{kg kg<sup>{-1}</sup> }}{\eqn{kg kg^{-1}}}).
+#' @param tc optional temperatures (ºC).
+#' @param pk optional pressure (kPa).
+#' @param G optional value describing he moisture profile in the atmosphere (per Smith 1966).
+#' @param Ie an optional single value for extra-terrestrail radiation to permit adjustment for
+#' sun-earth distances
+#' @param merid optional  value representing the longitude (decimal degrees) of the local time zone meridian (0 for GMT). Default is `round(long / 15, 0) * 15`
+#' @param dst optional value representing the time difference from the timezone meridian (hours, e.g. +1 for BST if `merid` = 0).
+#' @return expected clear-sky radioation (W/m^2.
+#' @export
+clearskyrad <- function(tme, lat, long, h = 0.00697, tc = 15, pk = 101.3, G = 2.78, Ie = 1352.778,
+                        merid = 0, dst = 0) {
+
+  p <- p*1000
+  jd<-jday(tme=tme)
+  lt <- tme$hour + tme$min / 60 + tme$sec / 3600
+  sa <- solalt(lt, lat, long, jd, merid, dst)
+  sa[sa < 0] <- NA
+  z <- (90 - sa) * (pi / 180)
+  m <- 35 * cos(z) * ((1224 * cos(z)^2 + 1)^(-0.5))
+  TrTpg <- 1.021 - 0.084 * (m * 0.000949 * 0.01 * p + 0.051)^0.5
+  pk <- p / 1000
+  e0 <- 0.6108 * exp(17.27 * tc/(tc + 237.3))
+  ws <- 0.622 * e0/pk
+  rh <- (h/ws) * 100
+  rh <- ifelse(rh > 100, 100, rh)
+  xx <- log(rh / 100) + ((17.27 * tc) / (237.3 + tc))
+  Td <- (237.3 * xx) / (17.27 - xx)
+  u <- exp(0.1133 - log(G + 1) + 0.0393 * Td)
+  Tw <- 1 - 0.077 * (u * m) ^ 0.3
+  Ta <- 0.935 * m
+  od <- TrTpg * Tw * Ta
+  Ic <- Ie * (cos(z)) * od
+  Ic[Ic > Ie] <- NA
+  Ic[Ic < 0] <- NA
+  Ic
 }
 #' Calculates direct beam radiation transmission through vegetated canopies
 #'
