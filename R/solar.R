@@ -125,7 +125,7 @@ solazi <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, d
 solalt <- function(localtime, lat, long, jd, merid = round(long / 15, 0) * 15, dst = 0) {
   stime <- solartime(localtime, long, jd, merid, dst)
   tt <- 0.261799 * (stime - 12)
-  declin <- (pi * 23.5 / 180) * cos(2 * pi * ((julian - 171) / 365.25))
+  declin <- (pi * 23.5 / 180) * cos(2 * pi * ((jd - 171) / 365.25))
   sinh <- sin(declin) * sin(lat * pi / 180) + cos(declin) *
     cos(lat * pi / 180) * cos(tt)
   sa <- (180 * atan(sinh / sqrt(1 - sinh * sinh))) / pi
