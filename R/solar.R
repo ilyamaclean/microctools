@@ -190,7 +190,7 @@ solarcoef <- function(slope, aspect, localtime, lat, long, jd,
 clearskyrad <- function(tme, lat, long, h = 0.00697, tc = 15, pk = 101.3, G = 2.78, Ie = 1352.778,
                         merid = 0, dst = 0) {
 
-  p <- p*1000
+  p <- pk*1000
   jd<-jday(tme=tme)
   lt <- tme$hour + tme$min / 60 + tme$sec / 3600
   sa <- solalt(lt, lat, long, jd, merid, dst)
